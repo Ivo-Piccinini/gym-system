@@ -1,4 +1,4 @@
-package com.utnGymGroup.gym_system.feature.routine;
+package com.utnGymGroup.gym_system.features.exercise;
 
 
 import jakarta.persistence.*;
@@ -7,28 +7,21 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
-
 @Entity
 @Getter
 @Setter
-@AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "routine")
-
-public class RoutineEntity
+@AllArgsConstructor
+@Table(name = "Exercise")
+public class ExerciseEntity
 {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private long id;
 
     private String name;
-    private Date start_date;
-    private Date end_date;
-    private Enum type_routine;
+    private String descripcion;
+    private String muscle_group; ///Podria ser enum tambien
 
-
-
-
+    
 }
