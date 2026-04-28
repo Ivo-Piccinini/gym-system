@@ -17,12 +17,15 @@ import java.time.LocalDate;
 public class ProfileEntity {
     @Id
     private Long id;
+
     @OneToOne
     @MapsId // MapsId sirve para que el id de perfil sea el mismo que el de usuario, osea, si el usuario tiene id 50 su perfil tambien
     @JoinColumn(name = "user_id")
     private UserEntity user;
+
     @Column(unique = true, nullable = false)
     private String dni;
+
     private String firstName;
     private String lastName;
     private String phone;
