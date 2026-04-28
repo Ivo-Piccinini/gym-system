@@ -1,6 +1,4 @@
 package com.utnGymGroup.gym_system.feature.routinexejercice;
-
-
 import com.utnGymGroup.gym_system.feature.exercise.ExerciseEntity;
 import com.utnGymGroup.gym_system.feature.routine.RoutineEntity;
 import jakarta.persistence.*;
@@ -14,6 +12,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table (name = "routineXejercice")
 public class RoutineXEjerciceEntity
 {
     @Id
@@ -31,5 +30,5 @@ public class RoutineXEjerciceEntity
   private Integer series;
   private Integer reps;
   private Integer weight;
-  
+
 }
