@@ -1,6 +1,6 @@
 package com.utnGymGroup.gym_system.features.payments;
 
-public enum Method {
+public enum MethodEntity {
     EFECTIVO,
     TARJETA
 }

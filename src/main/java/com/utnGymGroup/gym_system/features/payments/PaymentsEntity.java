@@ -32,6 +32,6 @@ public class PaymentsEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "method")
-    private Method method;
+    private MethodEntity method;
 
 }
