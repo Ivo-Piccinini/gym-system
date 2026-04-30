@@ -1,5 +1,5 @@
 package com.utnGymGroup.gym_system.features.routine;
 
-public enum type_routine {
+public enum TypeRoutines {
     HYPERTROFY, CARDIO,HITT,GAP, FULLBODY
 }
