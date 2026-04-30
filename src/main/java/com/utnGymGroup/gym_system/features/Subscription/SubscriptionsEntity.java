@@ -26,8 +26,7 @@ public class SubscriptionsEntity {
     private UserEntity user;
 
     @Column(name = "plan_id", nullable = false)
-    private Integer planId; // Luego podrás cambiar esto por una relación a MembershipPlanEntity
-
+    private Integer planId;
     @Column(name = "start_date")
     private LocalDate startDate;
 
