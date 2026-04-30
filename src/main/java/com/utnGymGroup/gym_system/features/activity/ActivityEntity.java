@@ -1,4 +1,4 @@
-package com.utnGymGroup.gym_system.feature.activity;
+package com.utnGymGroup.gym_system.features.activity;
 
 
 import jakarta.persistence.*;

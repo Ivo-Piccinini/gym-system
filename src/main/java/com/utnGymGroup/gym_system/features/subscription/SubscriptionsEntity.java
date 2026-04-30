@@ -1,4 +1,4 @@
-package com.utnGymGroup.gym_system.features.Subscription;
+package com.utnGymGroup.gym_system.features.subscription;
 
 import com.utnGymGroup.gym_system.features.user.UserEntity;
 import jakarta.persistence.*;

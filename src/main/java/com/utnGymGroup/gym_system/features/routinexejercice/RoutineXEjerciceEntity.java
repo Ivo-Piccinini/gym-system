@@ -1,4 +1,4 @@
-package com.utnGymGroup.gym_system.feature.routinexejercice;
+package com.utnGymGroup.gym_system.features.routinexejercice;
 import com.utnGymGroup.gym_system.feature.exercise.ExerciseEntity;
 import com.utnGymGroup.gym_system.feature.routine.RoutineEntity;
 import jakarta.persistence.*;

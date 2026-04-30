@@ -1,4 +1,4 @@
-package com.utnGymGroup.gym_system.feature.enrollment;
+package com.utnGymGroup.gym_system.features.enrollment;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;

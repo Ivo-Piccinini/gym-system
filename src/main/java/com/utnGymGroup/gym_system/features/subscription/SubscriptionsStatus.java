@@ -1,4 +1,4 @@
-package com.utnGymGroup.gym_system.features.Subscription;
+package com.utnGymGroup.gym_system.features.subscription;
 
 public enum SubscriptionsStatus {
 

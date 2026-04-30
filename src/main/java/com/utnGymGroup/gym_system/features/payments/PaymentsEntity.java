@@ -1,6 +1,6 @@
 package com.utnGymGroup.gym_system.features.payments;
 
-import com.utnGymGroup.gym_system.features.Subscription.SubscriptionsEntity;
+import com.utnGymGroup.gym_system.features.subscription.SubscriptionsEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -32,6 +32,6 @@ public class PaymentsEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(name = "method")
-    private MethodEntity method;
+    private PaymentMethods method;
 
 }
