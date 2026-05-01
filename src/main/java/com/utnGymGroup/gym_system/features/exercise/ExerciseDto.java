@@ -21,8 +21,9 @@ import java.util.UUID;
 @NoArgsConstructor
 public class ExerciseDto {
 
-   @NotBlank
-   private UUID idPublic;
+
+    @NotBlank
+   private String idPublic;
 
 
     @NotBlank(message = "El ejercicio debe tener un nombre", groups = ICreate.class)
