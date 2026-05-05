@@ -23,12 +23,15 @@ public class RoutineEntity
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false, unique = true,updatable = false)
+    private Long publicId;
+
     private String name;
     private Date start_date;
     private Date end_date;
-    private Enum type_routine;
 
 
-
+    @Enumerated(EnumType.STRING)
+    private TypeRoutines type_routine;
 
 }

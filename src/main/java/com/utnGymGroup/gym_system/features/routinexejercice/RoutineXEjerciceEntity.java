@@ -1,6 +1,6 @@
 package com.utnGymGroup.gym_system.features.routinexejercice;
-import com.utnGymGroup.gym_system.feature.exercise.ExerciseEntity;
-import com.utnGymGroup.gym_system.feature.routine.RoutineEntity;
+import com.utnGymGroup.gym_system.features.exercise.ExerciseEntity;
+import com.utnGymGroup.gym_system.features.routine.RoutineEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
