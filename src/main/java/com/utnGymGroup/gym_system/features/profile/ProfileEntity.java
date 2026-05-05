@@ -24,7 +24,7 @@ public class ProfileEntity {
     private UserEntity user;
 
     @Column(unique = true, nullable = false)
-    private String dni;
+    private String dni; // id externo
 
     private String firstName;
     private String lastName;
