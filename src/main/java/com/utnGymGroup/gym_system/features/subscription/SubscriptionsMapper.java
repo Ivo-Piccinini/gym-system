@@ -9,7 +9,7 @@ public class SubscriptionsMapper implements IMapper<SubscriptionsEntity, Subscri
 
     private final ModelMapper modelMapper;
 
-    // El nombre del constructor ahora coincide con la clase SubscriptionsMapper
+
     public SubscriptionsMapper(ModelMapper modelMapper) {
         this.modelMapper = modelMapper;
     }
@@ -18,12 +18,12 @@ public class SubscriptionsMapper implements IMapper<SubscriptionsEntity, Subscri
     public SubscriptionsDTO convertToDto(SubscriptionsEntity entity) {
         SubscriptionsDTO dto = modelMapper.map(entity, SubscriptionsDTO.class);
 
-        // Mapeamos los IDs de las relaciones
+
         if (entity.getUser() != null) {
             dto.setUserId(entity.getUser().getId());
         }
 
-        // Corregido: Accedemos al objeto Plan y sacamos su ID
+
         if (entity.getPlanId() != null) {
             dto.setPlanId(entity.getPlan().getId());
         }
