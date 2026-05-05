@@ -1,5 +1,6 @@
 package com.utnGymGroup.gym_system.features.subscription;
 
+import com.utnGymGroup.gym_system.features.memberships.MembershipsEntity;
 import com.utnGymGroup.gym_system.features.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -24,6 +25,10 @@ public class SubscriptionsEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private UserEntity user;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "plan_id", nullable = false)
+    private MembershipsEntity plan;
 
     @Column(name = "plan_id", nullable = false)
     private Integer planId;
