@@ -24,7 +24,7 @@ public class RoutineXEjerciceEntity
     private RoutineEntity routine;
 
   @ManyToOne
-    @JoinColumn(name = "Exercise_id")
+    @JoinColumn(name = "exercise_id")
     private ExerciseEntity exercise;
 
   private Integer series;
