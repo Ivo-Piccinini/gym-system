@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalTime;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,11 +21,14 @@ public class ClassEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false,unique = true,updatable = false)
+    private UUID externalId;
+
     @JoinColumn(name = "activity_id",nullable = false)
-    private ActivityEntity Activity;
+    private ActivityEntity activity;
 
     @JoinColumn(name = "professor_id",nullable = false)
-    private UserEntity profesor;
+    private UserEntity professor;
 
     @Column(name = "day_of_week", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -38,6 +42,14 @@ public class ClassEntity {
 
     @Column(name = "capacity_max", nullable = false)
     private int capacityMax;
+
+    @PrePersist
+    void onCreate() {
+        if (this.externalId == null) {
+            this.externalId = UUID.randomUUID();
+        }
+    }
+
 
 
 

@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,6 +21,9 @@ public class EnrollmentEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(nullable = false,unique = true,updatable = false)
+    private UUID externalId;
+
     @JoinColumn(name = "client_id",nullable = false)
     private UserEntity client;
 
@@ -28,5 +32,12 @@ public class EnrollmentEntity {
 
     @Column(name = "enrollment_date",nullable = false)
     private LocalDate enrollmentDate;
+
+    @PrePersist
+    void onCreate() {
+        if (this.externalId == null) {
+            this.externalId = UUID.randomUUID();
+        }
+    }
 
 }
