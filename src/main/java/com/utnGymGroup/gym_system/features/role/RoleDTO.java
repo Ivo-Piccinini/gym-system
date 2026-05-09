@@ -20,5 +20,5 @@ public class RoleDTO {
     private UUID publicId; // id publico
 
     @NotNull(message = "El nombre es requerido para crear.", groups = ICreate.class)
-    private RoleDTO nombre;
+    private String nombre;
 }
