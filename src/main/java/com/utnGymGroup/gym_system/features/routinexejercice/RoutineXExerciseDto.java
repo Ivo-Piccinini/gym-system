@@ -10,7 +10,6 @@ public class RoutineXExerciseDto {
 
     public Long publicID;
 
-
     @NotNull(message = "El ejercicio debe tener almenos un id")
     private Long exerciseID;
 
