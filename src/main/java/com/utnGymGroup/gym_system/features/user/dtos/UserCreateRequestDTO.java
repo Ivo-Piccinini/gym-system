@@ -27,6 +27,5 @@ public class UserCreateRequestDTO {
     private String email;
 
     @NotNull(groups = ICreate.class)
-    @Valid
     private ProfileDTO profile;
 }

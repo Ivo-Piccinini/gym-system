@@ -9,6 +9,5 @@ import lombok.*;
 @Getter
 @Setter
 public class UserUpdateDTO {
-    @Valid
     private ProfileDTO profile;
 }

@@ -13,7 +13,7 @@ import lombok.*;
 public class UserResponseDTO {
     private String username;
     private String email;
-    private boolean enabled;
+    private Boolean enabled;
     private RoleDTO role; // objeto anidado para mostrar la información del rol
     private ProfileDTO profile; // objeto anidado para mostrar la información personal
 }
