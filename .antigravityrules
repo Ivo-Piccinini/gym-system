@@ -1,0 +1,26 @@
+# ANTIGRAVITY IDE - CORE ENVIRONMENT CONTEXT RULES
+# Project: Sistema Gym Backend (Spring Boot / Java)
+
+[CORE_CONTEXT]
+primary_source = "./docs/CONTEXTO_SISTEMA_GYM.md"
+enforce_source_truth = true
+
+[ANTIGRAVITY_BEHAVIOR_DIRECTIVES]
+1. IDENTITY STRATEGY (UTN SECURITY):
+   - Prohibit the exposure of internal numeric 'Long id' fields in any Controller, DTO, or API response.
+   - For any external communication, generation, or autocomplete task, exclusively use 'publicId' of type java.util.UUID.
+
+2. ARCHITECTURE PATTERN:
+   - Enforce "Package by Feature" modular design. Components (Controllers, Services, Repositories, Entities, DTOs) must reside inside their specific functional package (e.g., com.utnGymGroup.gym_system.features.user). Do not generate generic root packages.
+
+3. DATA VALIDATION:
+   - DTOs must be completely decoupled from JPA persistence annotations.
+   - Inject Jakarta Validation constraints using 'ICreate' and 'IUpdate' marker interfaces alongside @Validated in the Controller tier to bifurcate creation and update rules.
+   - Enable cascade validation with @Valid on nested DTO objects (e.g., UserDTO containing ProfileDTO).
+
+4. CRITICAL BUSINESS LOGIC:
+   - Workout Feature: Nested collections (Routine -> RoutineExercise -> Exercise) must be automatically mapped using ModelMapper configured with MatchingStrategies.STRICT strategy.
+   - Activities Feature: Every Enrollment process must imperatively validate available room (capacity_max) and verify that the client has an 'ACTIVE' subscription status inside the Membership feature before persistence.
+
+[GRAVITY_DOCKING]
+Read the primary_source markdown document before executing any refactoring, code generation (Ctrl+K), or chat contextual queries (Ctrl+L).
