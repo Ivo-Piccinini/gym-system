@@ -30,7 +30,7 @@ public class UserEntity {
     @Column(unique = true, nullable = false)
     private String email;
 
-    private boolean enabled;
+    private Boolean enabled;
 
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
