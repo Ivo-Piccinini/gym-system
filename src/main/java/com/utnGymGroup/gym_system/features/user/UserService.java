@@ -2,9 +2,6 @@ package com.utnGymGroup.gym_system.features.user;
 
 import com.utnGymGroup.gym_system.features.audit.AuditActions;
 import com.utnGymGroup.gym_system.features.audit.Auditable;
-import com.utnGymGroup.gym_system.features.role.RoleEntity;
-import com.utnGymGroup.gym_system.features.role.RoleRepository;
-import com.utnGymGroup.gym_system.features.role.Roles;
 import com.utnGymGroup.gym_system.features.user.dtos.*;
 import com.utnGymGroup.gym_system.features.user.exceptions.*;
 import com.utnGymGroup.gym_system.features.user.mappers.*;
@@ -22,7 +19,6 @@ public class UserService {
     private final UserCreateRequestMapper userCreateRequestMapper;
     private final UserResponseMapper userResponseMapper;
     private final UserUpdateMapper userUpdateMapper;
-    private final RoleRepository roleRepository;
 
     public UserService(
             UserRepository userRepository,
@@ -31,8 +27,7 @@ public class UserService {
             PasswordChangeMapper passwordChangeMapper,
             UserCreateRequestMapper userCreateRequestMapper,
             UserResponseMapper userResponseMapper,
-            UserUpdateMapper userUpdateMapper,
-            RoleRepository roleRepository) {
+            UserUpdateMapper userUpdateMapper) {
         this.userRepository = userRepository;
         this.authResponseMapper = authResponseMapper;
         this.loginRequestMapper = loginRequestMapper;
@@ -40,7 +35,6 @@ public class UserService {
         this.userCreateRequestMapper = userCreateRequestMapper;
         this.userResponseMapper = userResponseMapper;
         this.userUpdateMapper = userUpdateMapper;
-        this.roleRepository = roleRepository;
     }
 
     public List<UserResponseDTO> findAllUsers(){
@@ -72,10 +66,8 @@ public class UserService {
         }
 
         UserEntity userEntity = userCreateRequestMapper.convertToEntity(request);
-        RoleEntity defaultRole = roleRepository.findByName(Roles.CLIENT)
-                .orElseThrow(() -> new RuntimeException("Error interno: El rol CLIENTE no está inicializado en la base de datos."));
 
-        userEntity.setRole(defaultRole);
+        userEntity.setRole(Roles.CLIENT);
         userEntity.setEnabled(true);
 
         // TODO: En esta parte hay que hacer la encriptación de la contraseña cuando vea spring security

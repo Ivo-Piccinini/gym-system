@@ -1,7 +1,7 @@
 package com.utnGymGroup.gym_system.features.user.dtos;
 
 import com.utnGymGroup.gym_system.features.profile.ProfileDTO;
-import com.utnGymGroup.gym_system.features.role.RoleDTO;
+import com.utnGymGroup.gym_system.features.user.Roles;
 import lombok.*;
 
 // Este DTO es para enviar datos al frontend
@@ -14,6 +14,6 @@ public class UserResponseDTO {
     private String username;
     private String email;
     private Boolean enabled;
-    private RoleDTO role; // objeto anidado para mostrar la información del rol
+    private String role;
     private ProfileDTO profile; // objeto anidado para mostrar la información personal
 }

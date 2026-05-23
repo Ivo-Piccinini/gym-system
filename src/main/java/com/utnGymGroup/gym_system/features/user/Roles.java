@@ -1,4 +1,4 @@
-package com.utnGymGroup.gym_system.features.role;
+package com.utnGymGroup.gym_system.features.user;
 
 public enum Roles {
     ADMIN,

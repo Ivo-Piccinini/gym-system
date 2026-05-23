@@ -1,13 +1,8 @@
 package com.utnGymGroup.gym_system.features.user;
 
 import com.utnGymGroup.gym_system.features.profile.ProfileEntity;
-import com.utnGymGroup.gym_system.features.role.RoleEntity;
 import jakarta.persistence.*;
 import lombok.*;
-
-import java.util.HashSet;
-import java.util.Set;
-import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -32,9 +27,9 @@ public class UserEntity {
     @Column(nullable = false)
     private Boolean enabled;
 
-    @ManyToOne(fetch = FetchType.EAGER)
-    @JoinColumn(name = "role_id", nullable = false)
-    private RoleEntity role;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Roles role;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private ProfileEntity profile;
