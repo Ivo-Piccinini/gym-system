@@ -1,5 +1,7 @@
 package com.utnGymGroup.gym_system.features.user;
 
+import com.utnGymGroup.gym_system.features.audit.AuditActions;
+import com.utnGymGroup.gym_system.features.audit.Auditable;
 import com.utnGymGroup.gym_system.features.role.RoleEntity;
 import com.utnGymGroup.gym_system.features.role.RoleRepository;
 import com.utnGymGroup.gym_system.features.role.Roles;
@@ -60,6 +62,7 @@ public class UserService {
     }
 
     @Transactional
+    @Auditable(AuditActions.USER_REGISTRATION)
     public UserResponseDTO userRegister(UserCreateRequestDTO request){
         if(userRepository.existsByEmail(request.getEmail())){
             throw new UserAlreadyExistsException("Ya existe un usuario con este email.");
@@ -87,6 +90,7 @@ public class UserService {
         return userResponseMapper.convertToDto(savedUser);
     }
 
+    @Auditable(AuditActions.LOGIN)
     public AuthResponseDTO login(LoginRequestDTO request){
         UserEntity user = userRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new InvalidCredentialsException("Nombre de usuario o contraseña incorrectos."));
@@ -110,6 +114,7 @@ public class UserService {
     }
 
     @Transactional
+    @Auditable(AuditActions.CHANGE_PASSWORD)
     public void changePassword(String username, PasswordChangeDTO request){
         if(!request.getConfirmPassword().equals(request.getNewPassword())){
             throw new InvalidCurrentPasswordException("La nueva contraseña y la confirmación no coinciden");
@@ -134,6 +139,7 @@ public class UserService {
     }
 
     @Transactional
+    @Auditable(AuditActions.UPDATE_PROFILE)
     public UserResponseDTO updateUser(String username, UserUpdateDTO updateDTO){
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + username));
@@ -144,6 +150,7 @@ public class UserService {
     }
 
     // Función de baja lógica / reactivación de cuenta
+    @Auditable(AuditActions.TOGGLE_USER_STATUS)
     public void toggleUserStatus(String username, boolean enabled){
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + username));
