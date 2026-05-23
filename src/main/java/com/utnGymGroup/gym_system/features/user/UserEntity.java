@@ -14,7 +14,6 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
-@ToString
 @Entity
 @Table(name = "users")
 public class UserEntity {
@@ -30,6 +29,7 @@ public class UserEntity {
     @Column(unique = true, nullable = false)
     private String email;
 
+    @Column(nullable = false)
     private Boolean enabled;
 
     @ManyToOne(fetch = FetchType.EAGER)

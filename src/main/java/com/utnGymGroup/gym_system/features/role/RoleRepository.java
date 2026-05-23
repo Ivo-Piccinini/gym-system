@@ -6,5 +6,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 public interface RoleRepository extends JpaRepository<RoleEntity, Long> {
-    Optional<RoleEntity> findByExternalId(UUID externalId);
+    Optional<RoleEntity> findByPublicId(UUID externalId);
+    Optional<RoleEntity> findByName(Roles name);
 }
