@@ -24,4 +24,9 @@ public class EnrollmentMapper implements IMapper<EnrollmentEntity, EnrollmentDTO
         if (dto == null) return null;
         return modelMapper.map(dto, EnrollmentEntity.class);
     }
+
+    @Override
+    public void updateEntityFromDTO(EnrollmentDTO enrollmentDTO, EnrollmentEntity enrollmentEntity) {
+        modelMapper.map(enrollmentDTO, enrollmentEntity);
+    }
 }

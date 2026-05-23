@@ -25,4 +25,9 @@ public class ExerciseMapper implements IMapper <ExerciseEntity,ExerciseDto> {
     public ExerciseEntity convertToEntity(ExerciseDto exerciseDto) {
        return modelMapper.map(exerciseDto,ExerciseEntity.class);
     }
+
+    @Override
+    public void updateEntityFromDTO(ExerciseDto exerciseDto, ExerciseEntity exerciseEntity) {
+        modelMapper.map(exerciseDto, exerciseEntity);
+    }
 }

@@ -14,16 +14,13 @@ public class PaymentsMapper implements IMapper<PaymentsEntity, PaymentsDTO> {
     }
 
     @Override
-    public PaymentsDTO convertToDto(PaymentsEntity entity) {
+    public PaymentsDTO convertToDto(PaymentsEntity paymentsEntity) {
+        return modelMapper.map(paymentsEntity, PaymentsDTO.class);
+    }
 
-        PaymentsDTO dto = modelMapper.map(entity, PaymentsDTO.class);
-
-
-        if (entity.getSubscription() != null) {
-            dto.setSubscriptionId(entity.getSubscription().getId());
-        }
-
-        return dto;
+    @Override
+    public void updateEntityFromDTO(PaymentsDTO paymentsDTO, PaymentsEntity paymentsEntity) {
+        modelMapper.map(paymentsDTO, paymentsEntity);
     }
 
     @Override

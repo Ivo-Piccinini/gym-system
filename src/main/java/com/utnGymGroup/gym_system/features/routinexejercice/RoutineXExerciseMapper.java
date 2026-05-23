@@ -23,4 +23,9 @@ public class RoutineXExerciseMapper implements IMapper<RoutineXEjerciceEntity,Ro
     public RoutineXEjerciceEntity convertToEntity(RoutineXExerciseDto routineXExerciseDto) {
         return modelMapper.map(routineXExerciseDto,RoutineXEjerciceEntity.class);
     }
+
+    @Override
+    public void updateEntityFromDTO(RoutineXExerciseDto routineXExerciseDto, RoutineXEjerciceEntity routineXEjerciceEntity) {
+        modelMapper.map(routineXExerciseDto,routineXEjerciceEntity);
+    }
 }

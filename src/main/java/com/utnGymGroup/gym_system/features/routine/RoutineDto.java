@@ -3,7 +3,6 @@ package com.utnGymGroup.gym_system.features.routine;
 
 import com.utnGymGroup.gym_system.common.interfaces.ICreate;
 import com.utnGymGroup.gym_system.common.interfaces.IUpdate;
-import com.utnGymGroup.gym_system.features.user.UserDTO;
 import com.utnGymGroup.gym_system.features.user.UserEntity;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -27,7 +26,4 @@ public class RoutineDto {
 
     @NotBlank(message = "Debe tener un tipo de rutina", groups = ICreate.class)
     private TypeRoutines type_routine;
-
-
-
 }

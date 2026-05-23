@@ -22,4 +22,9 @@ public class MembershipsMapper implements IMapper<MembershipsEntity, Memberships
     public MembershipsEntity convertToEntity(MembershipsDTO dto) {
         return modelMapper.map(dto, MembershipsEntity.class);
     }
+
+    @Override
+    public void updateEntityFromDTO(MembershipsDTO membershipsDTO, MembershipsEntity membershipsEntity) {
+        modelMapper.map(membershipsDTO,membershipsEntity);
+    }
 }

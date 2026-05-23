@@ -15,13 +15,16 @@ public class ClassMapper implements IMapper<ClassEntity, ClassDTO> {
 
     @Override
     public ClassDTO convertToDto(ClassEntity entity) {
-        if (entity == null) return null;
         return modelMapper.map(entity, ClassDTO.class);
     }
 
     @Override
     public ClassEntity convertToEntity(ClassDTO dto) {
-        if (dto == null) return null;
         return modelMapper.map(dto, ClassEntity.class);
+    }
+
+    @Override
+    public void updateEntityFromDTO(ClassDTO classDTO, ClassEntity classEntity) {
+        modelMapper.map(classDTO, classEntity);
     }
 }

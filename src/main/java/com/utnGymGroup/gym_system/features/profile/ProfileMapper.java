@@ -19,4 +19,9 @@ public class ProfileMapper implements IMapper<ProfileEntity, ProfileDTO> {
     public ProfileEntity convertToEntity(ProfileDTO profileDTO) {
         return modelMapper.map(profileDTO, ProfileEntity.class);
     }
+
+    @Override
+    public void updateEntityFromDTO(ProfileDTO profileDTO, ProfileEntity profileEntity) {
+        modelMapper.map(profileDTO,profileEntity);
+    }
 }

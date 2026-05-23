@@ -23,4 +23,9 @@ public class ActivityMapper implements IMapper<ActivityEntity, ActivityDTO> {
     public ActivityEntity convertToEntity(ActivityDTO dto) {
         return modelMapper.map(dto, ActivityEntity.class);
     }
+
+    @Override
+    public void updateEntityFromDTO(ActivityDTO activityDTO, ActivityEntity activityEntity) {
+        modelMapper.map(activityDTO,activityEntity);
+    }
 }

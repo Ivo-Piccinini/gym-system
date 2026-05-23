@@ -1,7 +1,6 @@
 package com.utnGymGroup.gym_system.features.routine;
 
 import com.utnGymGroup.gym_system.common.interfaces.IMapper;
-import com.utnGymGroup.gym_system.features.role.RoleMapper;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
@@ -22,5 +21,10 @@ public class RoutineMapper implements IMapper <RoutineEntity,RoutineDto>
     @Override
     public RoutineEntity convertToEntity(RoutineDto routineDto) {
         return modelMapper.map(routineDto,RoutineEntity.class);
+    }
+
+    @Override
+    public void updateEntityFromDTO(RoutineDto routineDto, RoutineEntity routineEntity) {
+        modelMapper.map(routineDto, routineEntity);
     }
 }

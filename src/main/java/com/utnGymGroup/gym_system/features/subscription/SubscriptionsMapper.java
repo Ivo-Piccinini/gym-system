@@ -15,20 +15,13 @@ public class SubscriptionsMapper implements IMapper<SubscriptionsEntity, Subscri
     }
 
     @Override
-    public SubscriptionsDTO convertToDto(SubscriptionsEntity entity) {
-        SubscriptionsDTO dto = modelMapper.map(entity, SubscriptionsDTO.class);
+    public SubscriptionsDTO convertToDto(SubscriptionsEntity subscriptionsEntity) {
+        return modelMapper.map(subscriptionsEntity, SubscriptionsDTO.class);
+    }
 
-
-        if (entity.getUser() != null) {
-            dto.setUserId(entity.getUser().getId());
-        }
-
-
-        if (entity.getPlanId() != null) {
-            dto.setPlanId(entity.getPlan().getId());
-        }
-
-        return dto;
+    @Override
+    public void updateEntityFromDTO(SubscriptionsDTO subscriptionsDTO, SubscriptionsEntity subscriptionsEntity) {
+        modelMapper.map(subscriptionsDTO, subscriptionsEntity);
     }
 
     @Override
