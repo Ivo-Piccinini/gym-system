@@ -5,7 +5,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RoutineXExerciseMapper implements IMapper<RoutineXEjerciceEntity,RoutineXExerciseDto>
+public class RoutineXExerciseMapper implements IMapper<RoutineXExerciceEntity,RoutineXExerciseDto>
 {
     private final ModelMapper modelMapper;
 
@@ -15,13 +15,13 @@ public class RoutineXExerciseMapper implements IMapper<RoutineXEjerciceEntity,Ro
     }
 
     @Override
-    public RoutineXExerciseDto convertToDto(RoutineXEjerciceEntity routineXEjerciceEntity) {
-        return modelMapper.map(routineXEjerciceEntity,RoutineXExerciseDto.class);
+    public RoutineXExerciseDto convertToDto(RoutineXExerciceEntity routineXExerciceEntity) {
+        return modelMapper.map(routineXExerciceEntity,RoutineXExerciseDto.class);
     }
 
     @Override
-    public RoutineXEjerciceEntity convertToEntity(RoutineXExerciseDto routineXExerciseDto) {
-        return modelMapper.map(routineXExerciseDto,RoutineXEjerciceEntity.class);
+    public RoutineXExerciceEntity convertToEntity(RoutineXExerciseDto routineXExerciseDto) {
+        return modelMapper.map(routineXExerciseDto, RoutineXExerciceEntity.class);
     }
 
     @Override

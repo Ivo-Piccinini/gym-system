@@ -12,8 +12,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table (name = "routineXejercice")
-public class RoutineXEjerciceEntity
+@Table (name = "routineXexercice")
+public class RoutineXExerciceEntity
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
