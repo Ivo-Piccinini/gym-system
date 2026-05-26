@@ -30,8 +30,6 @@ public class SubscriptionsEntity {
     @JoinColumn(name = "plan_id", nullable = false)
     private MembershipsEntity plan;
 
-    @Column(name = "plan_id", nullable = false)
-    private Integer planId;
     @Column(name = "start_date")
     private LocalDate startDate;
 

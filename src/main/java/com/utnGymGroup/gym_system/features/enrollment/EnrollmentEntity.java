@@ -24,9 +24,11 @@ public class EnrollmentEntity {
     @Column(nullable = false,unique = true,updatable = false)
     private UUID externalId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id",nullable = false)
     private UserEntity client;
 
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "class_id",nullable = false)
     private ClassEntity gymClass;
 

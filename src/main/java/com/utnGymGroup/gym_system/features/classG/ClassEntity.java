@@ -24,9 +24,11 @@ public class ClassEntity {
     @Column(nullable = false,unique = true,updatable = false)
     private UUID externalId;
 
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "activity_id",nullable = false)
     private ActivityEntity activity;
 
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "professor_id",nullable = false)
     private UserEntity professor;
 

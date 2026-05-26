@@ -2,6 +2,8 @@ package com.utnGymGroup.gym_system.features.user;
 
 import com.utnGymGroup.gym_system.features.audit.AuditActions;
 import com.utnGymGroup.gym_system.features.audit.Auditable;
+import com.utnGymGroup.gym_system.features.profile.ProfileDTO;
+import com.utnGymGroup.gym_system.features.profile.ProfileEntity;
 import com.utnGymGroup.gym_system.features.user.dtos.*;
 import com.utnGymGroup.gym_system.features.user.exceptions.*;
 import com.utnGymGroup.gym_system.features.user.mappers.*;
@@ -134,5 +136,25 @@ public class UserService {
 
         user.setEnabled(enabled);
         userRepository.save(user);
+    }
+
+    @Transactional
+    public UserResponseDTO updateUserProfile(String username, UserUpdateDTO updateDTO){
+        UserEntity user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + username));
+
+        if(updateDTO.getProfile() != null && user.getProfile() != null){
+            ProfileEntity profile = user.getProfile();
+            ProfileDTO profileDTO = updateDTO.getProfile();
+
+            profile.setFirstName(profileDTO.getFirstName());
+            profile.setFirstName(profileDTO.getLastName());
+            profile.setPhone(profileDTO.getPhone());
+            profile.setBirthDate(profileDTO.getBirthDate());
+            profile.setDni(profileDTO.getDni());
+        }
+
+        UserEntity updatedUser = userRepository.save(user);
+        return userResponseMapper.convertToDto(updatedUser);
     }
 }
