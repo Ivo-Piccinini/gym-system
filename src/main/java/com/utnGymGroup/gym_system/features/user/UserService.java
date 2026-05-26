@@ -6,11 +6,13 @@ import com.utnGymGroup.gym_system.features.user.dtos.*;
 import com.utnGymGroup.gym_system.features.user.exceptions.*;
 import com.utnGymGroup.gym_system.features.user.mappers.*;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
     private final AuthResponseMapper authResponseMapper;
@@ -19,23 +21,6 @@ public class UserService {
     private final UserCreateRequestMapper userCreateRequestMapper;
     private final UserResponseMapper userResponseMapper;
     private final UserUpdateMapper userUpdateMapper;
-
-    public UserService(
-            UserRepository userRepository,
-            AuthResponseMapper authResponseMapper,
-            LoginRequestMapper loginRequestMapper,
-            PasswordChangeMapper passwordChangeMapper,
-            UserCreateRequestMapper userCreateRequestMapper,
-            UserResponseMapper userResponseMapper,
-            UserUpdateMapper userUpdateMapper) {
-        this.userRepository = userRepository;
-        this.authResponseMapper = authResponseMapper;
-        this.loginRequestMapper = loginRequestMapper;
-        this.passwordChangeMapper = passwordChangeMapper;
-        this.userCreateRequestMapper = userCreateRequestMapper;
-        this.userResponseMapper = userResponseMapper;
-        this.userUpdateMapper = userUpdateMapper;
-    }
 
     public List<UserResponseDTO> findAllUsers(){
         return userRepository.findAll().stream()
