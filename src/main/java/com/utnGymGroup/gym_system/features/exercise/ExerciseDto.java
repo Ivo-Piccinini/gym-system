@@ -21,15 +21,18 @@ import java.util.UUID;
 @NoArgsConstructor
 public class ExerciseDto {
 
-
     @NotBlank
    private String idPublic;
-
 
     @NotBlank(message = "El ejercicio debe tener un nombre", groups = ICreate.class)
     @Size(min = 3, groups = {ICreate.class, IUpdate.class})
     private String name;
 
+
+    @NotBlank
+    @Size(min = 10, groups = {ICreate.class,IUpdate.class})
     private String descripcion;
+
+    @NotBlank(groups = {ICreate.class})
     private String muscle_group;
 }
