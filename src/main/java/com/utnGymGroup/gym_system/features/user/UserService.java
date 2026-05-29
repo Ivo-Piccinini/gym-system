@@ -11,6 +11,7 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -26,6 +27,13 @@ public class UserService {
 
     public List<UserResponseDTO> findAllUsers(){
         return userRepository.findAll().stream()
+                .map(userResponseMapper::convertToDto)
+                .toList();
+    }
+
+    public List<UserResponseDTO> findAllUsersByStatus(Boolean enabled){
+        List<UserEntity> users = userRepository.findAllByEnabled(enabled);
+        return users.stream()
                 .map(userResponseMapper::convertToDto)
                 .toList();
     }
@@ -157,4 +165,5 @@ public class UserService {
         UserEntity updatedUser = userRepository.save(user);
         return userResponseMapper.convertToDto(updatedUser);
     }
+
 }

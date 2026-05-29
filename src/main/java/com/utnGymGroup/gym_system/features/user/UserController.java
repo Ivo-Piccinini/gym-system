@@ -28,6 +28,11 @@ public class UserController {
         return ResponseEntity.ok(userService.findByUsername(username));
     }
 
+    @GetMapping
+    public ResponseEntity<List<UserResponseDTO>> getByStatus(@RequestParam Boolean enabled){
+        return ResponseEntity.ok(userService.findAllUsersByStatus(enabled));
+    }
+
     @PostMapping("/register")
     public ResponseEntity<UserResponseDTO> register(
             @Validated(ICreate.class)
