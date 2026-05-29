@@ -21,8 +21,7 @@ import java.util.UUID;
 @NoArgsConstructor
 public class ExerciseDto {
 
-
-    @NotBlank
+    @NotBlank(groups = IUpdate.class)
    private String idPublic;
 
 
@@ -31,5 +30,6 @@ public class ExerciseDto {
     private String name;
 
     private String descripcion;
-    private String muscle_group;
+
+    private String muscle_group; ///ENUM
 }

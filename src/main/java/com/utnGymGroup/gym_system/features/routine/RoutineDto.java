@@ -12,18 +12,21 @@ import java.util.UUID;
 
 public class RoutineDto {
 
+    /// Not blank groups update
     private UUID publicID;
 
     @NotBlank(message = "La rutina no puede no tener nombre" , groups = ICreate.class)
     @Size(min=4, groups = {ICreate.class, IUpdate.class})
     private String name;
 
-    private Long clientID;
-    private UserEntity professorID;
+
+    private Long clientID; ///Usar UserResponseDto
+    private UserEntity professorID; ///Usar UserResponseDto
 
     private Date start_date;
     private Date end_date;
 
-    @NotBlank(message = "Debe tener un tipo de rutina", groups = ICreate.class)
+
+    @NotBlank(message = "Debe tener un tipo de rutina", groups = {ICreate.class,IUpdate.class})
     private TypeRoutines type_routine;
 }
