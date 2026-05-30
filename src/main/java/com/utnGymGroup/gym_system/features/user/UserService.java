@@ -7,10 +7,9 @@ import com.utnGymGroup.gym_system.common.auth.jwt.JwtService;
 import com.utnGymGroup.gym_system.common.auth.permissions.RoleEntity;
 import com.utnGymGroup.gym_system.common.auth.permissions.RoleRepository;
 import com.utnGymGroup.gym_system.common.auth.permissions.Roles;
+import com.utnGymGroup.gym_system.common.auth.permissions.exceptions.RoleNotFoundException;
 import com.utnGymGroup.gym_system.features.audit.AuditActions;
 import com.utnGymGroup.gym_system.features.audit.Auditable;
-import com.utnGymGroup.gym_system.features.profile.ProfileDTO;
-import com.utnGymGroup.gym_system.features.profile.ProfileEntity;
 import com.utnGymGroup.gym_system.features.user.dtos.*;
 import com.utnGymGroup.gym_system.features.user.exceptions.*;
 import com.utnGymGroup.gym_system.features.user.mappers.*;
@@ -19,98 +18,93 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class UserService {
     private final UserRepository userRepository;
-    private final AuthResponseMapper authResponseMapper;
-    private final LoginRequestMapper loginRequestMapper;
-    private final PasswordChangeMapper passwordChangeMapper;
-    private final UserCreateRequestMapper userCreateRequestMapper;
-    private final UserResponseMapper userResponseMapper;
-    private final UserUpdateMapper userUpdateMapper;
+    private final UserMapper userMapper;
     private final CredentialsRepository credentialsRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final JwtService jwtService;
 
-    public List<UserResponseDTO> findAllUsers(){
+    public List<UserDTO> findAllUsers(){
         return userRepository.findAll().stream()
-                .map(userResponseMapper::convertToDto)
+                .map(userMapper::convertToDto)
                 .toList();
     }
 
-    public List<UserResponseDTO> findAllUsersByStatus(Boolean enabled){
-        List<UserEntity> users = userRepository.findAllByEnabled(enabled);
-        return users.stream()
-                .map(userResponseMapper::convertToDto)
+    public List<UserDTO> findAllUsersByStatus(Boolean enabled){
+        List<CredentialsEntity> credentialsList = credentialsRepository.findAllByEnabled(enabled);
+        return credentialsList.stream()
+                .map(CredentialsEntity::getUser)
+                .map(userMapper::convertToDto)
                 .toList();
     }
 
-    public UserResponseDTO findByUsername(String username){
-        return userRepository.findByUsername(username)
-                .map(userResponseMapper::convertToDto)
+    public UserDTO findByUsername(String username){
+        return credentialsRepository.findByUsername(username)
+                .map(CredentialsEntity::getUser)
+                .map(userMapper::convertToDto)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + username));
     }
 
-    public UserResponseDTO findByEmail(String email){
+    public UserDTO findByEmail(String email){
         return userRepository.findByEmail(email)
-                .map(userResponseMapper::convertToDto)
+                .map(userMapper::convertToDto)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. EMAIL: " + email));
     }
 
     @Transactional
     @Auditable(AuditActions.USER_REGISTRATION)
-    public UserResponseDTO userRegister(UserCreateRequestDTO request){
+    public UserDTO userRegister(UserDTO request){
         if(userRepository.existsByEmail(request.getEmail())){
             throw new UserAlreadyExistsException("Ya existe un usuario con este email.");
         }
-        if(userRepository.existsByUsername(request.getUsername())){
-            throw new UserAlreadyExistsException("Nombre de usuario no disponible.");
+        // definimos que el username por defecto va a ser el dni, luego tendrá la posibilidad de cambiarlo.
+        String defaultUsername = request.getDni();
+        if(credentialsRepository.findByUsername(defaultUsername).isPresent()){
+            throw new UserAlreadyExistsException("El usuario ya existe.");
         }
 
-        UserEntity userEntity = userCreateRequestMapper.convertToEntity(request);
-        userEntity.setEnabled(true);
-        if(userEntity.getProfile() != null){
-            userEntity.getProfile().setUser(userEntity);
-        }
+        UserEntity userEntity = userMapper.convertToEntity(request);
 
         UserEntity savedUser = userRepository.save(userEntity);
 
-        RoleEntity roleClient = roleRepository.findByRole(Roles.ROLE_CLIENT)
-                .orElseThrow(() -> new RuntimeException("Error: Rol ROLE_CLIENT no encontrado en la base de datos."));
+        Roles targetRole = request.getRole() != null ? request.getRole() : Roles.ROLE_CLIENT;
+        RoleEntity roleEntity = roleRepository.findByRole(targetRole)
+                .orElseThrow(() -> new RoleNotFoundException("Rol no encontrado. ROL: " + targetRole));
 
         CredentialsEntity credentials = CredentialsEntity.builder()
-                .username(request.getUsername())
-                .password(passwordEncoder.encode(request.getPassword())) // <-- Cifrado de contraseña en vivo
+                .username(defaultUsername)
+                .password(passwordEncoder.encode(request.getDni())) // <-- Cifrado de contraseña en vivo
                 .enabled(true)
                 .user(savedUser) // Vinculación 1 a 1 con UserEntity
                 .build();
 
-        credentials.getRoles().add(roleClient); // Asignar Rol
+        credentials.getRoles().add(roleEntity); // Asignar Rol
         credentialsRepository.save(credentials);
-        return userResponseMapper.convertToDto(savedUser);
+
+        UserDTO responseDTO = userMapper.convertToDto(savedUser);
+        responseDTO.setRole(targetRole);
+
+        return responseDTO;
     }
 
     @Transactional
     @Auditable(AuditActions.USER_REGISTRATION)
-    public UserResponseDTO userRegister(NewAccountRequest request){
+    public UserDTO userRegister(NewAccountRequest request){
         if(userRepository.existsByEmail(request.email())){
             throw new UserAlreadyExistsException("Ya existe un usuario con este email.");
         }
-        if(userRepository.existsByUsername(request.username())){
+        if(credentialsRepository.existsByUsername(request.username())){
             throw new UserAlreadyExistsException("Nombre de usuario no disponible.");
         }
 
         UserEntity userEntity = UserEntity.builder()
-                .username(request.username())
-                .password(passwordEncoder.encode(request.password()))
                 .email(request.email())
-                .enabled(true)
-                .role(Roles.ROLE_CLIENT)
+                .dni(request.dni())
                 .build();
 
         UserEntity savedUser = userRepository.save(userEntity);
@@ -127,33 +121,8 @@ public class UserService {
 
         credentials.getRoles().add(roleClient);
         credentialsRepository.save(credentials);
-        return userResponseMapper.convertToDto(savedUser);
+        return userMapper.convertToDto(savedUser);
     }
-
-    @Auditable(AuditActions.LOGIN)
-    public AuthResponseDTO login(LoginRequestDTO request) {
-        // 1. Buscar las credenciales en la base de datos
-        CredentialsEntity credentials = credentialsRepository.findByUsername(request.getUsername())
-                .orElseThrow(() -> new InvalidCredentialsException("Nombre de usuario o contraseña incorrectos."));
-
-        if (!credentials.getEnabled()) {
-            throw new UserInactiveException("Tu cuenta está desactivada, contacta a un administrador para reactivarla");
-        }
-
-        // 2. Validar contraseña usando matches de PasswordEncoder
-        if (!passwordEncoder.matches(request.getPassword(), credentials.getPassword())) {
-            throw new InvalidCredentialsException("Nombre de usuario o contraseña incorrectos.");
-        }
-
-        // 3. Generar el Token JWT real
-        String token = jwtService.generateToken(credentials);
-
-        AuthResponseDTO responseDTO = authResponseMapper.convertToDto(credentials.getUser());
-        responseDTO.setToken(token);
-
-        return responseDTO;
-    }
-
 
     @Transactional
     @Auditable(AuditActions.CHANGE_PASSWORD)
@@ -162,10 +131,10 @@ public class UserService {
             throw new InvalidCurrentPasswordException("La nueva contraseña y la confirmación no coinciden");
         }
 
-        UserEntity user = userRepository.findByUsername(username)
+        CredentialsEntity credentials = credentialsRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + username));
 
-        if(!passwordEncoder.matches(request.getOldPassword(), user.getPassword())){
+        if(!passwordEncoder.matches(request.getOldPassword(), credentials.getPassword())){
             throw new InvalidCurrentPasswordException("La contraseña actual es incorrecta.");
         }
 
@@ -174,60 +143,60 @@ public class UserService {
         }
 
         String encryptedPassword = passwordEncoder.encode(request.getNewPassword());
-        user.setPassword(encryptedPassword);
-        userRepository.save(user);
+        credentials.setPassword(encryptedPassword);
+        credentialsRepository.save(credentials);
+    }
 
-        credentialsRepository.findByUsername(username).ifPresent(creds -> {
-            creds.setPassword(encryptedPassword);
-            credentialsRepository.save(creds);
-        });
+    @Transactional
+    public void changeUsername(String currentUsername, String newUsername){
+        CredentialsEntity credentials = credentialsRepository.findByUsername(currentUsername)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + currentUsername));
+
+        String dni = credentials.getUser().getDni();
+
+        // esta logica es para que solo puedan cambiar de username los que fueron registrados por los admins (ya que tienen de username el dni)
+        if(!credentials.getUsername().equals(dni)){
+            throw new IllegalStateException("No tienes permitido modificar tu nombre de usuario.");
+        }
+
+        if(credentialsRepository.findByUsername(newUsername).isPresent()){
+            throw new UserAlreadyExistsException("El username '" + newUsername + "' ya está en uso.");
+        }
+
+        credentials.setUsername(newUsername);
+        credentialsRepository.save(credentials);
     }
 
     @Transactional
     @Auditable(AuditActions.UPDATE_PROFILE)
-    public UserResponseDTO updateUser(String username, UserUpdateDTO updateDTO){
-        UserEntity user = userRepository.findByUsername(username)
+    public UserDTO updateUser(String username, UserDTO userDTO){
+        UserEntity user = credentialsRepository.findByUsername(username)
+                .map(CredentialsEntity::getUser)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + username));
-        userUpdateMapper.updateEntityFromDTO(updateDTO, user);
+        userMapper.updateEntityFromDTO(userDTO, user);
 
         UserEntity savedUser = userRepository.save(user);
-        return userResponseMapper.convertToDto(savedUser);
+        return userMapper.convertToDto(savedUser);
     }
 
     // Función de baja lógica / reactivación de cuenta
     @Auditable(AuditActions.TOGGLE_USER_STATUS)
     @Transactional
     public void toggleUserStatus(String username, boolean enabled){
-        UserEntity user = userRepository.findByUsername(username)
+        CredentialsEntity user = credentialsRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + username));
 
         user.setEnabled(enabled);
-        userRepository.save(user);
-
-        credentialsRepository.findByUsername(username).ifPresent(creds -> {
-            creds.setEnabled(enabled);
-            credentialsRepository.save(creds);
-        });
+        credentialsRepository.save(user);
     }
 
+    @Auditable(AuditActions.DELETE_USER)
     @Transactional
-    public UserResponseDTO updateUserProfile(String username, UserUpdateDTO updateDTO){
-        UserEntity user = userRepository.findByUsername(username)
+    public void deleteUser(String username){
+        CredentialsEntity user = credentialsRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + username));
 
-        if(updateDTO.getProfile() != null && user.getProfile() != null){
-            ProfileEntity profile = user.getProfile();
-            ProfileDTO profileDTO = updateDTO.getProfile();
-
-            profile.setFirstName(profileDTO.getFirstName());
-            profile.setFirstName(profileDTO.getLastName());
-            profile.setPhone(profileDTO.getPhone());
-            profile.setBirthDate(profileDTO.getBirthDate());
-            profile.setDni(profileDTO.getDni());
-        }
-
-        UserEntity updatedUser = userRepository.save(user);
-        return userResponseMapper.convertToDto(updatedUser);
+        credentialsRepository.delete(user);
     }
 
 }

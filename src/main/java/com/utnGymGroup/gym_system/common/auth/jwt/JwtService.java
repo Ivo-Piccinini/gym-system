@@ -34,14 +34,14 @@ public class JwtService implements IJwtService {
         List<String> roles = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
-        claims.put("roles", roles);
+        claims.put("authorities", roles);
         return buildToken(claims, userDetails, jwtExpiration);
     }
 
     @Override
     public List<GrantedAuthority> extractAuthorities(String token) {
         Claims claims = extractAllClaims(token);
-        List<?> rawRoles = claims.get("roles", List.class);
+        List<?> rawRoles = claims.get("authorities", List.class);
         if(rawRoles == null){
             return Collections.emptyList();
         }

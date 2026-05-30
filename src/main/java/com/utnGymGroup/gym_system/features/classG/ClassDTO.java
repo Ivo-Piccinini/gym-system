@@ -3,7 +3,7 @@ package com.utnGymGroup.gym_system.features.classG;
 import com.utnGymGroup.gym_system.common.interfaces.ICreate;
 import com.utnGymGroup.gym_system.common.interfaces.IUpdate;
 import com.utnGymGroup.gym_system.features.activity.ActivityDTO;
-import com.utnGymGroup.gym_system.features.user.dtos.UserResponseDTO;
+import com.utnGymGroup.gym_system.features.user.dtos.UserDTO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -31,7 +31,7 @@ public class ClassDTO {
 
     @NotNull(message = "El profesor es requerido", groups = ICreate.class)
     @Valid
-    private UserResponseDTO professor;
+    private UserDTO professor;
 
     @NotNull(message = "El día de la semana es requerido", groups = {ICreate.class, IUpdate.class})
     private DayOfWeek dayOfWeek;

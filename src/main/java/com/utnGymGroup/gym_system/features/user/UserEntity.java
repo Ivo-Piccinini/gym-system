@@ -1,9 +1,11 @@
 package com.utnGymGroup.gym_system.features.user;
 
-import com.utnGymGroup.gym_system.features.profile.ProfileEntity;
 import com.utnGymGroup.gym_system.common.auth.permissions.Roles;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDate;
+import java.util.UUID;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,21 +19,25 @@ public class UserEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(unique = true, nullable = false)
-    private String username; // id publico
+    private UUID publicId;
 
-    private String password;
+    private String firstName;
+
+    private String lastName;
 
     @Column(unique = true, nullable = false)
     private String email;
 
-    @Column(nullable = false)
-    private Boolean enabled;
+    @Column(unique = true, nullable = false)
+    private String dni;
 
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false)
-    private Roles role;
+    private String phone;
 
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private ProfileEntity profile;
+    private LocalDate birthDate;
+
+    @PrePersist
+    void onCreate(){
+        if(this.publicId == null)
+            this.publicId = UUID.randomUUID();
+    }
 }

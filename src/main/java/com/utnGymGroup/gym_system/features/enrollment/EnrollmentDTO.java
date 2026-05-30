@@ -4,7 +4,7 @@ package com.utnGymGroup.gym_system.features.enrollment;
 import com.utnGymGroup.gym_system.common.interfaces.ICreate;
 import com.utnGymGroup.gym_system.common.interfaces.IUpdate;
 import com.utnGymGroup.gym_system.features.classG.ClassDTO;
-import com.utnGymGroup.gym_system.features.user.dtos.UserResponseDTO;
+import com.utnGymGroup.gym_system.features.user.dtos.UserDTO;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PastOrPresent;
@@ -25,7 +25,7 @@ public class EnrollmentDTO {
 
     @NotNull(message = "El cliente es obligatorio", groups = ICreate.class)
     @Valid
-    private UserResponseDTO client;
+    private UserDTO client;
 
     @NotNull(message = "La clase es obligatoria", groups = ICreate.class)
     @Valid

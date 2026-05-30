@@ -10,8 +10,10 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.catalina.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,11 +28,18 @@ public class UserController {
 
     @GetMapping
     @Operation(
-            summary = "Listar todos los usuarios",
-            description = "Recupera una lista con los perfiles e información de todos los usuarios registrados en el sistema del gimnasio."
+            summary = "Listar usuarios",
+            description = "Recupera una lista con los perfiles e información de todos los usuarios registrados, con la opción de filtrar por estado activo o inactivo."
     )
     @ApiResponse(responseCode = "200", description = "Listado obtenido exitosamente.")
-    public ResponseEntity<List<UserResponseDTO>> getAllUsers(){
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
+    public ResponseEntity<List<UserDTO>> getUsers(
+            @Parameter(description = "Filtrar por estado activo (true) o inactivo (false)", required = false)
+            @RequestParam(required = false) Boolean enabled
+    ){
+        if (enabled != null) {
+            return ResponseEntity.ok(userService.findAllUsersByStatus(enabled));
+        }
         return ResponseEntity.ok(userService.findAllUsers());
     }
 
@@ -43,16 +52,12 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "Usuario encontrado y devuelto con éxito."),
             @ApiResponse(responseCode = "404", description = "No se encontró ningún usuario con el username provisto.")
     })
-    public ResponseEntity<UserResponseDTO> getByUsername(
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR') or #username == authentication.name")
+    public ResponseEntity<UserDTO> getByUsername(
             @Parameter(description = "Nombre de usuario del gimnasio (ej. admin, cliente1)", required = true)
             @PathVariable String username
     ){
         return ResponseEntity.ok(userService.findByUsername(username));
-    }
-
-    @GetMapping
-    public ResponseEntity<List<UserResponseDTO>> getByStatus(@RequestParam Boolean enabled){
-        return ResponseEntity.ok(userService.findAllUsersByStatus(enabled));
     }
 
     @PostMapping("/register")
@@ -64,28 +69,14 @@ public class UserController {
             @ApiResponse(responseCode = "201", description = "Usuario y credenciales creados exitosamente."),
             @ApiResponse(responseCode = "400", description = "Los datos del usuario o perfil no cumplen con las reglas de validación.")
     })
-    public ResponseEntity<UserResponseDTO> register(
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDTO> register(
             @Validated(ICreate.class)
-            @RequestBody UserCreateRequestDTO request
+            @RequestBody UserDTO request
     ){
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.userRegister(request));
     }
 
-    @PostMapping("/login")
-    @Operation(
-            summary = "Iniciar sesión en panel de usuario",
-            description = "Autentica al usuario en el sistema a partir de sus credenciales y provee un token JWT firmado."
-    )
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Autenticación exitosa. Devuelve datos del usuario y token."),
-            @ApiResponse(responseCode = "401", description = "Credenciales incorrectas o cuenta inactiva.")
-    })
-    public ResponseEntity<AuthResponseDTO> login(
-            @Valid
-            @RequestBody LoginRequestDTO request
-    ){
-        return ResponseEntity.ok(userService.login(request));
-    }
 
     @PutMapping("/{username}")
     @Operation(
@@ -96,11 +87,12 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "Perfil actualizado con éxito."),
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado.")
     })
-    public ResponseEntity<UserResponseDTO> updateProfile(
+    @PreAuthorize("hasAnyRole('ADMIN') or #username == authentication.name")
+    public ResponseEntity<UserDTO> updateProfile(
             @Parameter(description = "Nombre del usuario a modificar", required = true)
             @PathVariable String username,
             @Validated(IUpdate.class)
-            @RequestBody UserUpdateDTO request
+            @RequestBody UserDTO request
     ){
         return ResponseEntity.ok(userService.updateUser(username, request));
     }
@@ -114,6 +106,7 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "Contraseña cambiada con éxito."),
             @ApiResponse(responseCode = "400", description = "Las contraseñas no coinciden, la clave actual es incorrecta o la nueva contraseña es igual a la anterior.")
     })
+    @PreAuthorize("#username == authentication.name")
     public ResponseEntity<Void> changePassword(
             @Parameter(description = "Nombre del usuario que desea cambiar su contraseña", required = true)
             @PathVariable String username,
@@ -121,6 +114,17 @@ public class UserController {
             @RequestBody PasswordChangeDTO request
     ){
         userService.changePassword(username, request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/{username}/username")
+    @PreAuthorize("#username == authentication.name") // Solo el propio usuario autenticado puede cambiarse su propio username
+    @Operation(summary = "Personalizar el nombre de usuario por primera y única vez")
+    public ResponseEntity<Void> changeUsername(
+            @PathVariable String username,
+            @Validated @RequestBody UsernameChangeDTO request
+    ) {
+        userService.changeUsername(username, request.newUsername());
         return ResponseEntity.ok().build();
     }
 
@@ -133,6 +137,7 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "Estado de cuenta actualizado correctamente."),
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado.")
     })
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> toggleStatus(
             @Parameter(description = "Nombre del usuario a habilitar/deshabilitar", required = true)
             @PathVariable String username,
@@ -141,6 +146,14 @@ public class UserController {
     ){
         userService.toggleUserStatus(username, enabled);
         return ResponseEntity.ok().build();
+    }
+
+    @DeleteMapping("/{username}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Eliminar físicamente un usuario y sus credenciales de la base de datos")
+    public ResponseEntity<Void> deleteUser(@PathVariable String username){
+        userService.deleteUser(username);
+        return ResponseEntity.noContent().build();
     }
 
 }

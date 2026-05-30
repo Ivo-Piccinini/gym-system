@@ -31,7 +31,7 @@ public class CredentialsEntity implements UserDetails {
     @Column(nullable = false, columnDefinition = "boolean default true")
     private Boolean enabled;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.REMOVE)
     @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
     private UserEntity user;
 
