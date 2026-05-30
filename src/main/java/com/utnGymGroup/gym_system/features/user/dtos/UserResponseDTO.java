@@ -1,7 +1,6 @@
 package com.utnGymGroup.gym_system.features.user.dtos;
 
 import com.utnGymGroup.gym_system.features.profile.ProfileDTO;
-import com.utnGymGroup.gym_system.features.user.Roles;
 import lombok.*;
 
 // Este DTO es para enviar datos al frontend

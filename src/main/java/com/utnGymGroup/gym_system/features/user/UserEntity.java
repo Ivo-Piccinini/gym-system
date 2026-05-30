@@ -1,6 +1,7 @@
 package com.utnGymGroup.gym_system.features.user;
 
 import com.utnGymGroup.gym_system.features.profile.ProfileEntity;
+import com.utnGymGroup.gym_system.common.auth.permissions.Roles;
 import jakarta.persistence.*;
 import lombok.*;
 

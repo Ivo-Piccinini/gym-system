@@ -1,5 +1,12 @@
 package com.utnGymGroup.gym_system.features.user;
 
+import com.utnGymGroup.gym_system.common.auth.credentials.CredentialsEntity;
+import com.utnGymGroup.gym_system.common.auth.dto.NewAccountRequest;
+import com.utnGymGroup.gym_system.common.auth.credentials.CredentialsRepository;
+import com.utnGymGroup.gym_system.common.auth.jwt.JwtService;
+import com.utnGymGroup.gym_system.common.auth.permissions.RoleEntity;
+import com.utnGymGroup.gym_system.common.auth.permissions.RoleRepository;
+import com.utnGymGroup.gym_system.common.auth.permissions.Roles;
 import com.utnGymGroup.gym_system.features.audit.AuditActions;
 import com.utnGymGroup.gym_system.features.audit.Auditable;
 import com.utnGymGroup.gym_system.features.profile.ProfileDTO;
@@ -9,6 +16,7 @@ import com.utnGymGroup.gym_system.features.user.exceptions.*;
 import com.utnGymGroup.gym_system.features.user.mappers.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -24,6 +32,10 @@ public class UserService {
     private final UserCreateRequestMapper userCreateRequestMapper;
     private final UserResponseMapper userResponseMapper;
     private final UserUpdateMapper userUpdateMapper;
+    private final CredentialsRepository credentialsRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public List<UserResponseDTO> findAllUsers(){
         return userRepository.findAll().stream()
@@ -61,44 +73,87 @@ public class UserService {
         }
 
         UserEntity userEntity = userCreateRequestMapper.convertToEntity(request);
-
-        userEntity.setRole(Roles.CLIENT);
         userEntity.setEnabled(true);
-
-        // TODO: En esta parte hay que hacer la encriptación de la contraseña cuando vea spring security
-        userEntity.setPassword(request.getPassword());
-
         if(userEntity.getProfile() != null){
             userEntity.getProfile().setUser(userEntity);
         }
 
         UserEntity savedUser = userRepository.save(userEntity);
 
+        RoleEntity roleClient = roleRepository.findByRole(Roles.ROLE_CLIENT)
+                .orElseThrow(() -> new RuntimeException("Error: Rol ROLE_CLIENT no encontrado en la base de datos."));
+
+        CredentialsEntity credentials = CredentialsEntity.builder()
+                .username(request.getUsername())
+                .password(passwordEncoder.encode(request.getPassword())) // <-- Cifrado de contraseña en vivo
+                .enabled(true)
+                .user(savedUser) // Vinculación 1 a 1 con UserEntity
+                .build();
+
+        credentials.getRoles().add(roleClient); // Asignar Rol
+        credentialsRepository.save(credentials);
+        return userResponseMapper.convertToDto(savedUser);
+    }
+
+    @Transactional
+    @Auditable(AuditActions.USER_REGISTRATION)
+    public UserResponseDTO userRegister(NewAccountRequest request){
+        if(userRepository.existsByEmail(request.email())){
+            throw new UserAlreadyExistsException("Ya existe un usuario con este email.");
+        }
+        if(userRepository.existsByUsername(request.username())){
+            throw new UserAlreadyExistsException("Nombre de usuario no disponible.");
+        }
+
+        UserEntity userEntity = UserEntity.builder()
+                .username(request.username())
+                .password(passwordEncoder.encode(request.password()))
+                .email(request.email())
+                .enabled(true)
+                .role(Roles.ROLE_CLIENT)
+                .build();
+
+        UserEntity savedUser = userRepository.save(userEntity);
+
+        RoleEntity roleClient = roleRepository.findByRole(Roles.ROLE_CLIENT)
+                .orElseThrow(() -> new RuntimeException("Error: Rol ROLE_CLIENT no encontrado en la base de datos."));
+
+        CredentialsEntity credentials = CredentialsEntity.builder()
+                .username(request.username())
+                .password(passwordEncoder.encode(request.password()))
+                .enabled(true)
+                .user(savedUser)
+                .build();
+
+        credentials.getRoles().add(roleClient);
+        credentialsRepository.save(credentials);
         return userResponseMapper.convertToDto(savedUser);
     }
 
     @Auditable(AuditActions.LOGIN)
-    public AuthResponseDTO login(LoginRequestDTO request){
-        UserEntity user = userRepository.findByUsername(request.getUsername())
+    public AuthResponseDTO login(LoginRequestDTO request) {
+        // 1. Buscar las credenciales en la base de datos
+        CredentialsEntity credentials = credentialsRepository.findByUsername(request.getUsername())
                 .orElseThrow(() -> new InvalidCredentialsException("Nombre de usuario o contraseña incorrectos."));
 
-        if(!user.getEnabled()){
+        if (!credentials.getEnabled()) {
             throw new UserInactiveException("Tu cuenta está desactivada, contacta a un administrador para reactivarla");
         }
 
-        //TODO: aca iria .matches de spring security para la contraseña, por ahora lo hago con equals
-        if(!user.getPassword().equals(request.getPassword())){
+        // 2. Validar contraseña usando matches de PasswordEncoder
+        if (!passwordEncoder.matches(request.getPassword(), credentials.getPassword())) {
             throw new InvalidCredentialsException("Nombre de usuario o contraseña incorrectos.");
         }
 
-        AuthResponseDTO responseDTO = authResponseMapper.convertToDto(user);
+        // 3. Generar el Token JWT real
+        String token = jwtService.generateToken(credentials);
 
-        // TODO: aca va a ir la generación del token con spring security
-        String mockToken = "mock-jwt-token-for-" + user.getUsername() + "-12345";
-        responseDTO.setToken(mockToken);
+        AuthResponseDTO responseDTO = authResponseMapper.convertToDto(credentials.getUser());
+        responseDTO.setToken(token);
 
         return responseDTO;
     }
+
 
     @Transactional
     @Auditable(AuditActions.CHANGE_PASSWORD)
@@ -110,8 +165,7 @@ public class UserService {
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + username));
 
-        // TODO: utilizar .matches cuando integremos spring security
-        if(!user.getPassword().equals(request.getOldPassword())){
+        if(!passwordEncoder.matches(request.getOldPassword(), user.getPassword())){
             throw new InvalidCurrentPasswordException("La contraseña actual es incorrecta.");
         }
 
@@ -119,10 +173,14 @@ public class UserService {
             throw new InvalidCurrentPasswordException("La nueva contraseña no puede ser igual a la actual.");
         }
 
-        //TODO: encriptar contraseña
-        user.setPassword(request.getNewPassword());
-
+        String encryptedPassword = passwordEncoder.encode(request.getNewPassword());
+        user.setPassword(encryptedPassword);
         userRepository.save(user);
+
+        credentialsRepository.findByUsername(username).ifPresent(creds -> {
+            creds.setPassword(encryptedPassword);
+            credentialsRepository.save(creds);
+        });
     }
 
     @Transactional
@@ -138,12 +196,18 @@ public class UserService {
 
     // Función de baja lógica / reactivación de cuenta
     @Auditable(AuditActions.TOGGLE_USER_STATUS)
+    @Transactional
     public void toggleUserStatus(String username, boolean enabled){
         UserEntity user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + username));
 
         user.setEnabled(enabled);
         userRepository.save(user);
+
+        credentialsRepository.findByUsername(username).ifPresent(creds -> {
+            creds.setEnabled(enabled);
+            credentialsRepository.save(creds);
+        });
     }
 
     @Transactional
