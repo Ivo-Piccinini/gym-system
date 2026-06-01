@@ -1,5 +1,6 @@
 package com.utnGymGroup.gym_system.common.exceptions;
 
+import com.utnGymGroup.gym_system.features.exercise.ExerciseNotFoundException;
 import com.utnGymGroup.gym_system.features.user.exceptions.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -131,4 +132,21 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
+
+    //__________ Error encontrar usuario--------------------------
+
+    @ExceptionHandler(ExerciseNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleExerciseNotFoundException (ExerciseNotFoundException exerciseNotFoundException, WebRequest webRequest)
+    {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .message(exerciseNotFoundException.getMessage())
+                .description(webRequest.getDescription(false))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+
+    }
+
+
 }
