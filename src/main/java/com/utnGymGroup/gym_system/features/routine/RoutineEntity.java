@@ -9,6 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.UUID;
 
 @Entity
 @Getter
@@ -16,15 +17,14 @@ import java.util.Date;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "routine")
-
 public class RoutineEntity
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false, unique = true,updatable = false)
-    private Long publicId;
+    @Column(nullable = false,updatable = false)
+    private UUID publicId;
 
     private String name;
     private Date start_date;
