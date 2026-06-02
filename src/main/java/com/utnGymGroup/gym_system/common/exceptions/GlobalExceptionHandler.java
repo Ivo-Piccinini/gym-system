@@ -1,5 +1,6 @@
 package com.utnGymGroup.gym_system.common.exceptions;
 
+import com.utnGymGroup.gym_system.common.auth.permissions.exceptions.RoleNotFoundException;
 import com.utnGymGroup.gym_system.features.exercise.ExerciseNotFoundException;
 import com.utnGymGroup.gym_system.features.user.exceptions.*;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -84,6 +85,17 @@ public class GlobalExceptionHandler {
                 .build();
 
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(errorResponse);
+    }
+
+    @ExceptionHandler(RoleNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleRoleNotFoundException(RoleNotFoundException roleNotFoundException, WebRequest webRequest){
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .message(roleNotFoundException.getMessage())
+                .description(webRequest.getDescription(false))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
 
     // ------------------  Errores de validación (@Valid en los DTOs) ------------------

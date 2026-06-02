@@ -8,6 +8,7 @@ public enum AuditActions {
     CHANGE_PASSWORD,
     UPDATE_PROFILE,
     TOGGLE_USER_STATUS,
+    DELETE_USER,
     // Planes y Suscripciones
     CREATE_PLAN,
     UPDATE_PLAN,
