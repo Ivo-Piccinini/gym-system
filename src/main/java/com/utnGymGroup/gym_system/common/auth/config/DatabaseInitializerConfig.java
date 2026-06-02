@@ -100,11 +100,10 @@ public class DatabaseInitializerConfig {
 
             // --- Ejemplo: Crear Administrador ---
             UserEntity adminUser = UserEntity.builder()
+                    .firstName("admin")
+                    .lastName("gym")
                     .email("admin@gym.com")
-                    .enabled(true)
-                    .username("admin")
-                    .password(passwordEncriptada)
-                    .role(Roles.ROLE_ADMIN)
+                    .dni("00000000")
                     .build();
             userRepository.save(adminUser);
 
@@ -120,18 +119,16 @@ public class DatabaseInitializerConfig {
             // --- Ejemplo: Crear 9 Clientes de prueba de forma dinámica ---
             for (int i = 1; i <= 9; i++) {
                 UserEntity clientUser = UserEntity.builder()
+                        .firstName("Cliente")
+                        .lastName(String.valueOf(i))
                         .email("cliente" + i + "@gym.com")
-                        .enabled(i != 9) // El cliente 9 se crea inactivo
-                        .username("cliente" + i)
-                        .password(passwordEncriptada)
-                        .role(Roles.ROLE_CLIENT)
+                        .dni(String.format("1000000%d", i)) // DNI único para cada cliente de prueba
                         .build();
                 userRepository.save(clientUser);
-
                 CredentialsEntity clientCreds = CredentialsEntity.builder()
                         .username("cliente" + i)
                         .password(passwordEncriptada)
-                        .enabled(i != 9)
+                        .enabled(i != 9) // El cliente 9 se crea deshabilitado
                         .user(clientUser)
                         .build();
                 clientCreds.getRoles().add(roleClient);

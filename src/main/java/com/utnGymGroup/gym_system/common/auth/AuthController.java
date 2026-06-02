@@ -1,11 +1,12 @@
 package com.utnGymGroup.gym_system.common.auth;
 
+import com.utnGymGroup.gym_system.common.auth.credentials.CredentialsEntity;
 import com.utnGymGroup.gym_system.common.auth.dto.AuthRequest;
 import com.utnGymGroup.gym_system.common.auth.dto.AuthResponse;
 import com.utnGymGroup.gym_system.common.auth.dto.NewAccountRequest;
 import com.utnGymGroup.gym_system.common.auth.jwt.JwtService;
 import com.utnGymGroup.gym_system.features.user.UserService;
-import com.utnGymGroup.gym_system.features.user.dtos.UserResponseDTO;
+import com.utnGymGroup.gym_system.features.user.dtos.UserDTO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -38,9 +39,7 @@ public class AuthController {
             @ApiResponse(responseCode = "401", description = "Credenciales de inicio de sesión inválidas o cuenta de usuario inactiva.")
     })
     public ResponseEntity<AuthResponse> authenticateUser(@RequestBody AuthRequest authRequest){
-        UserDetails user = authService.authenticate(authRequest);
-        String token = jwtService.generateToken(user);
-        return ResponseEntity.ok(new AuthResponse(token));
+        return ResponseEntity.ok(authService.login(authRequest));
     }
 
     @PostMapping("/register")
@@ -52,7 +51,7 @@ public class AuthController {
             @ApiResponse(responseCode = "201", description = "Usuario registrado con éxito."),
             @ApiResponse(responseCode = "400", description = "El nombre de usuario o correo electrónico ya se encuentra registrado.")
     })
-    public ResponseEntity<UserResponseDTO> registerUser(@RequestBody NewAccountRequest newAccountRequest){
+    public ResponseEntity<UserDTO> registerUser(@RequestBody NewAccountRequest newAccountRequest){
         return new ResponseEntity<>(userService.userRegister(newAccountRequest), HttpStatus.CREATED);
     }
 }
