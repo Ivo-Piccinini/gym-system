@@ -24,9 +24,12 @@ public class ExerciseEntity
     @Column(nullable = false,unique = true,updatable = false)
     private String idPublic;
 
+    @Column(unique = true, nullable = true)
     private String name;
     private String descripcion;
-    private String muscle_group; ///Podria ser enum tambien
+    private String muscle_group;///Podria ser enum tambien
+
+    private Boolean enabled = true;
 
     @PrePersist
     void onCreate(){

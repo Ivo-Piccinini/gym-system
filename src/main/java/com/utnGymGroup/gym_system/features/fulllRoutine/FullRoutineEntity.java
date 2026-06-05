@@ -1,4 +1,4 @@
-package com.utnGymGroup.gym_system.features.routinexejercice;
+package com.utnGymGroup.gym_system.features.fulllRoutine;
 import com.utnGymGroup.gym_system.features.exercise.ExerciseEntity;
 import com.utnGymGroup.gym_system.features.routine.RoutineEntity;
 import jakarta.persistence.*;
@@ -13,7 +13,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table (name = "routineXexercice")
-public class RoutineXExerciceEntity
+public class FullRoutineEntity
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

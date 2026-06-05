@@ -28,11 +28,13 @@ public class ExerciseDto {
     @Size(min = 3, groups = {ICreate.class, IUpdate.class})
     private String name;
 
-
     @NotBlank
     @Size(min = 10, groups = {ICreate.class,IUpdate.class})
     private String descripcion;
 
     @NotBlank(groups = {ICreate.class})
     private String muscle_group;
+
+    @NotBlank
+    private Boolean enabled;
 }

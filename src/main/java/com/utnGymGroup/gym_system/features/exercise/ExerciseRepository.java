@@ -9,4 +9,5 @@ public interface ExerciseRepository extends JpaRepository<ExerciseEntity, Long> 
     
     Optional<ExerciseEntity> findByIdPublic(String idPublic);
     Optional<ExerciseEntity> findByName(String name);
+    boolean existsByName(String idPublic);
 }

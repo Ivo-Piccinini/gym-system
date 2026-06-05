@@ -1,12 +1,11 @@
-package com.utnGymGroup.gym_system.features.routinexejercice;
+package com.utnGymGroup.gym_system.features.fulllRoutine;
 
 import com.utnGymGroup.gym_system.common.interfaces.ICreate;
 import com.utnGymGroup.gym_system.common.interfaces.IUpdate;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 
-public class RoutineXExerciseDto {
+public class FullRoutineDto {
 
     public Long publicID;
 

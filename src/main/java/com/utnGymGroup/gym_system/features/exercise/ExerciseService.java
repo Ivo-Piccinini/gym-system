@@ -1,5 +1,7 @@
 package com.utnGymGroup.gym_system.features.exercise;
 
+import com.utnGymGroup.gym_system.features.exercise.exceptions.ExerciseAlreadyExistsException;
+import com.utnGymGroup.gym_system.features.exercise.exceptions.ExerciseNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -32,10 +34,44 @@ public class ExerciseService
         return exercisedto;
     }
 
+    public ExerciseDto deleteExercise(String publicID)
+    {
+        ExerciseEntity exerciseEntity = exerciseRepository.findByIdPublic(publicID)
+                .orElseThrow(()-> new ExerciseNotFoundException("No se encontro ejercico con ese nombre"));
+
+       return exerciseMapper.convertToDto(exerciseRepository.save(exerciseEntity));
+
+    }
+
+   public ExerciseDto createExercise(ExerciseDto exerciseDto)
+   {
+       if(exerciseRepository.existsByName(exerciseDto.getName()))
+       {
+           throw new ExerciseNotFoundException("Ya existe ese ejercicio");
+       }
+       ExerciseEntity exerciseEntity = exerciseMapper.convertToEntity(exerciseDto);
+       return exerciseMapper.convertToDto(exerciseRepository.save(exerciseEntity));
+   }
+
+   public ExerciseDto updateExercise(ExerciseDto exerciseDto,String publidID)
+   {
+      ExerciseEntity exerciseEntity = exerciseRepository.findByIdPublic(publidID)
+              .orElseThrow(()-> new ExerciseNotFoundException("No se encontro ejercicio"));
+
+        exerciseMapper.updateEntityFromDTO(exerciseDto,exerciseEntity);
+
+        return exerciseMapper.convertToDto(exerciseRepository.save(exerciseEntity));
+   }
 
 
+   public ExerciseDto findByPublicId(String publidId)
+   {
+       ExerciseEntity exerciseEntity = exerciseRepository.findByIdPublic(publidId)
+               .orElseThrow(()->new ExerciseNotFoundException("No se encontro el ejercicio"));
 
+       return  exerciseMapper.convertToDto(exerciseEntity);
 
+   }
 
 
 }

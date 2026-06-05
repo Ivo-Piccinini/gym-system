@@ -1,7 +1,8 @@
 package com.utnGymGroup.gym_system.common.exceptions;
 
 import com.utnGymGroup.gym_system.common.auth.permissions.exceptions.RoleNotFoundException;
-import com.utnGymGroup.gym_system.features.exercise.ExerciseNotFoundException;
+import com.utnGymGroup.gym_system.features.exercise.exceptions.ExerciseAlreadyExistsException;
+import com.utnGymGroup.gym_system.features.exercise.exceptions.ExerciseNotFoundException;
 import com.utnGymGroup.gym_system.features.user.exceptions.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -158,6 +159,18 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
 
+    }
+
+    @ExceptionHandler(ExerciseAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleExerciseAlreadyExistsException ( ExerciseAlreadyExistsException exerciseAlreadyExistsException, WebRequest webRequest)
+    {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .message(exerciseAlreadyExistsException.getMessage())
+                .description(webRequest.getDescription(false))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
 
