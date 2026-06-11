@@ -15,10 +15,12 @@ import com.utnGymGroup.gym_system.features.user.exceptions.*;
 import com.utnGymGroup.gym_system.features.user.mappers.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +31,14 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
 
-    public List<UserDTO> findAllUsers(){
+    public List<UserDTO> findAllUsers(Boolean enabled, Roles role){
+        if(role != null){
+            return findAllUsersByRole(role);
+        }
+        if(enabled != null){
+            return findAllUsersByStatus(enabled);
+        }
+
         return userRepository.findAll().stream()
                 .map(userMapper::convertToDto)
                 .toList();
@@ -197,6 +206,40 @@ public class UserService {
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + username));
 
         credentialsRepository.delete(user);
+    }
+
+    @Transactional
+    @Auditable(AuditActions.UPDATE_PROFILE)
+    public UserDTO updatePartialUser(UserPatchDTO userPatchDTO){
+        String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
+
+        UserEntity user = credentialsRepository.findByUsername(username)
+                .map(CredentialsEntity::getUser)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + username));
+        if (userPatchDTO.getFirstName() != null) {
+            user.setFirstName(userPatchDTO.getFirstName());
+        }
+        if (userPatchDTO.getLastName() != null) {
+            user.setLastName(userPatchDTO.getLastName());
+        }
+        if (userPatchDTO.getPhone() != null) {
+            user.setPhone(userPatchDTO.getPhone());
+        }
+        if (userPatchDTO.getBirthDay() != null) {
+            user.setBirthDate(userPatchDTO.getBirthDay());
+        }
+
+        UserEntity savedUser = userRepository.save(user);
+        return userMapper.convertToDto(savedUser);
+    }
+
+    public List<UserDTO> findAllUsersByRole(Roles role){
+        List<CredentialsEntity> credentialsList = credentialsRepository.findAllByRole(role);
+
+        return credentialsList.stream()
+                .map(CredentialsEntity::getUser)
+                .map(userMapper::convertToDto)
+                .toList();
     }
 
 }
