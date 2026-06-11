@@ -243,4 +243,11 @@ public class UserService {
                 .toList();
     }
 
+    public UserEntity getAuthenticatedUserEntity() {
+        String username = SecurityContextHolder.getContext().getAuthentication().getName();
+        return credentialsRepository.findByUsername(username)
+                .map(CredentialsEntity::getUser)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + username));
+    }
+
 }
