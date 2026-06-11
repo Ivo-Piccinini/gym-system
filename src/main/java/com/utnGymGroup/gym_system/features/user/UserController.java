@@ -1,5 +1,6 @@
 package com.utnGymGroup.gym_system.features.user;
 
+import com.utnGymGroup.gym_system.common.auth.permissions.Roles;
 import com.utnGymGroup.gym_system.common.interfaces.ICreate;
 import com.utnGymGroup.gym_system.common.interfaces.IUpdate;
 import com.utnGymGroup.gym_system.features.user.dtos.*;
@@ -14,10 +15,13 @@ import org.apache.catalina.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Objects;
 
 @RestController
 @RequestMapping("/api/users")
@@ -32,15 +36,15 @@ public class UserController {
             description = "Recupera una lista con los perfiles e información de todos los usuarios registrados, con la opción de filtrar por estado activo o inactivo."
     )
     @ApiResponse(responseCode = "200", description = "Listado obtenido exitosamente.")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
+    @PreAuthorize("hasRole('ADMIN') or (hasRole('PROFESSOR') and #role == null)")
     public ResponseEntity<List<UserDTO>> getUsers(
             @Parameter(description = "Filtrar por estado activo (true) o inactivo (false)", required = false)
-            @RequestParam(required = false) Boolean enabled
-    ){
-        if (enabled != null) {
-            return ResponseEntity.ok(userService.findAllUsersByStatus(enabled));
-        }
-        return ResponseEntity.ok(userService.findAllUsers());
+            @RequestParam(required = false) Boolean enabled,
+
+            @Parameter(description = "Filtrar por rol de usuario (ROLE_ADMIN, ROLE_PROFESSOR, ROLE_CLIENT)", required = false)
+            @RequestParam(required = false) Roles role
+        ){
+        return ResponseEntity.ok(userService.findAllUsers(enabled, role));
     }
 
     @GetMapping("/{username}")
@@ -154,6 +158,22 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable String username){
         userService.deleteUser(username);
         return ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/me")
+    @Operation(
+            summary = "Actualización parcial del perfil del usuario autenticado",
+            description = "Permite al usuario logueado actualizar de manera parcial sus datos personales (nombre, apellido, teléfono, fecha de nacimiento, etc.) sin alterar el resto de la información."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Perfil actualizado con éxito."),
+            @ApiResponse(responseCode = "400", description = "Los datos provistos no son válidos."),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado.")
+    })
+    public ResponseEntity<UserDTO> updateLoggedUser(
+            @Valid @RequestBody UserPatchDTO request
+    ){
+        return ResponseEntity.ok(userService.updatePartialUser(request));
     }
 
 }
