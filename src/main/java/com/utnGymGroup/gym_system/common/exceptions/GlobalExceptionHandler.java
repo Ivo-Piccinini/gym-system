@@ -3,6 +3,7 @@ package com.utnGymGroup.gym_system.common.exceptions;
 import com.utnGymGroup.gym_system.common.auth.permissions.exceptions.RoleNotFoundException;
 import com.utnGymGroup.gym_system.features.exercise.exceptions.ExerciseAlreadyExistsException;
 import com.utnGymGroup.gym_system.features.exercise.exceptions.ExerciseNotFoundException;
+import com.utnGymGroup.gym_system.features.memberships.exceptions.MembershipNotFoundException;
 import com.utnGymGroup.gym_system.features.user.exceptions.*;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
@@ -28,6 +29,16 @@ public class GlobalExceptionHandler {
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
                 .message(exception.getMessage())
+                .description(webRequest.getDescription(false))
+                .build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    @ExceptionHandler(MembershipNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleMembershipNotFoundException(MembershipNotFoundException ex, WebRequest webRequest) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .message(ex.getMessage())
                 .description(webRequest.getDescription(false))
                 .build();
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
