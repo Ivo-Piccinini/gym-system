@@ -1,6 +1,7 @@
 package com.utnGymGroup.gym_system.common.exceptions;
 
 import com.utnGymGroup.gym_system.common.auth.permissions.exceptions.RoleNotFoundException;
+import com.utnGymGroup.gym_system.features.audit.exceptions.AuditSerializationException;
 import com.utnGymGroup.gym_system.features.exercise.exceptions.ExerciseAlreadyExistsException;
 import com.utnGymGroup.gym_system.features.exercise.exceptions.ExerciseNotFoundException;
 import com.utnGymGroup.gym_system.features.memberships.exceptions.MembershipNotFoundException;
@@ -206,5 +207,16 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
+    //__________ Excepciones de auditoria --------------------------
+    @ExceptionHandler(AuditSerializationException.class)
+    public ResponseEntity<ErrorResponse> handleAuditSerializationException  ( AuditSerializationException  auditSerializationException , WebRequest webRequest)
+    {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .message(auditSerializationException.getMessage())
+                .description(webRequest.getDescription(false))
+                .build();
 
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
 }

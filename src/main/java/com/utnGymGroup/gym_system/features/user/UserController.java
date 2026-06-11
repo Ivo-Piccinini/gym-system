@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/users")
@@ -132,7 +133,7 @@ public class UserController {
         return ResponseEntity.ok().build();
     }
 
-    @PatchMapping("/{username}/status")
+    @PatchMapping("/{id}/status")
     @Operation(
             summary = "Baja lógica o reactivación de usuario",
             description = "Activa o desactiva la cuenta de un usuario y de sus credenciales de seguridad de manera coordinada."
@@ -143,12 +144,12 @@ public class UserController {
     })
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> toggleStatus(
-            @Parameter(description = "Nombre del usuario a habilitar/deshabilitar", required = true)
-            @PathVariable String username,
+            @Parameter(description = "ID público del usuario (UUID)", required = true)
+            @PathVariable("id") UUID id,
             @Parameter(description = "Nuevo estado de la cuenta (true = activo, false = inactivo)", required = true)
             @RequestParam boolean enabled
     ){
-        userService.toggleUserStatus(username, enabled);
+        userService.toggleUserStatus(id, enabled);
         return ResponseEntity.ok().build();
     }
 

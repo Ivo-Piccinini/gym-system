@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Repository
 public interface CredentialsRepository extends JpaRepository<CredentialsEntity, Long> {
@@ -16,4 +17,5 @@ public interface CredentialsRepository extends JpaRepository<CredentialsEntity, 
     boolean existsByUsername(String username);
     @Query("SELECT c FROM CredentialsEntity c JOIN c.roles r WHERE r.role = :role")
     List<CredentialsEntity> findAllByRole(@Param("role") Roles role);
+    Optional<CredentialsEntity> findByUser_PublicId(UUID userPublicId);
 }

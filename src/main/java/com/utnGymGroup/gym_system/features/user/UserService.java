@@ -21,6 +21,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -191,9 +192,9 @@ public class UserService {
     // Función de baja lógica / reactivación de cuenta
     @Auditable(AuditActions.TOGGLE_USER_STATUS)
     @Transactional
-    public void toggleUserStatus(String username, boolean enabled){
-        CredentialsEntity user = credentialsRepository.findByUsername(username)
-                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + username));
+    public void toggleUserStatus(UUID publicId, boolean enabled){
+        CredentialsEntity user = credentialsRepository.findByUser_PublicId(publicId)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. PUBLICID: " + publicId));
 
         user.setEnabled(enabled);
         credentialsRepository.save(user);
