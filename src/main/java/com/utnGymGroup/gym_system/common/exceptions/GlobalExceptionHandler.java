@@ -121,6 +121,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
 
+    @ExceptionHandler(UsernameChangeNotAllowedException.class)
+    public ResponseEntity<ErrorResponse> handleUsernameChangeNotAllowedException(UsernameChangeNotAllowedException usernameChangeNotAllowedException, WebRequest webRequest){
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .message(usernameChangeNotAllowedException.getMessage())
+                .description(webRequest.getDescription(false))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
     // ------------------  Errores de validación (@Valid en los DTOs) ------------------
 
     @ExceptionHandler(MethodArgumentNotValidException.class)

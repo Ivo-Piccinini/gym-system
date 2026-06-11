@@ -110,7 +110,7 @@ public class UserService {
         UserEntity savedUser = userRepository.save(userEntity);
 
         RoleEntity roleClient = roleRepository.findByRole(Roles.ROLE_CLIENT)
-                .orElseThrow(() -> new RuntimeException("Error: Rol ROLE_CLIENT no encontrado en la base de datos."));
+                .orElseThrow(() -> new RoleNotFoundException("Error: Rol ROLE_CLIENT no encontrado en la base de datos."));
 
         CredentialsEntity credentials = CredentialsEntity.builder()
                 .username(request.username())

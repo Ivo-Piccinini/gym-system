@@ -35,6 +35,10 @@ public class CredentialsEntity implements UserDetails {
     @JoinColumn(name = "user_id", referencedColumnName = "id", unique = true)
     private UserEntity user;
 
+    @Column(nullable = false, columnDefinition = "boolean default true")
+    @Builder.Default
+    private Boolean isFirstLogin = true;
+
     @Builder.Default
     @ManyToMany(cascade = CascadeType.MERGE, fetch = FetchType.EAGER)
     @JoinTable(
