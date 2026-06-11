@@ -2,6 +2,7 @@ package com.utnGymGroup.gym_system.features.payments;
 
 import com.utnGymGroup.gym_system.common.auth.credentials.CredentialsEntity;
 import com.utnGymGroup.gym_system.common.auth.credentials.CredentialsRepository;
+import com.utnGymGroup.gym_system.features.payments.dtos.PaymentsRequestDTO;
 import com.utnGymGroup.gym_system.features.subscription.SubscriptionRepository;
 import com.utnGymGroup.gym_system.features.subscription.SubscriptionsEntity;
 import com.utnGymGroup.gym_system.features.subscription.exceptions.SubscriptionNotFoundException;
@@ -25,7 +26,7 @@ public class PaymentsService {
 
 
     @Transactional
-    public PaymentsDTO createPayment(PaymentsDTO dto) {
+    public PaymentsRequestDTO createPayment(PaymentsRequestDTO dto) {
         SubscriptionsEntity subscription = subscriptionRepository.findById(dto.getSubscriptionId())
                 .orElseThrow(() -> new SubscriptionNotFoundException("No se encontró la suscripción con ID: " + dto.getSubscriptionId()));
 
@@ -39,7 +40,7 @@ public class PaymentsService {
     }
 
 
-    public List<PaymentsDTO> getMyPayments() {
+    public List<PaymentsRequestDTO> getMyPayments() {
         UserEntity user = getAuthenticatedUser();
         return paymentsRepository.findBySubscriptionUser(user)
                 .stream()
@@ -48,7 +49,7 @@ public class PaymentsService {
     }
 
 
-    public List<PaymentsDTO> getAllPayments() {
+    public List<PaymentsRequestDTO> getAllPayments() {
         return paymentsRepository.findAll()
                 .stream()
                 .map(paymentsMapper::convertToDto)

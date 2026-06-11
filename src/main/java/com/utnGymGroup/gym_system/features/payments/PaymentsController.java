@@ -1,6 +1,7 @@
 package com.utnGymGroup.gym_system.features.payments;
 
 import com.utnGymGroup.gym_system.common.interfaces.ICreate;
+import com.utnGymGroup.gym_system.features.payments.dtos.PaymentsRequestDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -20,21 +21,21 @@ public class PaymentsController {
     
     @GetMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<PaymentsDTO>> getAllPayments() {
+    public ResponseEntity<List<PaymentsRequestDTO>> getAllPayments() {
         return ResponseEntity.ok(paymentsService.getAllPayments());
     }
 
 
     @GetMapping("/my-payments")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<List<PaymentsDTO>> getMyPayments() {
+    public ResponseEntity<List<PaymentsRequestDTO>> getMyPayments() {
         return ResponseEntity.ok(paymentsService.getMyPayments());
     }
 
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<PaymentsDTO> createPayment(@Validated(ICreate.class) @RequestBody PaymentsDTO dto) {
+    public ResponseEntity<PaymentsRequestDTO> createPayment(@Validated(ICreate.class) @RequestBody PaymentsRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(paymentsService.createPayment(dto));
     }
 

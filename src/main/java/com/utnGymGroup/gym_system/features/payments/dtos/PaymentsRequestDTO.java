@@ -1,7 +1,8 @@
-package com.utnGymGroup.gym_system.features.payments;
+package com.utnGymGroup.gym_system.features.payments.dtos;
 
 import com.utnGymGroup.gym_system.common.interfaces.ICreate;
 import com.utnGymGroup.gym_system.common.interfaces.IUpdate;
+import com.utnGymGroup.gym_system.features.payments.PaymentMethods;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -13,7 +14,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Getter
 @Setter
-public class PaymentsDTO {
+public class PaymentsRequestDTO {
 
     @NotNull(message = "El monto es obligatorio", groups = ICreate.class)
     @Positive(message = "El monto debe ser un valor positivo", groups = {ICreate.class,IUpdate.class})
