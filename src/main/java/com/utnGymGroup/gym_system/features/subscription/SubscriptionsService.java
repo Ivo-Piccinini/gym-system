@@ -12,6 +12,7 @@ import com.utnGymGroup.gym_system.features.subscription.exceptions.SubscriptionN
 import com.utnGymGroup.gym_system.features.subscription.mappers.SubscriptionsRequestMapper;
 import com.utnGymGroup.gym_system.features.subscription.mappers.SubscriptionsResponseMapper;
 import com.utnGymGroup.gym_system.features.user.UserEntity;
+import com.utnGymGroup.gym_system.features.user.UserService;
 import com.utnGymGroup.gym_system.features.user.exceptions.UserNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -29,7 +30,7 @@ public class SubscriptionsService {
     private final SubscriptionsRequestMapper requestMapper;
     private final SubscriptionsResponseMapper responseMapper;
     private final MembershipsRepository membershipsRepository;
-    private final CredentialsRepository credentialsRepository;
+    private final UserService userService;
 
     public List<SubscriptionsResponseDto> getAllSubscriptions() {
         return subscriptionRepository.findAll()
@@ -39,7 +40,7 @@ public class SubscriptionsService {
     }
 
     public List<SubscriptionsResponseDto> getMySubscriptions() {
-        UserEntity user = getAuthenticatedUser();
+        UserEntity user = userService.getAuthenticatedUserEntity();
         List<SubscriptionsEntity> subscriptions = subscriptionRepository.findByUser(user);
 
         subscriptions.forEach(sub -> {
@@ -56,7 +57,7 @@ public class SubscriptionsService {
 
     @Transactional
     public SubscriptionsResponseDto subscribe(Long planId) {
-        UserEntity user = getAuthenticatedUser();
+        UserEntity user = userService.getAuthenticatedUserEntity();
 
         MembershipsEntity plan = membershipsRepository.findById(planId)
                 .orElseThrow(() -> new MembershipNotFoundException("No se encontró el plan con ID: " + planId));
@@ -76,7 +77,7 @@ public class SubscriptionsService {
 
     @Transactional
     public SubscriptionsResponseDto cancelSubscription(Long id) {
-        UserEntity authenticatedUser = getAuthenticatedUser();
+        UserEntity authenticatedUser = userService.getAuthenticatedUserEntity();
 
         SubscriptionsEntity subscription = subscriptionRepository.findById(id)
                 .orElseThrow(() -> new SubscriptionNotFoundException("No se encontró la suscripción con ID: " + id));
@@ -97,10 +98,4 @@ public class SubscriptionsService {
         return responseMapper.convertToDto(subscriptionRepository.save(subscription));
     }
 
-    private UserEntity getAuthenticatedUser() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return credentialsRepository.findByUsername(username)
-                .map(CredentialsEntity::getUser)
-                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + username));
-    }
 }

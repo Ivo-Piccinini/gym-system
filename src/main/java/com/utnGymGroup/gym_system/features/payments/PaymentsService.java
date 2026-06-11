@@ -10,6 +10,7 @@ import com.utnGymGroup.gym_system.features.subscription.SubscriptionRepository;
 import com.utnGymGroup.gym_system.features.subscription.SubscriptionsEntity;
 import com.utnGymGroup.gym_system.features.subscription.exceptions.SubscriptionNotFoundException;
 import com.utnGymGroup.gym_system.features.user.UserEntity;
+import com.utnGymGroup.gym_system.features.user.UserService;
 import com.utnGymGroup.gym_system.features.user.exceptions.UserNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -26,7 +27,7 @@ public class PaymentsService {
     private final PaymentRequestMapper requestMapper;
     private final PaymentsResponseMapper responseMapper;
     private final SubscriptionRepository subscriptionRepository;
-    private final CredentialsRepository credentialsRepository;
+    private final UserService userService;
 
 
     @Transactional
@@ -45,7 +46,7 @@ public class PaymentsService {
 
 
     public List<PaymentsResponseDto> getMyPayments() {
-        UserEntity user = getAuthenticatedUser();
+        UserEntity user = userService.getAuthenticatedUserEntity();
         return paymentsRepository.findBySubscriptionUser(user)
                 .stream()
                 .map(responseMapper::convertToDto)
@@ -60,10 +61,4 @@ public class PaymentsService {
                 .toList();
     }
 
-    private UserEntity getAuthenticatedUser() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return credentialsRepository.findByUsername(username)
-                .map(CredentialsEntity::getUser)
-                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + username));
-    }
 }
