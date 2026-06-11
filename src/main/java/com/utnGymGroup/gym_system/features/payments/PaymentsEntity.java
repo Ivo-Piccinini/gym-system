@@ -34,4 +34,5 @@ public class PaymentsEntity {
     @Column(name = "method")
     private PaymentMethods method;
 
+
 }

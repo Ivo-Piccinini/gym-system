@@ -29,5 +29,5 @@ public class SubscriptionsDTO {
     private LocalDate endDate;
 
     @NotBlank(message = "El estado es requerido", groups = {ICreate.class, IUpdate.class})
-    private String status;
+    private SubscriptionsStatus status;
 }
