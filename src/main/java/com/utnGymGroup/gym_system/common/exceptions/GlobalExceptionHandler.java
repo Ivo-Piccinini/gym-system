@@ -4,7 +4,7 @@ import com.utnGymGroup.gym_system.common.auth.permissions.exceptions.RoleNotFoun
 import com.utnGymGroup.gym_system.features.audit.exceptions.AuditSerializationException;
 import com.utnGymGroup.gym_system.features.exercise.exceptions.ExerciseAlreadyExistsException;
 import com.utnGymGroup.gym_system.features.exercise.exceptions.ExerciseNotFoundException;
-import com.utnGymGroup.gym_system.features.memberships.exceptions.MembershipNotFoundException;
+import com.utnGymGroup.gym_system.features.membership.exceptions.MembershipNotFoundException;
 import com.utnGymGroup.gym_system.features.subscription.exceptions.SubscriptionNotFoundException;
 import com.utnGymGroup.gym_system.features.user.exceptions.*;
 import org.springframework.dao.DataIntegrityViolationException;
