@@ -23,7 +23,7 @@ public class PaymentsService {
     private final SubscriptionRepository subscriptionRepository;
     private final CredentialsRepository credentialsRepository;
 
-    // RF26 - Cliente paga su suscripción
+
     @Transactional
     public PaymentsDTO createPayment(PaymentsDTO dto) {
         SubscriptionsEntity subscription = subscriptionRepository.findById(dto.getSubscriptionId())
@@ -38,7 +38,7 @@ public class PaymentsService {
         return paymentsMapper.convertToDto(paymentsRepository.save(payment));
     }
 
-    // RF36 - Cliente visualiza historial de sus pagos
+
     public List<PaymentsDTO> getMyPayments() {
         UserEntity user = getAuthenticatedUser();
         return paymentsRepository.findBySubscriptionUser(user)
@@ -47,7 +47,7 @@ public class PaymentsService {
                 .toList();
     }
 
-    // Admin visualiza todos los pagos
+
     public List<PaymentsDTO> getAllPayments() {
         return paymentsRepository.findAll()
                 .stream()

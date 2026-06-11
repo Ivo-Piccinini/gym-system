@@ -4,6 +4,7 @@ import com.utnGymGroup.gym_system.common.auth.credentials.CredentialsRepository;
 import com.utnGymGroup.gym_system.features.memberships.MembershipsEntity;
 import com.utnGymGroup.gym_system.features.memberships.MembershipsRepository;
 import com.utnGymGroup.gym_system.features.memberships.exceptions.MembershipNotFoundException;
+import com.utnGymGroup.gym_system.features.subscription.exceptions.SubscriptionAlreadyActiveException;
 import com.utnGymGroup.gym_system.features.subscription.exceptions.SubscriptionNotFoundException;
 import com.utnGymGroup.gym_system.features.user.UserEntity;
 import com.utnGymGroup.gym_system.features.user.exceptions.UserNotFoundException;
@@ -35,8 +36,16 @@ public class SubscriptionsService {
 
     public List<SubscriptionsDTO> getMySubscriptions() {
         UserEntity user = getAuthenticatedUser();
-        return subscriptionRepository.findByUser(user)
-                .stream()
+        List<SubscriptionsEntity> subscriptions = subscriptionRepository.findByUser(user);
+
+        subscriptions.forEach(sub -> {
+            if (sub.getStatus() == SubscriptionsStatus.ACTIVE && sub.getEndDate().isBefore(LocalDate.now())) {
+                sub.setStatus(SubscriptionsStatus.EXPIRED);
+                subscriptionRepository.save(sub);
+            }
+        });
+
+        return subscriptions.stream()
                 .map(subscriptionsMapper::convertToDto)
                 .toList();
     }
@@ -62,7 +71,6 @@ public class SubscriptionsService {
         return subscriptionsMapper.convertToDto(subscriptionRepository.save(subscription));
     }
 
-
     @Transactional
     public SubscriptionsDTO cancelSubscription(Long id) {
         UserEntity authenticatedUser = getAuthenticatedUser();
@@ -70,8 +78,18 @@ public class SubscriptionsService {
         SubscriptionsEntity subscription = subscriptionRepository.findById(id)
                 .orElseThrow(() -> new SubscriptionNotFoundException("No se encontró la suscripción con ID: " + id));
 
+
         if (!subscription.getUser().getId().equals(authenticatedUser.getId())) {
             throw new SubscriptionNotFoundException("No tenés permiso para cancelar esta suscripción.");
+        }
+
+        
+        if (subscription.getStatus() == SubscriptionsStatus.CANCELED) {
+            throw new SubscriptionAlreadyActiveException("La suscripción ya está cancelada.");
+        }
+
+        if (subscription.getStatus() == SubscriptionsStatus.EXPIRED) {
+            throw new SubscriptionAlreadyActiveException("No se puede cancelar una suscripción vencida.");
         }
 
         subscription.setStatus(SubscriptionsStatus.CANCELED);
