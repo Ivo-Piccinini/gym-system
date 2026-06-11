@@ -1,7 +1,8 @@
 package com.utnGymGroup.gym_system.features.memberships;
 
-
 import com.utnGymGroup.gym_system.common.interfaces.ICreate;
+import com.utnGymGroup.gym_system.features.memberships.dtos.MembershipsRequestDTO;
+import com.utnGymGroup.gym_system.features.memberships.dtos.MembershipsResponseDto; // 🎯 Importación obligatoria del nuevo Response DTO
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,21 +19,22 @@ public class MembershipsController {
 
     private final MembershipsService membershipsService;
 
+
     @GetMapping
-    public ResponseEntity<List<MembershipsDTO>> getAllMemberships() {
+    public ResponseEntity<List<MembershipsResponseDto>> getAllMemberships() {
         return ResponseEntity.ok(membershipsService.getAllMemberships());
     }
 
+
     @GetMapping("/{id}")
-    public ResponseEntity<MembershipsDTO> getMembershipById(@PathVariable Long id) {
+    public ResponseEntity<MembershipsResponseDto> getMembershipById(@PathVariable Long id) {
         return ResponseEntity.ok(membershipsService.getMembershipById(id));
     }
 
+
     @PostMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<MembershipsDTO> createMembership(@Validated(ICreate.class) @RequestBody MembershipsDTO dto) {
+    public ResponseEntity<MembershipsResponseDto> createMembership(@Validated(ICreate.class) @RequestBody MembershipsRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(membershipsService.createMembership(dto));
     }
-    
-
 }

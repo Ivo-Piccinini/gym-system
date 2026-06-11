@@ -1,4 +1,4 @@
-package com.utnGymGroup.gym_system.features.memberships;
+package com.utnGymGroup.gym_system.features.memberships.dtos;
 
 import com.utnGymGroup.gym_system.common.interfaces.ICreate;
 import com.utnGymGroup.gym_system.common.interfaces.IUpdate;
@@ -12,7 +12,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class MembershipsDTO {
+public class MembershipsRequestDTO {
 
     private Long id;
 

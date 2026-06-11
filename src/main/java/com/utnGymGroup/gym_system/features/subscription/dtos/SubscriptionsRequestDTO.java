@@ -1,7 +1,8 @@
-package com.utnGymGroup.gym_system.features.subscription;
+package com.utnGymGroup.gym_system.features.subscription.dtos;
 
 import com.utnGymGroup.gym_system.common.interfaces.ICreate;
 import com.utnGymGroup.gym_system.common.interfaces.IUpdate;
+import com.utnGymGroup.gym_system.features.subscription.SubscriptionsStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -15,7 +16,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Getter
 @Setter
-public class SubscriptionsDTO {
+public class SubscriptionsRequestDTO {
 
     @NotNull(message = "El ID de usuario es obligatorio", groups = ICreate.class)
     private Long userId;
