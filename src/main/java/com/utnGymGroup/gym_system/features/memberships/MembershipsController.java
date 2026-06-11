@@ -19,7 +19,7 @@ public class MembershipsController {
 
     private final MembershipsService membershipsService;
 
-   
+
     @GetMapping
     public ResponseEntity<List<MembershipsResponseDto>> getAllMemberships() {
         return ResponseEntity.ok(membershipsService.getAllMemberships());

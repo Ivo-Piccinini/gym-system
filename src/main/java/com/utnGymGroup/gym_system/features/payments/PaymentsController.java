@@ -2,6 +2,7 @@ package com.utnGymGroup.gym_system.features.payments;
 
 import com.utnGymGroup.gym_system.common.interfaces.ICreate;
 import com.utnGymGroup.gym_system.features.payments.dtos.PaymentsRequestDTO;
+import com.utnGymGroup.gym_system.features.payments.dtos.PaymentsResponseDto; // 🎯 Importación del nuevo DTO de respuesta
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,24 +19,21 @@ public class PaymentsController {
 
     private final PaymentsService paymentsService;
 
-    
     @GetMapping
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public ResponseEntity<List<PaymentsRequestDTO>> getAllPayments() {
+    public ResponseEntity<List<PaymentsResponseDto>> getAllPayments() {
         return ResponseEntity.ok(paymentsService.getAllPayments());
     }
 
-
     @GetMapping("/my-payments")
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<List<PaymentsRequestDTO>> getMyPayments() {
+    public ResponseEntity<List<PaymentsResponseDto>> getMyPayments() {
         return ResponseEntity.ok(paymentsService.getMyPayments());
     }
 
-
     @PostMapping
     @PreAuthorize("hasRole('ROLE_CLIENT')")
-    public ResponseEntity<PaymentsRequestDTO> createPayment(@Validated(ICreate.class) @RequestBody PaymentsRequestDTO dto) {
+    public ResponseEntity<PaymentsResponseDto> createPayment(@Validated(ICreate.class) @RequestBody PaymentsRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(paymentsService.createPayment(dto));
     }
 

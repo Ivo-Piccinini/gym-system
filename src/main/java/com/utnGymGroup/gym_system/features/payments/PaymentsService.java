@@ -3,6 +3,9 @@ package com.utnGymGroup.gym_system.features.payments;
 import com.utnGymGroup.gym_system.common.auth.credentials.CredentialsEntity;
 import com.utnGymGroup.gym_system.common.auth.credentials.CredentialsRepository;
 import com.utnGymGroup.gym_system.features.payments.dtos.PaymentsRequestDTO;
+import com.utnGymGroup.gym_system.features.payments.dtos.PaymentsResponseDto; // 🎯 Importación del DTO de respuesta
+import com.utnGymGroup.gym_system.features.payments.mappers.PaymentRequestMapper; // 🎯 Importación del mapper de entrada
+import com.utnGymGroup.gym_system.features.payments.mappers.PaymentsResponseMapper; // 🎯 Importación del mapper de salida
 import com.utnGymGroup.gym_system.features.subscription.SubscriptionRepository;
 import com.utnGymGroup.gym_system.features.subscription.SubscriptionsEntity;
 import com.utnGymGroup.gym_system.features.subscription.exceptions.SubscriptionNotFoundException;
@@ -20,13 +23,14 @@ import java.util.List;
 public class PaymentsService {
 
     private final PaymentsRepository paymentsRepository;
-    private final PaymentsMapper paymentsMapper;
+    private final PaymentRequestMapper requestMapper;
+    private final PaymentsResponseMapper responseMapper;
     private final SubscriptionRepository subscriptionRepository;
     private final CredentialsRepository credentialsRepository;
 
 
     @Transactional
-    public PaymentsRequestDTO createPayment(PaymentsRequestDTO dto) {
+    public PaymentsResponseDto createPayment(PaymentsRequestDTO dto) {
         SubscriptionsEntity subscription = subscriptionRepository.findById(dto.getSubscriptionId())
                 .orElseThrow(() -> new SubscriptionNotFoundException("No se encontró la suscripción con ID: " + dto.getSubscriptionId()));
 
@@ -36,23 +40,23 @@ public class PaymentsService {
         payment.setPaymentDate(dto.getPaymentDate());
         payment.setMethod(dto.getMethod());
 
-        return paymentsMapper.convertToDto(paymentsRepository.save(payment));
+        return responseMapper.convertToDto(paymentsRepository.save(payment));
     }
 
 
-    public List<PaymentsRequestDTO> getMyPayments() {
+    public List<PaymentsResponseDto> getMyPayments() {
         UserEntity user = getAuthenticatedUser();
         return paymentsRepository.findBySubscriptionUser(user)
                 .stream()
-                .map(paymentsMapper::convertToDto)
+                .map(responseMapper::convertToDto)
                 .toList();
     }
 
 
-    public List<PaymentsRequestDTO> getAllPayments() {
+    public List<PaymentsResponseDto> getAllPayments() {
         return paymentsRepository.findAll()
                 .stream()
-                .map(paymentsMapper::convertToDto)
+                .map(responseMapper::convertToDto)
                 .toList();
     }
 

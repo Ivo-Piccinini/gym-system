@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class MembershipRequestMapper implements IMapper<MembershipsEntity, MembershipsRequestDTO> {
     private final ModelMapper modelMapper;
+
     @Override
     public MembershipsRequestDTO convertToDto(MembershipsEntity membershipsEntity) {
         return modelMapper.map(membershipsEntity, MembershipsRequestDTO.class);
