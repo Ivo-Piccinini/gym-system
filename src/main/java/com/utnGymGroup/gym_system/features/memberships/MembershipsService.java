@@ -1,6 +1,6 @@
 package com.utnGymGroup.gym_system.features.memberships;
 
-
+import com.utnGymGroup.gym_system.features.memberships.exceptions.MembershipAlreadyExistsException;
 import com.utnGymGroup.gym_system.features.memberships.exceptions.MembershipNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -30,9 +30,10 @@ public class MembershipsService {
 
     @Transactional
     public MembershipsDTO createMembership(MembershipsDTO dto) {
+        if (membershipsRepository.existsByName(dto.getName())) {
+            throw new MembershipAlreadyExistsException("Ya existe un plan con el nombre: " + dto.getName());
+        }
         MembershipsEntity entity = membershipsMapper.convertToEntity(dto);
         return membershipsMapper.convertToDto(membershipsRepository.save(entity));
     }
-
-
 }
