@@ -1,6 +1,6 @@
 package com.utnGymGroup.gym_system.features.enrollment;
 
-import com.utnGymGroup.gym_system.features.classG.ClassEntity;
+import com.utnGymGroup.gym_system.features.GymClass.GymClassEntity;
 import com.utnGymGroup.gym_system.features.user.UserEntity;
 import jakarta.persistence.*;
 import lombok.*;
@@ -30,7 +30,7 @@ public class EnrollmentEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "class_id",nullable = false)
-    private ClassEntity gymClass;
+    private GymClassEntity gymClass;
 
     @Column(name = "enrollment_date",nullable = false)
     private LocalDate enrollmentDate;

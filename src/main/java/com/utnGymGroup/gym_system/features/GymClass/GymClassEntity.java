@@ -1,4 +1,4 @@
-package com.utnGymGroup.gym_system.features.classG;
+package com.utnGymGroup.gym_system.features.GymClass;
 
 import com.utnGymGroup.gym_system.features.activity.ActivityEntity;
 import com.utnGymGroup.gym_system.features.user.UserEntity;
@@ -16,7 +16,7 @@ import java.util.UUID;
 @Entity
 @Table(name = "classes")
 
-public class ClassEntity {
+public class GymClassEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

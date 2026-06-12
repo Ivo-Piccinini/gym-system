@@ -1,4 +1,4 @@
-package com.utnGymGroup.gym_system.features.classG;
+package com.utnGymGroup.gym_system.features.GymClass;
 
 import com.utnGymGroup.gym_system.common.interfaces.ICreate;
 import com.utnGymGroup.gym_system.common.interfaces.IUpdate;
@@ -19,7 +19,7 @@ import java.util.UUID;
 @Getter
 @Setter
 
-public class ClassDTO {
+public class GymClassDTO {
     @NotNull(message = "El ID es necesario para actualizar", groups = IUpdate.class)
     private UUID externalId;
 

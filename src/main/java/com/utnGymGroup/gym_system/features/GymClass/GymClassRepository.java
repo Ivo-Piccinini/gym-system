@@ -1,4 +1,4 @@
-package com.utnGymGroup.gym_system.features.classG;
+package com.utnGymGroup.gym_system.features.GymClass;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,27 +11,27 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface ClassRepository extends JpaRepository<ClassEntity, Long> {
-    Optional<ClassEntity> findByExternalId(UUID externalId);
+public interface GymClassRepository extends JpaRepository<GymClassEntity, Long> {
+    Optional<GymClassEntity> findByExternalId(UUID externalId);
 
-    List<ClassEntity>findByProfessorExternalId(UUID professorId);
-    List<ClassEntity>findByActivityExternalId(UUID activityId);
-    List<ClassEntity>findAllByDayOfWeek(DayOfWeek dayOfWeek);
+    List<GymClassEntity>findByProfessorExternalId(UUID professorId);
+    List<GymClassEntity>findByActivityExternalId(UUID activityId);
+    List<GymClassEntity>findAllByDayOfWeek(DayOfWeek dayOfWeek);
 
     ///Verifico que no haya superposicion de clases(solapamiento(overlap))
-    @Query("SELECT COUNT(c) > 0 FROM ClassEntity c WHERE c.professor.username = :professorUsername " +
+    @Query("SELECT COUNT(c) > 0 FROM ClassEntity c WHERE c.professor.FirstName = :professorFirstName " +
             "AND c.dayOfWeek = :dayOfWeek " +
             "AND (:startTime < c.endTime AND :endTime > c.startTime)")
-    boolean existsOverlap(@Param("professorUsername") String professorUsername,
+    boolean existsOverlap(@Param("professorFirstName") String professorUsername,
                           @Param("dayOfWeek") DayOfWeek dayOfWeek,
                           @Param("startTime") LocalTime startTime,
                           @Param("endTime") LocalTime endTime);
 
-    @Query("SELECT COUNT(c) > 0 FROM ClassEntity c WHERE c.professor.username = :professorUsername " +
+    @Query("SELECT COUNT(c) > 0 FROM ClassEntity c WHERE c.professor.FirstName = :professorFirstName " +
             "AND c.dayOfWeek = :dayOfWeek " +
             "AND c.externalId != :currentClassId " +
             "AND (:startTime < c.endTime AND :endTime > c.startTime)")
-    boolean existsOverlapForUpdate(@Param("professorUsername") String professorUsername,
+    boolean existsOverlapForUpdate(@Param("professorFirstName") String professorUsername,
                                    @Param("dayOfWeek") DayOfWeek dayOfWeek,
                                    @Param("startTime") LocalTime startTime,
                                    @Param("endTime") LocalTime endTime,

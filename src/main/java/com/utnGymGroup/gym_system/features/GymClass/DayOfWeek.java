@@ -1,4 +1,4 @@
-package com.utnGymGroup.gym_system.features.classG;
+package com.utnGymGroup.gym_system.features.GymClass;
 
 public enum DayOfWeek {
     MONDAY,
