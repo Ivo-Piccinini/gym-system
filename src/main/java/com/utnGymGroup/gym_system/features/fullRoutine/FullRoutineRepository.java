@@ -1,4 +1,4 @@
-package com.utnGymGroup.gym_system.features.fulllRoutine;
+package com.utnGymGroup.gym_system.features.fullRoutine;
 
 import com.utnGymGroup.gym_system.features.exercise.ExerciseEntity;
 import org.springframework.data.jpa.repository.JpaRepository;

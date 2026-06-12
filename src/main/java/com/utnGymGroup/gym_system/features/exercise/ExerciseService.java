@@ -1,6 +1,5 @@
 package com.utnGymGroup.gym_system.features.exercise;
 
-import com.utnGymGroup.gym_system.features.exercise.exceptions.ExerciseAlreadyExistsException;
 import com.utnGymGroup.gym_system.features.exercise.exceptions.ExerciseNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,65 +10,65 @@ import java.util.List;
 @Service
 public class ExerciseService
 {
-    public ExerciseRepository exerciseRepository;
-    public ExerciseMapper exerciseMapper;
+    private final ExerciseRepository exerciseRepository;
+    private final ExerciseMapperRequest exerciseMapperRequest;
+    private final ExerciseMapperRespond exerciseMapperRespond;
 
-    public ExerciseService(ExerciseRepository exerciseRepository, ExerciseMapper exerciseMapper) {
-        this.exerciseRepository = exerciseRepository;
-        this.exerciseMapper = exerciseMapper;
-    }
 
-    public List<ExerciseDto> getAllExercise()
+    public List<ExerciseDtoRespond> getAllExercise()
     {
         return exerciseRepository.findAll()
                 .stream()
-                .map(exerciseMapper :: convertToDto)
+                .map(exerciseMapperRespond:: convertToDto)
                 .toList();
     }
 
-    public ExerciseDto findByName(String nombEjercicio)
+    public ExerciseDtoRespond findByName(String nombEjercicio)
     {
-        ExerciseDto exercisedto = exerciseMapper.convertToDto(exerciseRepository.findByName(nombEjercicio)
+        ExerciseDtoRespond exercisedto = exerciseMapperRespond.convertToDto(exerciseRepository.findByName(nombEjercicio)
                 .orElseThrow(()-> new ExerciseNotFoundException("No se encontro ejercicio con nombre " + nombEjercicio)));
         return exercisedto;
     }
 
-    public ExerciseDto deleteExercise(String publicID)
+    public ExerciseDtoRespond deleteExercise(Long publicID)
     {
         ExerciseEntity exerciseEntity = exerciseRepository.findByIdPublic(publicID)
                 .orElseThrow(()-> new ExerciseNotFoundException("No se encontro ejercico con ese nombre"));
 
-       return exerciseMapper.convertToDto(exerciseRepository.save(exerciseEntity));
+
+        exerciseEntity.setEnabled(false);
+       return exerciseMapperRespond.convertToDto(exerciseRepository.save(exerciseEntity));
 
     }
 
-   public ExerciseDto createExercise(ExerciseDto exerciseDto)
+   public ExerciseDtoRespond createExercise(ExerciseDtoRequest exerciseDtoRequest)
    {
-       if(exerciseRepository.existsByName(exerciseDto.getName()))
+       if(exerciseRepository.existsByName(exerciseDtoRequest.getName()))
        {
            throw new ExerciseNotFoundException("Ya existe ese ejercicio");
        }
-       ExerciseEntity exerciseEntity = exerciseMapper.convertToEntity(exerciseDto);
-       return exerciseMapper.convertToDto(exerciseRepository.save(exerciseEntity));
+
+       ExerciseEntity exerciseEntity = exerciseMapperRequest.convertToEntity(exerciseDtoRequest);
+       return exerciseMapperRespond.convertToDto(exerciseRepository.save(exerciseEntity));
    }
 
-   public ExerciseDto updateExercise(ExerciseDto exerciseDto,String publidID)
+   public ExerciseDtoRespond updateExercise(ExerciseDtoRequest exerciseDtoRequest, Long publidID)
    {
       ExerciseEntity exerciseEntity = exerciseRepository.findByIdPublic(publidID)
               .orElseThrow(()-> new ExerciseNotFoundException("No se encontro ejercicio"));
 
-        exerciseMapper.updateEntityFromDTO(exerciseDto,exerciseEntity);
+        exerciseMapperRequest.updateEntityFromDTO(exerciseDtoRequest,exerciseEntity);
 
-        return exerciseMapper.convertToDto(exerciseRepository.save(exerciseEntity));
+        return exerciseMapperRespond.convertToDto(exerciseRepository.save(exerciseEntity));
    }
 
 
-   public ExerciseDto findByPublicId(String publidId)
+   public ExerciseDtoRespond findByPublicId(Long publidId)
    {
        ExerciseEntity exerciseEntity = exerciseRepository.findByIdPublic(publidId)
                .orElseThrow(()->new ExerciseNotFoundException("No se encontro el ejercicio"));
 
-       return  exerciseMapper.convertToDto(exerciseEntity);
+       return  exerciseMapperRespond.convertToDto(exerciseEntity);
 
    }
 

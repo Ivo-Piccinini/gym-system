@@ -2,18 +2,18 @@ package com.utnGymGroup.gym_system.features.exercise;
 
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.UUID;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
+@ToString
 @Table(name = "Exercise")
 public class ExerciseEntity
 {
@@ -22,19 +22,25 @@ public class ExerciseEntity
     private Long id;
 
     @Column(nullable = false,unique = true,updatable = false)
-    private String idPublic;
+    private Long idPublic;
 
     @Column(unique = true, nullable = true)
     private String name;
+
+    @Column(name = "description")
     private String descripcion;
-    private String muscle_group;///Podria ser enum tambien
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "muscle_group")
+    private MuscleGroup muscleGroup;///Podria ser enum tambien
 
     private Boolean enabled = true;
 
     @PrePersist
-    void onCreate(){
-        if(this.idPublic == null)
-            this.idPublic=java.util.UUID.randomUUID().toString();
+    protected void onCreate(){
+        if(this.idPublic == null) {
+            this.idPublic = ThreadLocalRandom.current().nextLong(10_000_000L, 100_000_000L);
+        }
     }
     
 }
