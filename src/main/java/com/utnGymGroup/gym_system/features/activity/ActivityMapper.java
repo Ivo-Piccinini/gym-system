@@ -9,7 +9,6 @@ public class ActivityMapper implements IMapper<ActivityEntity, ActivityDTO> {
 
     private final ModelMapper modelMapper;
 
-    // Spring inyecta automáticamente el Bean que definieron en MapperConfig
     public ActivityMapper(ModelMapper modelMapper) {
         this.modelMapper = modelMapper;
     }
