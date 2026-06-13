@@ -10,6 +10,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 
 @RestController
 @RequestMapping("/api/exercises")
@@ -26,22 +28,22 @@ public class ExerciseController {
     }*/
 
     @PostMapping
-    public ResponseEntity<ExerciseDto> createExercise(@Validated(ICreate.class) @RequestBody ExerciseDto exerciseDto)
+    public ResponseEntity<ExerciseDto> createExercise(@Validated(ICreate.class) @RequestBody ExerciseDto exerciseDto, @RequestParam(required = true) String usuarioEmail)
     {
-        return ResponseEntity.ok(exerciseService.createExercise(exerciseDto));
+        return ResponseEntity.ok(exerciseService.createExercise(exerciseDto,usuarioEmail));
     }
 
     @GetMapping("/{publicId}")
-    public ResponseEntity<ExerciseDto> getExercise(@PathVariable String publicId)
+    public ResponseEntity<ExerciseDto> getExercise(@PathVariable UUID publicId)
     {
         return ResponseEntity.ok(exerciseService.findByPublicId(publicId));
 
     }
 
-    @DeleteMapping
-    public ResponseEntity<Void> deleteExercise(@PathVariable String publicId)
+    @DeleteMapping("/{publicId}/user/{email}")
+    public ResponseEntity<Void> deleteExercise(@PathVariable UUID publicId,@PathVariable String email)
     {
-         exerciseService.deleteExercise(publicId);
+         exerciseService.deleteExercise(publicId,email);
         return ResponseEntity.noContent().build();
     }
 

@@ -1,23 +1,25 @@
 package com.utnGymGroup.gym_system.features.exercise;
 
+import com.utnGymGroup.gym_system.common.auth.permissions.Roles;
 import com.utnGymGroup.gym_system.features.exercise.exceptions.ExerciseAlreadyExistsException;
 import com.utnGymGroup.gym_system.features.exercise.exceptions.ExerciseNotFoundException;
+import com.utnGymGroup.gym_system.features.exercise.exceptions.RoleNotValid;
+import com.utnGymGroup.gym_system.features.user.UserService;
+import com.utnGymGroup.gym_system.features.user.dtos.UserDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
 public class ExerciseService
 {
-    public ExerciseRepository exerciseRepository;
-    public ExerciseMapper exerciseMapper;
+    private final ExerciseRepository exerciseRepository;
+    private final ExerciseMapper exerciseMapper;
+    private final UserService userService;
 
-    public ExerciseService(ExerciseRepository exerciseRepository, ExerciseMapper exerciseMapper) {
-        this.exerciseRepository = exerciseRepository;
-        this.exerciseMapper = exerciseMapper;
-    }
 
     public List<ExerciseDto> getAllExercise()
     {
@@ -34,8 +36,15 @@ public class ExerciseService
         return exercisedto;
     }
 
-    public ExerciseDto deleteExercise(String publicID)
+    public ExerciseDto deleteExercise(UUID publicID, String userEmail)
     {
+        UserDTO user = userService.findByEmail(userEmail);
+
+        if(user.getRole().equals(Roles.ROLE_CLIENT))
+        {
+            throw new RoleNotValid("El cliente no puede realizar este cambio");
+        }
+
         ExerciseEntity exerciseEntity = exerciseRepository.findByIdPublic(publicID)
                 .orElseThrow(()-> new ExerciseNotFoundException("No se encontro ejercico con ese nombre"));
 
@@ -43,8 +52,15 @@ public class ExerciseService
 
     }
 
-   public ExerciseDto createExercise(ExerciseDto exerciseDto)
+   public ExerciseDto createExercise(ExerciseDto exerciseDto,String userEmail)
    {
+       UserDTO user = userService.findByEmail(userEmail);
+
+       if(user.getRole().equals(Roles.ROLE_CLIENT))
+       {
+           throw new RoleNotValid("El cliente no puede realizar este cambio");
+       }
+
        if(exerciseRepository.existsByName(exerciseDto.getName()))
        {
            throw new ExerciseNotFoundException("Ya existe ese ejercicio");
@@ -53,8 +69,15 @@ public class ExerciseService
        return exerciseMapper.convertToDto(exerciseRepository.save(exerciseEntity));
    }
 
-   public ExerciseDto updateExercise(ExerciseDto exerciseDto,String publidID)
+   public ExerciseDto updateExercise(ExerciseDto exerciseDto,UUID publidID,String userEmail)
    {
+       UserDTO user = userService.findByEmail(userEmail);
+
+       if(user.getRole().equals(Roles.ROLE_CLIENT))
+       {
+           throw new RoleNotValid("El cliente no puede realizar este cambio");
+       }
+
       ExerciseEntity exerciseEntity = exerciseRepository.findByIdPublic(publidID)
               .orElseThrow(()-> new ExerciseNotFoundException("No se encontro ejercicio"));
 
@@ -64,7 +87,7 @@ public class ExerciseService
    }
 
 
-   public ExerciseDto findByPublicId(String publidId)
+   public ExerciseDto findByPublicId(UUID publidId)
    {
        ExerciseEntity exerciseEntity = exerciseRepository.findByIdPublic(publidId)
                .orElseThrow(()->new ExerciseNotFoundException("No se encontro el ejercicio"));

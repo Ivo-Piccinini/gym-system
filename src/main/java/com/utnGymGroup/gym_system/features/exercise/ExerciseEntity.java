@@ -22,7 +22,7 @@ public class ExerciseEntity
     private Long id;
 
     @Column(nullable = false,unique = true,updatable = false)
-    private String idPublic;
+    private UUID idPublic;
 
     @Column(unique = true, nullable = true)
     private String name;
@@ -34,7 +34,7 @@ public class ExerciseEntity
     @PrePersist
     void onCreate(){
         if(this.idPublic == null)
-            this.idPublic=java.util.UUID.randomUUID().toString();
+            this.idPublic=java.util.UUID.randomUUID();
     }
     
 }
