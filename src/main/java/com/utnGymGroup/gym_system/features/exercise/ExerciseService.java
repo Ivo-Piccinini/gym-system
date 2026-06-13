@@ -15,7 +15,7 @@ public class ExerciseService
     private final ExerciseMapperRespond exerciseMapperRespond;
 
 
-    public List<ExerciseDtoRespond> getAllExercise()
+    public List<ExerciseDtoResponse> getAllExercise()
     {
         return exerciseRepository.findAll()
                 .stream()
@@ -23,14 +23,14 @@ public class ExerciseService
                 .toList();
     }
 
-    public ExerciseDtoRespond findByName(String nombEjercicio)
+    public ExerciseDtoResponse findByName(String nombEjercicio)
     {
-        ExerciseDtoRespond exercisedto = exerciseMapperRespond.convertToDto(exerciseRepository.findByName(nombEjercicio)
+        ExerciseDtoResponse exercisedto = exerciseMapperRespond.convertToDto(exerciseRepository.findByName(nombEjercicio)
                 .orElseThrow(()-> new ExerciseNotFoundException("No se encontro ejercicio con nombre " + nombEjercicio)));
         return exercisedto;
     }
 
-    public ExerciseDtoRespond deleteExercise(Long publicID)
+    public ExerciseDtoResponse deleteExercise(Long publicID)
     {
         ExerciseEntity exerciseEntity = exerciseRepository.findByIdPublic(publicID)
                 .orElseThrow(()-> new ExerciseNotFoundException("No se encontro ejercico con ese nombre"));
@@ -41,7 +41,7 @@ public class ExerciseService
 
     }
 
-   public ExerciseDtoRespond createExercise(ExerciseDtoRequest exerciseDtoRequest)
+   public ExerciseDtoResponse createExercise(ExerciseDtoRequest exerciseDtoRequest)
    {
        if(exerciseRepository.existsByName(exerciseDtoRequest.getName()))
        {
@@ -52,7 +52,7 @@ public class ExerciseService
        return exerciseMapperRespond.convertToDto(exerciseRepository.save(exerciseEntity));
    }
 
-   public ExerciseDtoRespond updateExercise(ExerciseDtoRequest exerciseDtoRequest, Long publidID)
+   public ExerciseDtoResponse updateExercise(ExerciseDtoRequest exerciseDtoRequest, Long publidID)
    {
       ExerciseEntity exerciseEntity = exerciseRepository.findByIdPublic(publidID)
               .orElseThrow(()-> new ExerciseNotFoundException("No se encontro ejercicio"));
@@ -63,7 +63,7 @@ public class ExerciseService
    }
 
 
-   public ExerciseDtoRespond findByPublicId(Long publidId)
+   public ExerciseDtoResponse findByPublicId(Long publidId)
    {
        ExerciseEntity exerciseEntity = exerciseRepository.findByIdPublic(publidId)
                .orElseThrow(()->new ExerciseNotFoundException("No se encontro el ejercicio"));

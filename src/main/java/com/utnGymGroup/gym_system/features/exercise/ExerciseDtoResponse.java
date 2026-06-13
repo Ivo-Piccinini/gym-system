@@ -1,10 +1,6 @@
 package com.utnGymGroup.gym_system.features.exercise;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-
-public class ExerciseDtoRespond
+public class ExerciseDtoResponse
 {
     private String idPublic;
     private String name;

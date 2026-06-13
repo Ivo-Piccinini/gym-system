@@ -23,13 +23,13 @@ public class ExerciseController {
     }*/
 
     @PostMapping
-    public ResponseEntity<ExerciseDtoRespond> createExercise(@Validated(ICreate.class) @RequestBody ExerciseDtoRequest exerciseDtoRequest)
+    public ResponseEntity<ExerciseDtoResponse> createExercise(@Validated(ICreate.class) @RequestBody ExerciseDtoRequest exerciseDtoRequest)
     {
         return ResponseEntity.ok(exerciseService.createExercise(exerciseDtoRequest));
     }
 
     @GetMapping("/{publicId}")
-    public ResponseEntity<ExerciseDtoRespond> getExercise(@PathVariable Long publicId)
+    public ResponseEntity<ExerciseDtoResponse> getExercise(@PathVariable Long publicId)
     {
         return ResponseEntity.ok(exerciseService.findByPublicId(publicId));
 
@@ -44,7 +44,7 @@ public class ExerciseController {
 
 
     @PutMapping("/{publicId}")
-    public ResponseEntity<ExerciseDtoRespond> updateExercise(@Validated(IUpdate.class) @RequestBody ExerciseDtoRequest exerciseDtoRequest ,@PathVariable Long publicID)
+    public ResponseEntity<ExerciseDtoResponse> updateExercise(@Validated(IUpdate.class) @RequestBody ExerciseDtoRequest exerciseDtoRequest , @PathVariable Long publicID)
     {
        return ResponseEntity.ok(exerciseService.updateExercise(exerciseDtoRequest,publicID));
     }

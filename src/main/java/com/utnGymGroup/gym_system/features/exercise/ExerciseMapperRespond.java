@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 
 
 @Component
-public class ExerciseMapperRespond implements IMapper<ExerciseEntity,ExerciseDtoRespond>
+public class ExerciseMapperRespond implements IMapper<ExerciseEntity, ExerciseDtoResponse>
 {
     private final ModelMapper modelMapper;
 
@@ -15,18 +15,18 @@ public class ExerciseMapperRespond implements IMapper<ExerciseEntity,ExerciseDto
     }
 
     @Override
-    public ExerciseDtoRespond convertToDto(ExerciseEntity exerciseEntity) {
-        return modelMapper.map(exerciseEntity, ExerciseDtoRespond.class) ;
+    public ExerciseDtoResponse convertToDto(ExerciseEntity exerciseEntity) {
+        return modelMapper.map(exerciseEntity, ExerciseDtoResponse.class) ;
     }
 
     @Override
-    public ExerciseEntity convertToEntity(ExerciseDtoRespond exerciseDtoRespond) {
-        return modelMapper.map(exerciseDtoRespond, ExerciseEntity.class);
+    public ExerciseEntity convertToEntity(ExerciseDtoResponse exerciseDtoResponse) {
+        return modelMapper.map(exerciseDtoResponse, ExerciseEntity.class);
     }
 
     @Override
-    public void updateEntityFromDTO(ExerciseDtoRespond exerciseDtoRespond, ExerciseEntity exerciseEntity) {
+    public void updateEntityFromDTO(ExerciseDtoResponse exerciseDtoResponse, ExerciseEntity exerciseEntity) {
 
-        modelMapper.map(exerciseDtoRespond , exerciseEntity);
+        modelMapper.map(exerciseDtoResponse, exerciseEntity);
     }
 }
