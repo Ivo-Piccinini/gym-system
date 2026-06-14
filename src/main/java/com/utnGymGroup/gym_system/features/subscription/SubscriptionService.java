@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -51,10 +52,10 @@ public class SubscriptionService {
     }
 
     @Transactional
-    public SubscriptionResponseDto subscribe(Long planId) {
+    public SubscriptionResponseDto subscribe(UUID planId) {
         UserEntity user = userService.getAuthenticatedUserEntity();
 
-        MembershipEntity plan = membershipRepository.findById(planId)
+        MembershipEntity plan = membershipRepository.findByUUID(planId)
                 .orElseThrow(() -> new MembershipNotFoundException("No se encontró el plan con ID: " + planId));
 
         LocalDate startDate = LocalDate.now();
@@ -71,13 +72,13 @@ public class SubscriptionService {
     }
 
     @Transactional
-    public SubscriptionResponseDto cancelSubscription(Long id) {
+    public SubscriptionResponseDto cancelSubscription(UUID id) {
         UserEntity authenticatedUser = userService.getAuthenticatedUserEntity();
 
-        SubscriptionEntity subscription = subscriptionRepository.findById(id)
+        SubscriptionEntity subscription = subscriptionRepository.findByUUID(id)
                 .orElseThrow(() -> new SubscriptionNotFoundException("No se encontró la suscripción con ID: " + id));
 
-        if (!subscription.getUser().getId().equals(authenticatedUser.getId())) {
+        if (!subscription.getUser().getPublicId().equals(authenticatedUser.getPublicId())) {
             throw new SubscriptionNotFoundException("No tenés permiso para cancelar esta suscripción.");
         }
 

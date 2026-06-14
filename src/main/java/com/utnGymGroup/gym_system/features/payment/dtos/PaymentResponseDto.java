@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -19,5 +20,6 @@ public class PaymentResponseDto {
     private LocalDate paymentDate;
     private PaymentMethods method;
     private Long subscriptionId;
+    private UUID publicId;
 
 }

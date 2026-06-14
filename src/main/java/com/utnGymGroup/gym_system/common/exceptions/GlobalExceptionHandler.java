@@ -8,6 +8,7 @@ import com.utnGymGroup.gym_system.features.fullRoutine.exception.FullRoutineNotF
 import com.utnGymGroup.gym_system.features.fullRoutine.exception.RoutineAlreadyExistsException;
 import com.utnGymGroup.gym_system.features.membership.exceptions.MembershipNotFoundException;
 import com.utnGymGroup.gym_system.features.routine.exception.RoutineNotFoundException;
+import com.utnGymGroup.gym_system.features.subscription.exceptions.SubscriptionAlreadyActiveException;
 import com.utnGymGroup.gym_system.features.subscription.exceptions.SubscriptionNotFoundException;
 import com.utnGymGroup.gym_system.features.user.exceptions.*;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -43,6 +44,17 @@ public class GlobalExceptionHandler {
                 .build();
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
     }
+
+    @ExceptionHandler(SubscriptionAlreadyActiveException.class)
+    public ResponseEntity<ErrorResponse> handleSubscriptionAlreadyActiveException(SubscriptionAlreadyActiveException ex, WebRequest webRequest) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .message(ex.getMessage())
+                .description(webRequest.getDescription(false))
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
+
 
     @ExceptionHandler(SubscriptionNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleSubscriptionNotFoundException(SubscriptionNotFoundException ex, WebRequest webRequest) {
