@@ -5,27 +5,26 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 @Component
-public class FullRoutineMapper implements IMapper<FullRoutineEntity, FullRoutineDto>
+public class FullRoutineMapper implements IMapper<FullRoutineEntity, FullRoutineDtoRequest>
 {
     private final ModelMapper modelMapper;
-
 
     public FullRoutineMapper(ModelMapper modelMapper) {
         this.modelMapper = modelMapper;
     }
 
     @Override
-    public FullRoutineDto convertToDto(FullRoutineEntity fullRoutineEntity) {
-        return modelMapper.map(fullRoutineEntity, FullRoutineDto.class);
+    public FullRoutineDtoRequest convertToDto(FullRoutineEntity fullRoutineEntity) {
+        return modelMapper.map(fullRoutineEntity, FullRoutineDtoRequest.class);
     }
 
     @Override
-    public FullRoutineEntity convertToEntity(FullRoutineDto fullRoutineDto) {
+    public FullRoutineEntity convertToEntity(FullRoutineDtoRequest fullRoutineDto) {
         return modelMapper.map(fullRoutineDto, FullRoutineEntity.class);
     }
 
     @Override
-    public void updateEntityFromDTO(FullRoutineDto fullRoutineDto, FullRoutineEntity routineXEjerciceEntity) {
+    public void updateEntityFromDTO(FullRoutineDtoRequest fullRoutineDto, FullRoutineEntity routineXEjerciceEntity) {
         modelMapper.map(fullRoutineDto,routineXEjerciceEntity);
     }
 }

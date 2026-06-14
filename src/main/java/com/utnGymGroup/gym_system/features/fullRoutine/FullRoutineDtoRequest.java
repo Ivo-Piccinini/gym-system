@@ -4,17 +4,25 @@ import com.utnGymGroup.gym_system.common.interfaces.ICreate;
 import com.utnGymGroup.gym_system.common.interfaces.IUpdate;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
+import lombok.Data;
+import lombok.RequiredArgsConstructor;
 
-public class FullRoutineDto {
+import java.util.UUID;
 
-    public Long publicID;
+
+@Data
+@RequiredArgsConstructor
+public class FullRoutineDtoRequest {
+
+
+    private UUID publicId;
 
     @NotNull(message = "El ejercicio debe tener almenos un id")
     private Long exerciseID;
 
     @NotNull(message = "La rutina debe tener almenos un id")
     private Long routineID;
-
 
     @NotNull(message = "la rutina tiene que tener series" ,groups = ICreate.class)
     @Min(value = 1, groups = {ICreate.class, IUpdate.class})
@@ -24,7 +32,8 @@ public class FullRoutineDto {
     @Min(value = 1 , groups = {ICreate.class,IUpdate.class})
     private Integer reps;
 
-    private Integer weight;
-
+    @NotNull(message = "el ejercicio debe contar con peso")
+    @PositiveOrZero
+    private Double weight;
 
 }

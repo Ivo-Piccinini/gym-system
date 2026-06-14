@@ -7,6 +7,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.UUID;
+
 @Entity
 @Getter
 @Setter
@@ -19,16 +21,28 @@ public class FullRoutineEntity
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-  @ManyToOne
-  @JoinColumn (name = "routine_id")
+    private UUID publicId;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn (name = "routine_id",nullable = false)
     private RoutineEntity routine;
 
-  @ManyToOne
-    @JoinColumn(name = "exercise_id")
+  @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "exercise_id",nullable = false)
     private ExerciseEntity exercise;
 
   private Integer series;
   private Integer reps;
-  private Integer weight;
+  private Double weight;
+
+  @PrePersist
+    private void generateUUID()
+  {
+      if(this.publicId == null)
+      {
+          setPublicId(UUID.randomUUID());
+      }
+
+  }
 
 }
