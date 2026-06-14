@@ -2,6 +2,7 @@ package com.utnGymGroup.gym_system.features.exercise;
 
 import com.utnGymGroup.gym_system.features.exercise.exceptions.ExerciseNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -30,47 +31,51 @@ public class ExerciseService
         return exercisedto;
     }
 
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
     public ExerciseDtoResponse deleteExercise(Long publicID)
     {
         ExerciseEntity exerciseEntity = exerciseRepository.findByIdPublic(publicID)
-                .orElseThrow(()-> new ExerciseNotFoundException("No se encontro ejercico con ese nombre"));
+                .orElseThrow(()-> new ExerciseNotFoundException("No se encontro ejercico con ese id"));
 
 
         exerciseEntity.setEnabled(false);
-       return exerciseMapperRespond.convertToDto(exerciseRepository.save(exerciseEntity));
+        return exerciseMapperRespond.convertToDto(exerciseRepository.save(exerciseEntity));
 
     }
 
-   public ExerciseDtoResponse createExercise(ExerciseDtoRequest exerciseDtoRequest)
-   {
-       if(exerciseRepository.existsByName(exerciseDtoRequest.getName()))
-       {
-           throw new ExerciseNotFoundException("Ya existe ese ejercicio");
-       }
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
+    public ExerciseDtoResponse createExercise(ExerciseDtoRequest exerciseDtoRequest)
+    {
+        if(exerciseRepository.existsByName(exerciseDtoRequest.getName()))
+        {
+            throw new ExerciseNotFoundException("Ya existe ese ejercicio");
+        }
 
-       ExerciseEntity exerciseEntity = exerciseMapperRequest.convertToEntity(exerciseDtoRequest);
-       return exerciseMapperRespond.convertToDto(exerciseRepository.save(exerciseEntity));
-   }
+        ExerciseEntity exerciseEntity = exerciseMapperRequest.convertToEntity(exerciseDtoRequest);
+        return exerciseMapperRespond.convertToDto(exerciseRepository.save(exerciseEntity));
+    }
 
-   public ExerciseDtoResponse updateExercise(ExerciseDtoRequest exerciseDtoRequest, Long publidID)
-   {
-      ExerciseEntity exerciseEntity = exerciseRepository.findByIdPublic(publidID)
-              .orElseThrow(()-> new ExerciseNotFoundException("No se encontro ejercicio"));
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
+    public ExerciseDtoResponse updateExercise(ExerciseDtoRequest exerciseDtoRequest, Long publidID)
+    {
+        ExerciseEntity exerciseEntity = exerciseRepository.findByIdPublic(publidID)
+                .orElseThrow(()-> new ExerciseNotFoundException("No se encontro ejercicio"));
 
         exerciseMapperRequest.updateEntityFromDTO(exerciseDtoRequest,exerciseEntity);
 
         return exerciseMapperRespond.convertToDto(exerciseRepository.save(exerciseEntity));
-   }
+    }
 
 
-   public ExerciseDtoResponse findByPublicId(Long publidId)
-   {
-       ExerciseEntity exerciseEntity = exerciseRepository.findByIdPublic(publidId)
-               .orElseThrow(()->new ExerciseNotFoundException("No se encontro el ejercicio"));
+    public ExerciseDtoResponse findByPublicId(Long publidId)
+    {
+        ExerciseEntity exerciseEntity = exerciseRepository.findByIdPublic(publidId)
+                .orElseThrow(()->new ExerciseNotFoundException("No se encontro el ejercicio"));
 
-       return  exerciseMapperRespond.convertToDto(exerciseEntity);
+        return  exerciseMapperRespond.convertToDto(exerciseEntity);
 
-   }
+    }
 
 
 }

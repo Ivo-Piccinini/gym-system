@@ -5,26 +5,26 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 @Component
-public class RoutineMapper implements IMapper <RoutineEntity,RoutineDto>
+public class RoutineMapperRequest implements IMapper <RoutineEntity, RoutineRequestDto>
 {
    private ModelMapper modelMapper;
 
-    public RoutineMapper(ModelMapper modelMapper) {
+    public RoutineMapperRequest(ModelMapper modelMapper) {
         this.modelMapper = modelMapper;
     }
 
     @Override
-    public RoutineDto convertToDto(RoutineEntity routineEntity) {
-        return modelMapper.map(routineEntity,RoutineDto.class);
+    public RoutineRequestDto convertToDto(RoutineEntity routineEntity) {
+        return modelMapper.map(routineEntity, RoutineRequestDto.class);
     }
 
     @Override
-    public RoutineEntity convertToEntity(RoutineDto routineDto) {
+    public RoutineEntity convertToEntity(RoutineRequestDto routineDto) {
         return modelMapper.map(routineDto,RoutineEntity.class);
     }
 
     @Override
-    public void updateEntityFromDTO(RoutineDto routineDto, RoutineEntity routineEntity) {
+    public void updateEntityFromDTO(RoutineRequestDto routineDto, RoutineEntity routineEntity) {
         modelMapper.map(routineDto, routineEntity);
     }
 }
