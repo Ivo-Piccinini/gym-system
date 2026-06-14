@@ -2,6 +2,8 @@ package com.utnGymGroup.gym_system.features.enrollment;
 
 import com.utnGymGroup.gym_system.features.GymClass.GymClassEntity;
 import com.utnGymGroup.gym_system.features.GymClass.GymClassRepository;
+import com.utnGymGroup.gym_system.features.audit.AuditActions;
+import com.utnGymGroup.gym_system.features.audit.Auditable;
 import com.utnGymGroup.gym_system.features.user.UserEntity;
 import com.utnGymGroup.gym_system.features.user.UserService;
 import jakarta.persistence.EntityNotFoundException;
@@ -40,6 +42,7 @@ public class EnrollmentService {
                 .collect(Collectors.toList());
     }
 
+    @Auditable(AuditActions.ENROLL_IN_CLASS)
     @Transactional
     public EnrollmentDTO enrollClient(UUID classExternalId) {
 
@@ -63,6 +66,7 @@ public class EnrollmentService {
         return enrollmentMapper.convertToDto(savedEnrollment);
     }
 
+    @Auditable(AuditActions.CANCEL_ENROLLMENT)
     @Transactional
     public void cancelEnrollment(UUID externalId) {
         EnrollmentEntity enrollment = enrollmentRepository.findByExternalId(externalId)

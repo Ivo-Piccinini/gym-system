@@ -1,5 +1,7 @@
 package com.utnGymGroup.gym_system.features.fullRoutine;
 
+import com.utnGymGroup.gym_system.features.audit.AuditActions;
+import com.utnGymGroup.gym_system.features.audit.Auditable;
 import com.utnGymGroup.gym_system.features.exercise.ExerciseEntity;
 import com.utnGymGroup.gym_system.features.exercise.ExerciseRepository;
 import com.utnGymGroup.gym_system.features.exercise.exceptions.ExerciseNotFoundException;
@@ -46,6 +48,7 @@ public class FullRoutineService
         return convertToRespondDto(entity);
     }
 
+    @Auditable(AuditActions.ASSIGN_EXERCISE)
     @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
     @Transactional
     public FullRoutineDtoResponse createFullRoutine(FullRoutineDtoRequest request) {

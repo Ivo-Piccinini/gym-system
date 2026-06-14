@@ -1,6 +1,8 @@
 package com.utnGymGroup.gym_system.features.GymClass;
 
 
+import com.utnGymGroup.gym_system.features.audit.AuditActions;
+import com.utnGymGroup.gym_system.features.audit.Auditable;
 import com.utnGymGroup.gym_system.features.enrollment.EnrollmentRepository;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.stereotype.Service;
@@ -39,6 +41,7 @@ public class GymClassService {
         return gymClassMapper.convertToDto(gymClassEntity);
     }
 
+    @Auditable(AuditActions.CREATE_CLASS)
     @Transactional
     public GymClassDTO createClass(GymClassDTO gymClassDTO) {
         validateClassHours(gymClassDTO);
@@ -63,6 +66,7 @@ public class GymClassService {
         return gymClassMapper.convertToDto(savedClass);
     }
 
+    @Auditable(AuditActions.UPDATE_CLASS)
     @Transactional
     public GymClassDTO updateClass(UUID externalId, GymClassDTO gymClassDTO) {
         GymClassEntity existingClass = gymClassRepository.findByExternalId(externalId)
@@ -91,6 +95,7 @@ public class GymClassService {
         return gymClassMapper.convertToDto(updatedClass);
     }
 
+    @Auditable(AuditActions.DELETE_CLASS)
     @Transactional
     public void deleteClass(UUID externalId) {
         GymClassEntity gymClassEntity = gymClassRepository.findByExternalId(externalId)

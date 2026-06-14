@@ -1,5 +1,7 @@
 package com.utnGymGroup.gym_system.features.membership;
 
+import com.utnGymGroup.gym_system.features.audit.AuditActions;
+import com.utnGymGroup.gym_system.features.audit.Auditable;
 import com.utnGymGroup.gym_system.features.membership.dtos.MembershipRequestDTO;
 import com.utnGymGroup.gym_system.features.membership.dtos.MembershipResponseDto;
 import com.utnGymGroup.gym_system.features.membership.exceptions.MembershipAlreadyExistsException;
@@ -34,6 +36,7 @@ public class MembershipService {
                 .orElseThrow(() -> new MembershipNotFoundException("No se encontró el plan de membresía con ID: " + id));
     }
 
+    @Auditable(AuditActions.CREATE_PLAN)
     @Transactional
     public MembershipResponseDto createMembership(MembershipRequestDTO dto) {
         if (membershipRepository.existsByName(dto.getName())) {

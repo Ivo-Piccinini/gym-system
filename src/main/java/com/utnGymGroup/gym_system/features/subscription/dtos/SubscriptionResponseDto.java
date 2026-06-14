@@ -10,13 +10,10 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SubscriptionResponseDto {
-
     private Long id;
     private Long userId;
     private Long planId;
     private LocalDate startDate;
     private LocalDate endDate;
     private SubscriptionStatus status;
-
-
 }

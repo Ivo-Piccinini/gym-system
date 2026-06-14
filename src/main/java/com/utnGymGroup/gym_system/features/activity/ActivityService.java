@@ -1,6 +1,8 @@
 package com.utnGymGroup.gym_system.features.activity;
 
 import com.utnGymGroup.gym_system.features.GymClass.GymClassRepository;
+import com.utnGymGroup.gym_system.features.audit.AuditActions;
+import com.utnGymGroup.gym_system.features.audit.Auditable;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,6 +34,7 @@ public class ActivityService {
         return activityMapper.convertToDto(entity);
     }
 
+    @Auditable(AuditActions.CREATE_ACTIVITY)
     @Transactional
     public ActivityDTO createActivity(ActivityDTO activityDTO) {
         ActivityEntity entity = activityMapper.convertToEntity(activityDTO);
@@ -39,6 +42,7 @@ public class ActivityService {
         return activityMapper.convertToDto(savedEntity);
     }
 
+    @Auditable(AuditActions.UPDATE_ACTIVITY)
     @Transactional
     public ActivityDTO updateActivity(UUID externalId, ActivityDTO activityDTO) {
         ActivityEntity existingEntity = activityRepository.findByExternalId(externalId)
@@ -50,6 +54,7 @@ public class ActivityService {
         return activityMapper.convertToDto(updatedEntity);
     }
 
+    @Auditable(AuditActions.DELETE_ACTIVITY)
     @Transactional
     public void deleteActivity(UUID externalId) {
         ActivityEntity entity = activityRepository.findByExternalId(externalId)

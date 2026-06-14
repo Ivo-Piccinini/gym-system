@@ -1,5 +1,7 @@
 package com.utnGymGroup.gym_system.features.routine;
 
+import com.utnGymGroup.gym_system.features.audit.AuditActions;
+import com.utnGymGroup.gym_system.features.audit.Auditable;
 import com.utnGymGroup.gym_system.features.routine.exception.RoutineNotFoundException;
 import com.utnGymGroup.gym_system.features.user.UserEntity;
 import com.utnGymGroup.gym_system.features.user.UserRepository;
@@ -43,6 +45,7 @@ public class RoutineService
         return routineMapperResponse.convertToDto(routine);
     }
 
+    @Auditable(AuditActions.CREATE_ROUTINE)
     @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
     @Transactional
     public RoutineResponseDto createRoutine(RoutineRequestDto request) {
@@ -62,6 +65,7 @@ public class RoutineService
         return routineMapperResponse.convertToDto(routineRepository.save(routineEntity));
     }
 
+    @Auditable(AuditActions.UPDATE_ROUTINE)
     @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
     @Transactional
     public RoutineResponseDto updateRoutine(RoutineRequestDto request, UUID publicId) {

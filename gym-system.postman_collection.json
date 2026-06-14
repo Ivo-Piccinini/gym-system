@@ -1,0 +1,1648 @@
+{
+  "info": {
+    "_postman_id": "8c575d5e-d2b3-4f9e-beee-9975cd92518f",
+    "name": "Gym System API",
+    "description": "Colección completa de peticiones HTTP para probar el backend del Gym System. Incluye flujos estructurados de todos los controladores (Autenticación, Usuarios, Planes, Suscripciones, Pagos, Actividades, Clases, Inscripciones, Ejercicios y Rutinas).",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "1. Autenticación y Registro",
+      "item": [
+        {
+          "name": "Iniciar Sesión (Login)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "var jsonData = pm.response.json();",
+                  "if (jsonData.token) {",
+                  "    pm.collectionVariables.set(\"jwtToken\", jsonData.token);",
+                  "    console.log(\"Token JWT guardado automáticamente en 'jwtToken'\");",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"admin\",\n  \"password\": \"password123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Registro Autónomo de Cliente",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"nuevocliente\",\n  \"email\": \"nuevocliente@gym.com\",\n  \"password\": \"password123\",\n  \"dni\": \"99998888\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "2. Usuarios",
+      "item": [
+        {
+          "name": "Listar Usuarios (Admin/Profesor)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users?enabled=true&role=ROLE_CLIENT",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users"
+              ],
+              "query": [
+                {
+                  "key": "enabled",
+                  "value": "true"
+                },
+                {
+                  "key": "role",
+                  "value": "ROLE_CLIENT"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Obtener Usuario por Username",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/cliente1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "cliente1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Crear Usuario con Perfil (Solo Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"profesortest@gym.com\",\n  \"dni\": \"11223344\",\n  \"firstName\": \"Carlos\",\n  \"lastName\": \"Entrenador\",\n  \"phone\": \"3419999999\",\n  \"birthDay\": \"1985-04-20\",\n  \"role\": \"ROLE_PROFESSOR\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/register",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "register"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualizar Perfil por Username",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PUT",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"cliente1_edit@gym.com\",\n  \"dni\": \"10000001\",\n  \"firstName\": \"Cliente\",\n  \"lastName\": \"Uno Editado\",\n  \"phone\": \"3418887766\",\n  \"birthDay\": \"1990-05-15\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/cliente1",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "cliente1"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Cambiar Contraseña",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"oldPassword\": \"password123\",\n  \"newPassword\": \"nuevaclave123\",\n  \"confirmPassword\": \"nuevaclave123\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/cliente1/password",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "cliente1",
+                "password"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Personalizar Username (Primer Ingreso)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"newUsername\": \"cliente1nuevo\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/10000001/username",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "10000001",
+                "username"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Baja Lógica / Activar Usuario (Solo Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/{{userUuid}}/status?enabled=false",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "{{userUuid}}",
+                "status"
+              ],
+              "query": [
+                {
+                  "key": "enabled",
+                  "value": "false"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Eliminar Usuario Físicamente (Solo Admin)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/users/cliente9",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "cliente9"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Actualización Parcial de Perfil (Propio)",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "{{jwtToken}}",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"3411122233\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/users/me",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "users",
+                "me"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "3. Planes y Suscripciones",
+      "item": [
+        {
+          "name": "Planes (Memberships)",
+          "item": [
+            {
+              "name": "Listar Planes Comerciales",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/memberships",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "memberships"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Obtener Plan por ID",
+              "request": {
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/memberships/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "memberships",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Crear Plan Comercial (Solo Admin)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Pase Libre Anual\",\n  \"price\": 120000.00,\n  \"durationDays\": 365\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/memberships",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "memberships"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Suscripciones (Subscriptions)",
+          "item": [
+            {
+              "name": "Listar todas las Suscripciones (Solo Admin)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/subscriptions",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "subscriptions"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Ver mis Suscripciones (Cliente)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/subscriptions/my-subscriptions",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "subscriptions",
+                    "my-subscriptions"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Contratar Plan (Suscripción)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/subscriptions/1",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "subscriptions",
+                    "1"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Cancelar Suscripción Activa (Cliente)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PATCH",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/subscriptions/1/cancel",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "subscriptions",
+                    "1",
+                    "cancel"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Pagos (Payments)",
+          "item": [
+            {
+              "name": "Listar todos los Pagos (Solo Admin)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/payments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "payments"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Ver mis Pagos (Cliente)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/payments/my-payments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "payments",
+                    "my-payments"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Registrar Transacción de Pago (Cliente)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"subscriptionId\": 1,\n  \"amount\": 15000.00,\n  \"paymentDate\": \"2026-06-14\",\n  \"method\": \"EFECTIVO\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/payments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "payments"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "4. Actividades y Clases",
+      "item": [
+        {
+          "name": "Actividades (Activities)",
+          "item": [
+            {
+              "name": "Listar Actividades",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/activities",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "activities"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Obtener Actividad por UUID",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/activities/{{activityUuid}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "activities",
+                    "{{activityUuid}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Crear Actividad (Admin/Profesor)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"CrossFit\",\n  \"description\": \"Entrenamiento funcional de alta intensidad\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/activities",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "activities"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Actualizar Actividad por UUID",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"CrossFit Pro\",\n  \"description\": \"Entrenamiento funcional avanzado de alta intensidad\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/activities/{{activityUuid}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "activities",
+                    "{{activityUuid}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Eliminar Actividad (Admin/Profesor)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/activities/{{activityUuid}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "activities",
+                    "{{activityUuid}}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Clases (Gym Classes)",
+          "item": [
+            {
+              "name": "Listar Clases Horarias",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/gym-classes",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "gym-classes"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Obtener Clase por UUID",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/gym-classes/{{classUuid}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "gym-classes",
+                    "{{classUuid}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Filtrar Clases por Profesor (UUID)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/gym-classes/professor/{{professorUuid}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "gym-classes",
+                    "professor",
+                    "{{professorUuid}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Filtrar Clases por Actividad (UUID)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/gym-classes/activity/{{activityUuid}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "gym-classes",
+                    "activity",
+                    "{{activityUuid}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Filtrar Clases por Día",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/gym-classes/day?dayOfWeek=LUNES",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "gym-classes",
+                    "day"
+                  ],
+                  "query": [
+                    {
+                      "key": "dayOfWeek",
+                      "value": "LUNES"
+                    }
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Crear Horario de Clase (Admin/Profesor)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"activity\": {\n    \"externalId\": \"{{activityUuid}}\"\n  },\n  \"professor\": {\n    \"firstName\": \"Carlos\"\n  },\n  \"dayOfWeek\": \"LUNES\",\n  \"startTime\": \"08:00:00\",\n  \"endTime\": \"09:00:00\",\n  \"capacityMax\": 20\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/gym-classes",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "gym-classes"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Actualizar Clase por UUID (Admin/Profesor)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"dayOfWeek\": \"MARTES\",\n  \"startTime\": \"09:00:00\",\n  \"endTime\": \"10:00:00\",\n  \"capacityMax\": 25\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/gym-classes/{{classUuid}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "gym-classes",
+                    "{{classUuid}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Eliminar Clase por UUID (Admin/Profesor)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/gym-classes/{{classUuid}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "gym-classes",
+                    "{{classUuid}}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Inscripciones (Enrollments)",
+          "item": [
+            {
+              "name": "Listar todas las Inscripciones (Admin/Profesor)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/enrollments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "enrollments"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Ver mis Inscripciones (Cliente)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                }
+              ]
+            },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/enrollments/my-enrollments",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "enrollments",
+                    "my-enrollments"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Inscribirse a Clase",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/enrollments/class/{{classUuid}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "enrollments",
+                    "class",
+                    "{{classUuid}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Cancelar Inscripción por UUID (Cliente)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/enrollments/{{enrollmentUuid}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "enrollments",
+                    "{{enrollmentUuid}}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "5. Ejercicios y Rutinas",
+      "item": [
+        {
+          "name": "Ejercicios (Exercises)",
+          "item": [
+            {
+              "name": "Obtener Ejercicio por ID Público",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/exercises/{{exercisePublicId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "exercises",
+                    "{{exercisePublicId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Crear Ejercicio (Admin/Profesor)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Sentadillas con Barra\",\n  \"description\": \"Sentadilla profunda con peso libre en barra trasera\",\n  \"muscleGroup\": \"PIERNAS\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/exercises",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "exercises"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Actualizar Ejercicio (Admin/Profesor)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Sentadillas Profundas\",\n  \"description\": \"Sentadilla libre profunda con barra en hombros\",\n  \"muscleGroup\": \"PIERNAS\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/exercises/{{exercisePublicId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "exercises",
+                    "{{exercisePublicId}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Eliminar Ejercicio (Admin/Profesor)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/exercises/{{exercisePublicId}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "exercises",
+                    "{{exercisePublicId}}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        },
+        {
+          "name": "Rutinas (Routines)",
+          "item": [
+            {
+              "name": "Listar todas las Rutinas (Admin/Profesor)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/routines",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "routines"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Obtener Rutina por UUID",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "GET",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/routines/{{routineUuid}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "routines",
+                    "{{routineUuid}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Crear Rutina (Solo Profesor)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "POST",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Rutina de Hipertrofia A\",\n  \"startDate\": \"2026-06-15\",\n  \"endDate\": \"2026-08-15\",\n  \"typeRoutine\": \"HYPERTROPHY\",\n  \"clientId\": \"{{userUuid}}\",\n  \"professorId\": \"{{professorUuid}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/routines",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "routines"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Actualizar Rutina (Solo Profesor)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "PUT",
+                "header": [],
+                "body": {
+                  "mode": "raw",
+                  "raw": "{\n  \"name\": \"Rutina de Fuerza y Resistencia\",\n  \"startDate\": \"2026-06-15\",\n  \"endDate\": \"2026-09-15\",\n  \"typeRoutine\": \"CARDIO\",\n  \"clientId\": \"{{userUuid}}\",\n  \"professorId\": \"{{professorUuid}}\"\n}",
+                  "options": {
+                    "raw": {
+                      "language": "json"
+                    }
+                  }
+                },
+                "url": {
+                  "raw": "{{baseUrl}}/api/routines/{{routineUuid}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "routines",
+                    "{{routineUuid}}"
+                  ]
+                }
+              },
+              "response": []
+            },
+            {
+              "name": "Eliminar Rutina (Solo Profesor)",
+              "request": {
+                "auth": {
+                  "type": "bearer",
+                  "bearer": [
+                    {
+                      "key": "token",
+                      "value": "{{jwtToken}}",
+                      "type": "string"
+                    }
+                  ]
+                },
+                "method": "DELETE",
+                "header": [],
+                "url": {
+                  "raw": "{{baseUrl}}/api/routines/{{routineUuid}}",
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "path": [
+                    "api",
+                    "routines",
+                    "{{routineUuid}}"
+                  ]
+                }
+              },
+              "response": []
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "event": [
+    {
+      "listen": "prerequest",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    },
+    {
+      "listen": "test",
+      "script": {
+        "type": "text/javascript",
+        "exec": [
+          ""
+        ]
+      }
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080",
+      "type": "string"
+    },
+    {
+      "key": "jwtToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "classUuid",
+      "value": "e3b0c442-98fc-1c14-9afb-f3557fa37062",
+      "type": "string"
+    },
+    {
+      "key": "userUuid",
+      "value": "3b29c910-482a-4a27-beaa-f5cf3d99432e",
+      "type": "string"
+    },
+    {
+      "key": "professorUuid",
+      "value": "da660a92-7f9e-4c12-a178-5e4a83fb9014",
+      "type": "string"
+    },
+    {
+      "key": "activityUuid",
+      "value": "b57422f6-3987-47b2-aa45-562a98e82ef4",
+      "type": "string"
+    },
+    {
+      "key": "enrollmentUuid",
+      "value": "787f0b5d-e00c-4614-b8df-d5fa6cf1a95e",
+      "type": "string"
+    },
+    {
+      "key": "exercisePublicId",
+      "value": "12345678",
+      "type": "string"
+    },
+    {
+      "key": "routineUuid",
+      "value": "4f18dfba-e883-4a0b-9df2-51c33f2b1d5d",
+      "type": "string"
+    }
+  ]
+}

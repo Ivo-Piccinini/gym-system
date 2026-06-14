@@ -1,5 +1,7 @@
 package com.utnGymGroup.gym_system.features.exercise;
 
+import com.utnGymGroup.gym_system.features.audit.AuditActions;
+import com.utnGymGroup.gym_system.features.audit.Auditable;
 import com.utnGymGroup.gym_system.features.exercise.exceptions.ExerciseNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -32,6 +34,7 @@ public class ExerciseService
     }
 
 
+    @Auditable(AuditActions.DELETE_EXERCISE)
     @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
     public ExerciseDtoResponse deleteExercise(Long publicID)
     {
@@ -44,6 +47,7 @@ public class ExerciseService
 
     }
 
+    @Auditable(AuditActions.CREATE_EXERCISE)
     @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
     public ExerciseDtoResponse createExercise(ExerciseDtoRequest exerciseDtoRequest)
     {
@@ -56,6 +60,7 @@ public class ExerciseService
         return exerciseMapperRespond.convertToDto(exerciseRepository.save(exerciseEntity));
     }
 
+    @Auditable(AuditActions.UPDATE_EXERCISE)
     @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
     public ExerciseDtoResponse updateExercise(ExerciseDtoRequest exerciseDtoRequest, Long publidID)
     {

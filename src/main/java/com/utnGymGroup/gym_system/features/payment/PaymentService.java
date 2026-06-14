@@ -1,5 +1,7 @@
 package com.utnGymGroup.gym_system.features.payment;
 
+import com.utnGymGroup.gym_system.features.audit.AuditActions;
+import com.utnGymGroup.gym_system.features.audit.Auditable;
 import com.utnGymGroup.gym_system.features.payment.dtos.PaymentRequestDTO;
 import com.utnGymGroup.gym_system.features.payment.dtos.PaymentResponseDto; // 🎯 Importación del DTO de respuesta
 import com.utnGymGroup.gym_system.features.payment.mappers.PaymentRequestMapper; // 🎯 Importación del mapper de entrada
@@ -26,6 +28,7 @@ public class PaymentService {
     private final UserService userService;
 
 
+    @Auditable(AuditActions.PROCESS_PAYMENT)
     @Transactional
     public PaymentResponseDto createPayment(PaymentRequestDTO dto) {
         SubscriptionEntity subscription = subscriptionRepository.findById(dto.getSubscriptionId())

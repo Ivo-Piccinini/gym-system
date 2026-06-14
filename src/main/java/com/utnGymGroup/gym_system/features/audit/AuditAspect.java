@@ -8,10 +8,11 @@ import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.Aspect;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
-import tools.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.List;
 
 @Aspect
 @Component
@@ -29,7 +30,11 @@ public class AuditAspect {
         String currentUser = SecurityContextHolder.getContext().getAuthentication().getName();
         String detailsJson;
         try {
-            detailsJson = objectMapper.writeValueAsString(joinPoint.getArgs());
+            Object[] args = joinPoint.getArgs();
+            List<Object> safeArgs = Arrays.stream(args)
+                    .filter(arg -> !(arg instanceof jakarta.persistence.EntityManager))
+                    .toList();
+            detailsJson = objectMapper.writeValueAsString(safeArgs);
         } catch (Exception e){
             log.error("Fallo crítico: No se pudo generar el log de auditoría en JSON", e);
             // Lanzamos la excepción personalizada para abortar la transacción de negocio

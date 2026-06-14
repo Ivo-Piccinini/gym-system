@@ -6,22 +6,21 @@ import com.utnGymGroup.gym_system.common.interfaces.IUpdate;
 import com.utnGymGroup.gym_system.features.user.dtos.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.catalina.User;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 @RestController
@@ -36,7 +35,8 @@ public class UserController {
             summary = "Listar usuarios",
             description = "Recupera una lista con los perfiles e información de todos los usuarios registrados, con la opción de filtrar por estado activo o inactivo."
     )
-    @ApiResponse(responseCode = "200", description = "Listado obtenido exitosamente.")
+    @ApiResponse(responseCode = "200", description = "Listado obtenido exitosamente.",
+            content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserDTO.class))))
     @PreAuthorize("hasRole('ADMIN') or (hasRole('PROFESSOR') and #role == null)")
     public ResponseEntity<List<UserDTO>> getUsers(
             @Parameter(description = "Filtrar por estado activo (true) o inactivo (false)", required = false)
@@ -54,7 +54,8 @@ public class UserController {
             description = "Busca y devuelve la información y perfil de un usuario específico a partir de su nombre de usuario único."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Usuario encontrado y devuelto con éxito."),
+            @ApiResponse(responseCode = "200", description = "Usuario encontrado y devuelto con éxito.",
+                    content = @Content(schema = @Schema(implementation = UserDTO.class))),
             @ApiResponse(responseCode = "404", description = "No se encontró ningún usuario con el username provisto.")
     })
     @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR') or #username == authentication.name")
@@ -71,7 +72,8 @@ public class UserController {
             description = "Registra un nuevo usuario en la base de datos validando los datos requeridos de su perfil personal (DNI, teléfono, fecha de nacimiento)."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Usuario y credenciales creados exitosamente."),
+            @ApiResponse(responseCode = "201", description = "Usuario y credenciales creados exitosamente.",
+                    content = @Content(schema = @Schema(implementation = UserDTO.class))),
             @ApiResponse(responseCode = "400", description = "Los datos del usuario o perfil no cumplen con las reglas de validación.")
     })
     @PreAuthorize("hasRole('ADMIN')")
@@ -89,7 +91,8 @@ public class UserController {
             description = "Actualiza los datos personales (teléfono, nombre, apellido, DNI, fecha de nacimiento) en el perfil de un usuario existente."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Perfil actualizado con éxito."),
+            @ApiResponse(responseCode = "200", description = "Perfil actualizado con éxito.",
+                    content = @Content(schema = @Schema(implementation = UserDTO.class))),
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado.")
     })
     @PreAuthorize("hasAnyRole('ADMIN') or #username == authentication.name")
@@ -124,7 +127,14 @@ public class UserController {
 
     @PatchMapping("/{username}/username")
     @PreAuthorize("#username == authentication.name") // Solo el propio usuario autenticado puede cambiarse su propio username
-    @Operation(summary = "Personalizar el nombre de usuario por primera y única vez")
+    @Operation(
+            summary = "Personalizar el nombre de usuario por primera y única vez",
+            description = "Permite personalizar el nombre de usuario del socio por primera vez cuando ha sido registrado con su DNI por defecto."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Nombre de usuario cambiado con éxito."),
+            @ApiResponse(responseCode = "400", description = "El nuevo nombre de usuario no es válido o ya se encuentra en uso.")
+    })
     public ResponseEntity<Void> changeUsername(
             @PathVariable String username,
             @Validated @RequestBody UsernameChangeDTO request
@@ -155,7 +165,14 @@ public class UserController {
 
     @DeleteMapping("/{username}")
     @PreAuthorize("hasRole('ADMIN')")
-    @Operation(summary = "Eliminar físicamente un usuario y sus credenciales de la base de datos")
+    @Operation(
+            summary = "Eliminar físicamente un usuario",
+            description = "Elimina permanentemente de la base de datos la cuenta y credenciales asociadas al nombre de usuario provisto."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Usuario eliminado correctamente."),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado.")
+    })
     public ResponseEntity<Void> deleteUser(@PathVariable String username){
         userService.deleteUser(username);
         return ResponseEntity.noContent().build();
@@ -167,7 +184,8 @@ public class UserController {
             description = "Permite al usuario logueado actualizar de manera parcial sus datos personales (nombre, apellido, teléfono, fecha de nacimiento, etc.) sin alterar el resto de la información."
     )
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Perfil actualizado con éxito."),
+            @ApiResponse(responseCode = "200", description = "Perfil actualizado con éxito.",
+                    content = @Content(schema = @Schema(implementation = UserDTO.class))),
             @ApiResponse(responseCode = "400", description = "Los datos provistos no son válidos."),
             @ApiResponse(responseCode = "404", description = "Usuario no encontrado.")
     })
@@ -178,3 +196,4 @@ public class UserController {
     }
 
 }
+

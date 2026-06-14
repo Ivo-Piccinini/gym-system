@@ -11,6 +11,8 @@ import com.utnGymGroup.gym_system.features.routine.exception.RoutineNotFoundExce
 import com.utnGymGroup.gym_system.features.subscription.exceptions.SubscriptionAlreadyActiveException;
 import com.utnGymGroup.gym_system.features.subscription.exceptions.SubscriptionNotFoundException;
 import com.utnGymGroup.gym_system.features.user.exceptions.*;
+import jakarta.persistence.EntityNotFoundException;
+import lombok.RequiredArgsConstructor;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -25,15 +27,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestControllerAdvice
+@RequiredArgsConstructor
 public class GlobalExceptionHandler {
     private final WebRequest webRequest;
-
-    public GlobalExceptionHandler(WebRequest webRequest) {
-        this.webRequest = webRequest;
-    }
-
-    // ------------------ Excepciones personalizadas ------------------
-    // ------------------ Excepciones de user/auth ------------------
 
     @ExceptionHandler(UserNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleUserNotFoundException(UserNotFoundException exception, WebRequest webRequest){
@@ -153,8 +149,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
-    // ------------------  Errores de validación (@Valid en los DTOs) ------------------
-
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<ErrorResponse> handleValidationExceptions(MethodArgumentNotValidException argumentNotValidException, WebRequest webRequest){
         Map<String, String> errors = new HashMap<>();
@@ -174,8 +168,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 
-    // ------------------  Errores de base de datos ------------------
-
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDatabaseExceptions(DataIntegrityViolationException databaseException, WebRequest webRequest){
         ErrorResponse errorResponse = ErrorResponse.builder()
@@ -187,8 +179,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
-    // ------------------  Error genérico (cualquier error no controlado) ------------------
-
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGlobalException(Exception exception, WebRequest webRequest){
         ErrorResponse errorResponse = ErrorResponse.builder()
@@ -199,8 +189,6 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
     }
-
-    //__________ Error encontrar usuario--------------------------
 
     @ExceptionHandler(ExerciseNotFoundException.class)
     public ResponseEntity<ErrorResponse> handleExerciseNotFoundException (ExerciseNotFoundException exerciseNotFoundException, WebRequest webRequest)
@@ -227,7 +215,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
 
-    //__________ Excepciones de auditoria --------------------------
     @ExceptionHandler(AuditSerializationException.class)
     public ResponseEntity<ErrorResponse> handleAuditSerializationException  ( AuditSerializationException  auditSerializationException , WebRequest webRequest)
     {
@@ -279,5 +266,23 @@ public class GlobalExceptionHandler {
 
     }
 
+    @ExceptionHandler(IllegalStateException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalStateException(IllegalStateException ex, WebRequest webRequest) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .message(ex.getMessage())
+                .description(webRequest.getDescription(false))
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+    }
 
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleEntityNotFoundException(EntityNotFoundException ex, WebRequest webRequest) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .message(ex.getMessage())
+                .description(webRequest.getDescription(false))
+                .build();
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
 }

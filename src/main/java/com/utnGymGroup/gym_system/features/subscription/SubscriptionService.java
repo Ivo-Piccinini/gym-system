@@ -1,5 +1,7 @@
 package com.utnGymGroup.gym_system.features.subscription;
 
+import com.utnGymGroup.gym_system.features.audit.AuditActions;
+import com.utnGymGroup.gym_system.features.audit.Auditable;
 import com.utnGymGroup.gym_system.features.membership.MembershipEntity;
 import com.utnGymGroup.gym_system.features.membership.MembershipRepository;
 import com.utnGymGroup.gym_system.features.membership.exceptions.MembershipNotFoundException;
@@ -51,6 +53,7 @@ public class SubscriptionService {
                 .toList();
     }
 
+    @Auditable(AuditActions.CREATE_SUBSCRIPTION)
     @Transactional
     public SubscriptionResponseDto subscribe(UUID planId) {
         UserEntity user = userService.getAuthenticatedUserEntity();
@@ -71,6 +74,7 @@ public class SubscriptionService {
         return responseMapper.convertToDto(subscriptionRepository.save(subscription));
     }
 
+    @Auditable(AuditActions.CANCEL_SUBSCRIPTION)
     @Transactional
     public SubscriptionResponseDto cancelSubscription(UUID id) {
         UserEntity authenticatedUser = userService.getAuthenticatedUserEntity();
