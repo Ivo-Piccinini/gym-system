@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -27,8 +28,8 @@ public class MembershipService {
                 .toList();
     }
 
-    public MembershipResponseDto getMembershipById(Long id) {
-        return membershipRepository.findById(id)
+    public MembershipResponseDto getMembershipById(UUID id) {
+        return membershipRepository.findByUUID(id)
                 .map(responseMapper::convertToDto)
                 .orElseThrow(() -> new MembershipNotFoundException("No se encontró el plan de membresía con ID: " + id));
     }
@@ -41,4 +42,7 @@ public class MembershipService {
         MembershipEntity entity = requestMapper.convertToEntity(dto);
         return responseMapper.convertToDto(membershipRepository.save(entity));
     }
+
+
+
 }
