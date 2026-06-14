@@ -4,7 +4,10 @@ import com.utnGymGroup.gym_system.common.auth.permissions.exceptions.RoleNotFoun
 import com.utnGymGroup.gym_system.features.audit.exceptions.AuditSerializationException;
 import com.utnGymGroup.gym_system.features.exercise.exceptions.ExerciseAlreadyExistsException;
 import com.utnGymGroup.gym_system.features.exercise.exceptions.ExerciseNotFoundException;
+import com.utnGymGroup.gym_system.features.fullRoutine.exception.FullRoutineNotFound;
+import com.utnGymGroup.gym_system.features.fullRoutine.exception.RoutineAlreadyExistsException;
 import com.utnGymGroup.gym_system.features.membership.exceptions.MembershipNotFoundException;
+import com.utnGymGroup.gym_system.features.routine.exception.RoutineNotFoundException;
 import com.utnGymGroup.gym_system.features.subscription.exceptions.SubscriptionNotFoundException;
 import com.utnGymGroup.gym_system.features.user.exceptions.*;
 import org.springframework.dao.DataIntegrityViolationException;
@@ -22,6 +25,11 @@ import java.util.Map;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
+    private final WebRequest webRequest;
+
+    public GlobalExceptionHandler(WebRequest webRequest) {
+        this.webRequest = webRequest;
+    }
 
     // ------------------ Excepciones personalizadas ------------------
     // ------------------ Excepciones de user/auth ------------------
@@ -219,4 +227,45 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
     }
+
+    @ExceptionHandler(FullRoutineNotFound.class)
+    public ResponseEntity<ErrorResponse> handleFullRoutineNotFound( FullRoutineNotFound e,WebRequest webRequest)
+    {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .message(e.getMessage())
+                .description(webRequest.getDescription(false))
+                .build();
+
+        return  ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+
+    }
+
+    @ExceptionHandler(RoutineAlreadyExistsException.class)
+    public ResponseEntity<ErrorResponse> handleRoutineAlreadyExistsException(RoutineAlreadyExistsException e,WebRequest webRequest)
+    {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .message(e.getMessage())
+                .description(webRequest.getDescription(false))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+
+    }
+
+    @ExceptionHandler(RoutineNotFoundException.class)
+    public ResponseEntity<ErrorResponse> handleRoutineNotFoundException(RoutineNotFoundException e,WebRequest webRequest)
+    {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .message(e.getMessage())
+                .description(webRequest.getDescription(false))
+                .build();
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+
+    }
+
+
 }
