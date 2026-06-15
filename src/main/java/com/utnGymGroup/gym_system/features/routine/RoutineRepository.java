@@ -12,6 +12,8 @@ public interface RoutineRepository extends JpaRepository<RoutineEntity,Long>
 {
     Optional<RoutineEntity> findByPublicId(UUID publicId);
 
+    Optional<RoutineEntity> findByClient_PublicId(UUID clientPublicId);
+
     boolean existsByName(String name);
 
 }

@@ -19,10 +19,10 @@ public class FullRoutineDtoRequest {
     private UUID publicId;
 
     @NotNull(message = "El ejercicio debe tener almenos un id")
-    private Long exerciseID;
+    private UUID exerciseID;
 
     @NotNull(message = "La rutina debe tener almenos un id")
-    private Long routineID;
+    private UUID routineID;
 
     @NotNull(message = "la rutina tiene que tener series" ,groups = ICreate.class)
     @Min(value = 1, groups = {ICreate.class, IUpdate.class})

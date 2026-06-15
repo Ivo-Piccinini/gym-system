@@ -12,22 +12,26 @@ import com.utnGymGroup.gym_system.features.routine.exception.RoutineNotFoundExce
 import com.utnGymGroup.gym_system.features.user.UserRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.UUID;
 
+@Service
 public class FullRoutineService
 {
     private final FullRoutineRepository fullRoutineRepository;
-    private final FullRoutineMapper fullRoutineMapper;
+    private final FullRoutineMapperRequest fullRoutineMapperRequest;
+    private final FullRoutineMapperResponse fullRoutineDtoResponse;
     private final RoutineRepository routineRepository;
     private final ExerciseRepository exerciseRepository;
 
     private final UserRepository userRepository;
 
-    public FullRoutineService(FullRoutineRepository fullRoutineRepository, FullRoutineMapper fullRoutineMapper, RoutineRepository routineRepository, ExerciseRepository exerciseRepository, UserRepository userRepository) {
+    public FullRoutineService(FullRoutineRepository fullRoutineRepository, FullRoutineMapperRequest fullRoutineMapperRequest, FullRoutineMapperResponse fullRoutineDtoResponse, RoutineRepository routineRepository, ExerciseRepository exerciseRepository, UserRepository userRepository) {
         this.fullRoutineRepository = fullRoutineRepository;
-        this.fullRoutineMapper = fullRoutineMapper;
+        this.fullRoutineMapperRequest = fullRoutineMapperRequest;
+        this.fullRoutineDtoResponse = fullRoutineDtoResponse;
         this.routineRepository = routineRepository;
         this.exerciseRepository = exerciseRepository;
         this.userRepository = userRepository;
@@ -37,7 +41,7 @@ public class FullRoutineService
     public List<FullRoutineDtoResponse> getAll() {
         return fullRoutineRepository.findAll()
                 .stream()
-                .map(this::convertToRespondDto) // O usar tu mapper
+                .map(fullRoutineDtoResponse :: convertToDto)
                 .toList();
     }
 
@@ -45,7 +49,7 @@ public class FullRoutineService
     public FullRoutineDtoResponse findByPublicId(UUID publicId) {
         FullRoutineEntity entity = fullRoutineRepository.findByPublicId(publicId)
                 .orElseThrow(() -> new FullRoutineNotFound("No se encontró el renglón de rutina solicitado"));
-        return convertToRespondDto(entity);
+        return fullRoutineDtoResponse.convertToDto(entity);
     }
 
     @Auditable(AuditActions.ASSIGN_EXERCISE)
@@ -57,7 +61,7 @@ public class FullRoutineService
                 .orElseThrow(() -> new RoutineNotFoundException("La rutina especificada no existe"));
 
 
-        ExerciseEntity exercise = exerciseRepository.findByIdPublic(request.getExerciseID())
+        ExerciseEntity exercise = exerciseRepository.findByIdPublic(request.getPublicId())
                 .orElseThrow(() -> new ExerciseNotFoundException("El ejercicio especificado no existe"));
 
 
@@ -67,10 +71,10 @@ public class FullRoutineService
         entity.setSeries(request.getSeries());
         entity.setReps(request.getReps());
         entity.setWeight(request.getWeight());
+        entity.setPublicId(UUID.randomUUID());
+        entity.setEnabled(true);
 
-
-
-        return convertToRespondDto(fullRoutineRepository.save(entity));
+        return fullRoutineDtoResponse.convertToDto(entity);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
@@ -88,7 +92,7 @@ public class FullRoutineService
         }
 
         if (!entity.getExercise().getIdPublic().equals(request.getExerciseID())) {
-            ExerciseEntity newExercise = exerciseRepository.findByIdPublic(request.getExerciseID())
+            ExerciseEntity newExercise = exerciseRepository.findByIdPublic(request.getPublicId())
                     .orElseThrow(() -> new ExerciseNotFoundException("El nuevo ejercicio especificado no existe"));
             entity.setExercise(newExercise);
         }
@@ -97,7 +101,7 @@ public class FullRoutineService
         entity.setReps(request.getReps());
         entity.setWeight(request.getWeight());
 
-        return convertToRespondDto(fullRoutineRepository.save(entity));
+        return fullRoutineDtoResponse.convertToDto(entity);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
@@ -106,15 +110,10 @@ public class FullRoutineService
         FullRoutineEntity entity = fullRoutineRepository.findByPublicId(publicId)
                 .orElseThrow(() -> new FullRoutineNotFound("No se encontró el registro a eliminar"));
 
-        fullRoutineRepository.delete(entity);
-
+        entity.setEnabled(false);
+        fullRoutineRepository.save(entity);
     }
 
 
-    private FullRoutineDtoResponse convertToRespondDto(FullRoutineEntity entity) {
-        FullRoutineDtoResponse respond = new FullRoutineDtoResponse();
 
-
-        return respond;
-    }
 }
