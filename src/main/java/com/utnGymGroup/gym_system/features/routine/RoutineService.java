@@ -99,5 +99,17 @@ public class RoutineService
         routineRepository.delete(routine);
     }
 
+    @Transactional
+    public RoutineResponseDto getMyRoutine(UUID clientId)
+    {
+        UserEntity user = userRepository.findByPublicId(clientId)
+                .orElseThrow(()-> new UserNotFoundException("No se encontro al usuario"));
+
+        RoutineEntity routine = routineRepository.findByClient_PublicId(clientId)
+                .orElseThrow(() -> new UserNotFoundException("No tenés ninguna rutina asignada actualmente."));
+
+        return routineMapperResponse.convertToDto(routine);
+    }
+
 
 }

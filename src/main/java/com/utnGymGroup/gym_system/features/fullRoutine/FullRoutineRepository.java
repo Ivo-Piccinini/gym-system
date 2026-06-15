@@ -8,10 +8,10 @@ import java.util.Optional;
 import java.util.UUID;
 
 @Repository
-public interface FullRoutineRepository extends JpaRepository<FullRoutineEntity, UUID>
+public interface FullRoutineRepository extends JpaRepository<FullRoutineEntity, Long>
 {
     Optional<ExerciseEntity> findBy(String nombre);
 
-    Optional<FullRoutineRepository> findByPublicId(UUID publicId);
+    Optional<FullRoutineEntity> findByPublicId(UUID publicId);
 
 }

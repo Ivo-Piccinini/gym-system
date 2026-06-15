@@ -9,50 +9,59 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+import java.util.UUID;
+
 
 @RestController
 @RequestMapping("/api/exercises")
 @RequiredArgsConstructor
 public class ExerciseController {
 
-    private final ExerciseService exerciseService;
+        private final ExerciseService exerciseService;
 
-    //Valid no va para get , solo post  y put, y solo va delante de los @
-    /*@GetMapping("/{id}")
-    public ResponseEntity<ExerciseDto> getExercise(@PathVariable String publicId)
-    {
-        return ResponseEntity.ok(exerciseService.fi);
-    }*/
+        // 1. CREAR EJERCICIO
+        @PostMapping
+        @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
+        public ResponseEntity<ExerciseDtoResponse> createExercise(
+                @Validated(ICreate.class) @RequestBody ExerciseDtoRequest exerciseDtoRequest) {
+            return ResponseEntity.status(HttpStatus.CREATED)
+                    .body(exerciseService.createExercise(exerciseDtoRequest));
+        }
 
-    @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
-    public ResponseEntity<ExerciseDtoResponse> createExercise(@Validated(ICreate.class) @RequestBody ExerciseDtoRequest exerciseDtoRequest)
-    {
-        return ResponseEntity.status(HttpStatus.CREATED).body(exerciseService.createExercise(exerciseDtoRequest));
+        // 2. BUSCAR POR ID PÚBLICO (UUID)
+        @GetMapping("/{publicId}")
+        @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR', 'CLIENT')")
+        public ResponseEntity<ExerciseDtoResponse> getExercise(@PathVariable UUID publicId) {
+            return ResponseEntity.ok(exerciseService.findByPublicId(publicId));
+        }
+
+
+        @GetMapping
+        @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR', 'CLIENT')")
+        public ResponseEntity<List<ExerciseDtoResponse>> getAllExercises(
+                @RequestParam(required = false) String muscleGroup) {
+            List<ExerciseDtoResponse> exercises = exerciseService.getAllExercises(muscleGroup);
+            return ResponseEntity.ok(exercises);
+        }
+
+
+        @PutMapping("/{publicId}")
+        @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
+        public ResponseEntity<ExerciseDtoResponse> updateExercise(
+                @Validated(IUpdate.class) @RequestBody ExerciseDtoRequest exerciseDtoRequest,
+                @PathVariable UUID publicId) {
+            return ResponseEntity.ok(exerciseService.updateExercise(exerciseDtoRequest, publicId));
+        }
+
+
+        @DeleteMapping("/{publicId}")
+        @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
+        public ResponseEntity<Void> deleteExercise(@PathVariable UUID publicId) {
+            exerciseService.deleteExercise(publicId);
+            return ResponseEntity.noContent().build();
+        }
     }
 
-    @GetMapping("/{publicId}")
-    public ResponseEntity<ExerciseDtoResponse> getExercise(@PathVariable Long publicId)
-    {
-        return ResponseEntity.ok(exerciseService.findByPublicId(publicId));
-
-    }
-
-    @DeleteMapping("/{publidId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
-    public ResponseEntity<Void> deleteExercise(@PathVariable Long publicId)
-    {
-         exerciseService.deleteExercise(publicId);
-        return ResponseEntity.noContent().build();
-    }
 
 
-    @PutMapping("/{publicId}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
-    public ResponseEntity<ExerciseDtoResponse> updateExercise(@Validated(IUpdate.class) @RequestBody ExerciseDtoRequest exerciseDtoRequest , @PathVariable Long publicId)
-    {
-       return ResponseEntity.ok(exerciseService.updateExercise(exerciseDtoRequest,publicId));
-    }
-
-
-}

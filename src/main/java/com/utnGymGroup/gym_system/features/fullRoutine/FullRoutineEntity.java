@@ -35,14 +35,8 @@ public class FullRoutineEntity
   private Integer reps;
   private Double weight;
 
-  @PrePersist
-    private void generateUUID()
-  {
-      if(this.publicId == null)
-      {
-          setPublicId(UUID.randomUUID());
-      }
+  private Boolean enabled;
 
-  }
+
 
 }
