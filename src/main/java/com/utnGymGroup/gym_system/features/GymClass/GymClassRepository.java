@@ -12,29 +12,31 @@ import java.util.UUID;
 
 @Repository
 public interface GymClassRepository extends JpaRepository<GymClassEntity, Long> {
-    Optional<GymClassEntity> findByExternalId(UUID externalId);
+    Optional<GymClassEntity> findByExternalIdAndActiveTrue(UUID externalId);
 
-    List<GymClassEntity>findByProfessorExternalId(UUID professorId);
-    List<GymClassEntity>findByActivityExternalId(UUID activityId);
-    List<GymClassEntity>findAllByDayOfWeek(DayOfWeek dayOfWeek);
+    List<GymClassEntity> findByActiveTrue();
 
-    ///Verifico que no haya superposicion de clases(solapamiento(overlap))
-    @Query("SELECT COUNT(c) > 0 FROM ClassEntity c WHERE c.professor.FirstName = :professorFirstName " +
+    List<GymClassEntity> findByProfessorExternalIdAndActiveTrue(UUID professorId);
+    List<GymClassEntity> findByActivityExternalIdAndActiveTrue(UUID activityId);
+    List<GymClassEntity> findAllByDayOfWeekAndActiveTrue(DayOfWeek dayOfWeek);
+
+    @Query("SELECT COUNT(c) > 0 FROM GymClassEntity c WHERE c.active = true " +
+            "AND c.professor.firstName = :professorFirstName " +
             "AND c.dayOfWeek = :dayOfWeek " +
             "AND (:startTime < c.endTime AND :endTime > c.startTime)")
-    boolean existsOverlap(@Param("professorFirstName") String professorUsername,
+    boolean existsOverlap(@Param("professorFirstName") String professorFirstName,
                           @Param("dayOfWeek") DayOfWeek dayOfWeek,
                           @Param("startTime") LocalTime startTime,
                           @Param("endTime") LocalTime endTime);
 
-    @Query("SELECT COUNT(c) > 0 FROM ClassEntity c WHERE c.professor.FirstName = :professorFirstName " +
+    @Query("SELECT COUNT(c) > 0 FROM GymClassEntity c WHERE c.active = true " +
+            "AND c.professor.firstName = :professorFirstName " +
             "AND c.dayOfWeek = :dayOfWeek " +
             "AND c.externalId != :currentClassId " +
             "AND (:startTime < c.endTime AND :endTime > c.startTime)")
-    boolean existsOverlapForUpdate(@Param("professorFirstName") String professorUsername,
+    boolean existsOverlapForUpdate(@Param("professorFirstName") String professorFirstName,
                                    @Param("dayOfWeek") DayOfWeek dayOfWeek,
                                    @Param("startTime") LocalTime startTime,
                                    @Param("endTime") LocalTime endTime,
                                    @Param("currentClassId") UUID currentClassId);
-
 }
