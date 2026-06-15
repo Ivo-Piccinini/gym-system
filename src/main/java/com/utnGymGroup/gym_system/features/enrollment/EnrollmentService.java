@@ -48,7 +48,7 @@ public class EnrollmentService {
 
         UserEntity client = userService.getAuthenticatedUserEntity();
 
-        GymClassEntity gymClass = gymClassRepository.findByExternalId(classExternalId)
+        GymClassEntity gymClass = gymClassRepository.findByExternalIdAndActiveTrue(classExternalId)
                 .orElseThrow(() -> new EntityNotFoundException("Clase no encontrada con el ID: " + classExternalId));
 
         LocalDate enrollDate= LocalDate.now();

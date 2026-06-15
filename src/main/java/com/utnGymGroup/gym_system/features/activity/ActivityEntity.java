@@ -27,6 +27,9 @@ public class ActivityEntity {
     @Column(nullable = false)
     private String name;
 
+    @Column(name = "active", nullable = false)
+    private boolean active = true;
+
     @Column(length = 255,nullable = false)
     private String description;
 

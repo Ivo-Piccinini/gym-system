@@ -45,6 +45,9 @@ public class GymClassEntity {
     @Column(name = "capacity_max", nullable = false)
     private int capacityMax;
 
+    @Column(name = "active", nullable = false)
+    private boolean active = true; // Por defecto toda clase nueva se crea activa
+
     @PrePersist
     void onCreate() {
         if (this.externalId == null) {

@@ -5,11 +5,11 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Component;
 
 @Component
-public class FullRoutineMapper implements IMapper<FullRoutineEntity, FullRoutineDtoRequest>
+public class FullRoutineMapperRequest implements IMapper<FullRoutineEntity, FullRoutineDtoRequest>
 {
     private final ModelMapper modelMapper;
 
-    public FullRoutineMapper(ModelMapper modelMapper) {
+    public FullRoutineMapperRequest(ModelMapper modelMapper) {
         this.modelMapper = modelMapper;
     }
 
