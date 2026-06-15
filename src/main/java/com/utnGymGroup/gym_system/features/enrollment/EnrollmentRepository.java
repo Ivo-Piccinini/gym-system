@@ -13,10 +13,11 @@ import java.util.UUID;
 public interface EnrollmentRepository extends JpaRepository<EnrollmentEntity, Long> {
     Optional<EnrollmentEntity> findByExternalId(UUID externalId);
 
-    //saber cuántos alumnos hay en una clase específica
+    //cupos por fecha
     long countByGymClassIdAndEnrollmentDate(Long classId, LocalDate date);
 
-    //el cliente puede ver sus propias inscripciones
+    long countByGymClassId(Long classId);
+
     List<EnrollmentEntity> findByClient(UserEntity client);
 
 }

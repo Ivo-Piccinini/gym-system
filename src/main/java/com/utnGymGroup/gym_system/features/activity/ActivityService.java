@@ -1,10 +1,6 @@
 package com.utnGymGroup.gym_system.features.activity;
 
-import com.utnGymGroup.gym_system.features.GymClass.GymClassRepository;
-import com.utnGymGroup.gym_system.features.audit.AuditActions;
-import com.utnGymGroup.gym_system.features.audit.Auditable;
 import jakarta.persistence.EntityNotFoundException;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,58 +9,56 @@ import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
-@RequiredArgsConstructor
 public class ActivityService {
 
     private final ActivityRepository activityRepository;
     private final ActivityMapper activityMapper;
-    private final GymClassRepository gymClassRepository;
+
+    public ActivityService(ActivityRepository activityRepository, ActivityMapper activityMapper) {
+        this.activityRepository = activityRepository;
+        this.activityMapper = activityMapper;
+    }
 
     @Transactional(readOnly = true)
     public List<ActivityDTO> getAllActivities() {
-        return activityRepository.findAll().stream()
+        return activityRepository.findByActiveTrue().stream()
                 .map(activityMapper::convertToDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public ActivityDTO getActivityByExternalId(UUID externalId) {
-        ActivityEntity entity = activityRepository.findByExternalId(externalId)
-                .orElseThrow(() -> new EntityNotFoundException("Actividad no encontrada con el ID: " + externalId));
-        return activityMapper.convertToDto(entity);
+        ActivityEntity activityEntity = activityRepository.findByExternalIdAndActiveTrue(externalId)
+                .orElseThrow(() -> new EntityNotFoundException("Actividad no encontrada o dada de baja con el ID: " + externalId));
+
+        return activityMapper.convertToDto(activityEntity);
     }
 
-    @Auditable(AuditActions.CREATE_ACTIVITY)
     @Transactional
     public ActivityDTO createActivity(ActivityDTO activityDTO) {
-        ActivityEntity entity = activityMapper.convertToEntity(activityDTO);
-        ActivityEntity savedEntity = activityRepository.save(entity);
-        return activityMapper.convertToDto(savedEntity);
+        ActivityEntity activityEntity = activityMapper.convertToEntity(activityDTO);
+        ActivityEntity savedActivity = activityRepository.save(activityEntity);
+        return activityMapper.convertToDto(savedActivity);
     }
 
-    @Auditable(AuditActions.UPDATE_ACTIVITY)
     @Transactional
     public ActivityDTO updateActivity(UUID externalId, ActivityDTO activityDTO) {
-        ActivityEntity existingEntity = activityRepository.findByExternalId(externalId)
+        ActivityEntity existingActivity = activityRepository.findByExternalIdAndActiveTrue(externalId)
                 .orElseThrow(() -> new EntityNotFoundException("Actividad no encontrada para actualizar con el ID: " + externalId));
 
-        activityMapper.updateEntityFromDTO(activityDTO, existingEntity);
+        existingActivity.setName(activityDTO.getName());
+        existingActivity.setDescription(activityDTO.getDescription());
 
-        ActivityEntity updatedEntity = activityRepository.save(existingEntity);
-        return activityMapper.convertToDto(updatedEntity);
+        ActivityEntity updatedActivity = activityRepository.save(existingActivity);
+        return activityMapper.convertToDto(updatedActivity);
     }
 
-    @Auditable(AuditActions.DELETE_ACTIVITY)
     @Transactional
     public void deleteActivity(UUID externalId) {
-        ActivityEntity entity = activityRepository.findByExternalId(externalId)
+        ActivityEntity activityEntity = activityRepository.findByExternalIdAndActiveTrue(externalId)
                 .orElseThrow(() -> new EntityNotFoundException("Actividad no encontrada para eliminar con el ID: " + externalId));
 
-        boolean isUsedInClasses = !gymClassRepository.findByActivityExternalId(externalId).isEmpty();
-        if (isUsedInClasses) {
-            throw new IllegalStateException("No se puede eliminar la actividad porque existen clases asignadas a ella.");
-        }
-
-        activityRepository.delete(entity);
+        activityEntity.setActive(false);
+        activityRepository.save(activityEntity);
     }
 }

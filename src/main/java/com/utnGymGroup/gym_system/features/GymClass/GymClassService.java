@@ -1,13 +1,9 @@
 package com.utnGymGroup.gym_system.features.GymClass;
 
-
-import com.utnGymGroup.gym_system.features.audit.AuditActions;
-import com.utnGymGroup.gym_system.features.audit.Auditable;
 import com.utnGymGroup.gym_system.features.enrollment.EnrollmentRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -25,32 +21,29 @@ public class GymClassService {
         this.enrollmentRepository = enrollmentRepository;
     }
 
-
     @Transactional(readOnly = true)
     public List<GymClassDTO> getAllClasses() {
-        return gymClassRepository.findAll().stream()
+        return gymClassRepository.findByActiveTrue().stream()
                 .map(gymClassMapper::convertToDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public GymClassDTO getClassByExternalId(UUID externalId) {
-        GymClassEntity gymClassEntity = gymClassRepository.findByExternalId(externalId)
-                .orElseThrow(() -> new EntityNotFoundException("Clase no encontrada con el ID: " + externalId));
+        GymClassEntity gymClassEntity = gymClassRepository.findByExternalIdAndActiveTrue(externalId)
+                .orElseThrow(() -> new EntityNotFoundException("Clase no encontrada o dada de baja con el ID: " + externalId));
 
         return gymClassMapper.convertToDto(gymClassEntity);
     }
 
-    @Auditable(AuditActions.CREATE_CLASS)
     @Transactional
     public GymClassDTO createClass(GymClassDTO gymClassDTO) {
         validateClassHours(gymClassDTO);
 
-
-        String professorUsername = gymClassDTO.getProfessor().getFirstName();
+        String professorFirstName = gymClassDTO.getProfessor().getFirstName();
 
         boolean hasOverlap = gymClassRepository.existsOverlap(
-                professorUsername,
+                professorFirstName,
                 gymClassDTO.getDayOfWeek(),
                 gymClassDTO.getStartTime(),
                 gymClassDTO.getEndTime()
@@ -61,21 +54,21 @@ public class GymClassService {
         }
 
         GymClassEntity gymClassEntity = gymClassMapper.convertToEntity(gymClassDTO);
-        
         GymClassEntity savedClass = gymClassRepository.save(gymClassEntity);
         return gymClassMapper.convertToDto(savedClass);
     }
 
-    @Auditable(AuditActions.UPDATE_CLASS)
     @Transactional
     public GymClassDTO updateClass(UUID externalId, GymClassDTO gymClassDTO) {
-        GymClassEntity existingClass = gymClassRepository.findByExternalId(externalId)
+        GymClassEntity existingClass = gymClassRepository.findByExternalIdAndActiveTrue(externalId)
                 .orElseThrow(() -> new EntityNotFoundException("Clase no encontrada para actualizar con el ID: " + externalId));
 
         validateClassHours(gymClassDTO);
 
+        String professorFirstName = gymClassDTO.getProfessor().getFirstName();
+
         boolean hasOverlap = gymClassRepository.existsOverlapForUpdate(
-                gymClassDTO.getProfessor().getFirstName(),
+                professorFirstName,
                 gymClassDTO.getDayOfWeek(),
                 gymClassDTO.getStartTime(),
                 gymClassDTO.getEndTime(),
@@ -95,10 +88,9 @@ public class GymClassService {
         return gymClassMapper.convertToDto(updatedClass);
     }
 
-    @Auditable(AuditActions.DELETE_CLASS)
     @Transactional
     public void deleteClass(UUID externalId) {
-        GymClassEntity gymClassEntity = gymClassRepository.findByExternalId(externalId)
+        GymClassEntity gymClassEntity = gymClassRepository.findByExternalIdAndActiveTrue(externalId)
                 .orElseThrow(() -> new EntityNotFoundException("Clase no encontrada para eliminar con el ID: " + externalId));
 
         long totalEnrolled = enrollmentRepository.countByGymClassId(gymClassEntity.getId());
@@ -106,30 +98,30 @@ public class GymClassService {
             throw new IllegalStateException("No se puede eliminar la clase porque ya tiene " + totalEnrolled + " alumno(s) inscripto(s).");
         }
 
-        gymClassRepository.delete(gymClassEntity);
+        gymClassEntity.setActive(false);
+        gymClassRepository.save(gymClassEntity);
     }
 
     @Transactional(readOnly = true)
     public List<GymClassDTO> getClassesByProfessor(UUID professorExternalId) {
-        return gymClassRepository.findByProfessorExternalId(professorExternalId).stream()
+        return gymClassRepository.findByProfessorExternalIdAndActiveTrue(professorExternalId).stream()
                 .map(gymClassMapper::convertToDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public List<GymClassDTO> getClassesByActivity(UUID activityExternalId) {
-        return gymClassRepository.findByActivityExternalId(activityExternalId).stream()
+        return gymClassRepository.findByActivityExternalIdAndActiveTrue(activityExternalId).stream()
                 .map(gymClassMapper::convertToDto)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public List<GymClassDTO> getClassesByDay(DayOfWeek dayOfWeek) {
-        return gymClassRepository.findAllByDayOfWeek(dayOfWeek).stream()
+        return gymClassRepository.findAllByDayOfWeekAndActiveTrue(dayOfWeek).stream()
                 .map(gymClassMapper::convertToDto)
                 .collect(Collectors.toList());
     }
-
 
     private void validateClassHours(GymClassDTO gymClassDTO) {
         if (gymClassDTO.getStartTime() == null || gymClassDTO.getEndTime() == null) {
