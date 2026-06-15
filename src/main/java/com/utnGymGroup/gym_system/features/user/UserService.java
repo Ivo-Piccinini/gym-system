@@ -206,7 +206,8 @@ public class UserService {
         CredentialsEntity user = credentialsRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + username));
 
-        credentialsRepository.delete(user);
+        user.setEnabled(false);
+        credentialsRepository.save(user);
     }
 
     @Transactional
