@@ -104,7 +104,7 @@ public class GymClassService {
 
     @Transactional(readOnly = true)
     public List<GymClassDTO> getClassesByProfessor(UUID professorExternalId) {
-        return gymClassRepository.findByProfessorExternalIdAndActiveTrue(professorExternalId).stream()
+        return gymClassRepository.findByProfessorPublicIdAndActiveTrue(professorExternalId).stream()
                 .map(gymClassMapper::convertToDto)
                 .collect(Collectors.toList());
     }

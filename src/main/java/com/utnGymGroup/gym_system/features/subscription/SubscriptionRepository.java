@@ -11,5 +11,5 @@ public interface SubscriptionRepository extends JpaRepository<SubscriptionEntity
 
 
     List<SubscriptionEntity> findByUser(UserEntity user);
-    Optional<SubscriptionEntity> findByUUID(UUID id);
+    Optional<SubscriptionEntity> findByPublicId(UUID publicId);
 }

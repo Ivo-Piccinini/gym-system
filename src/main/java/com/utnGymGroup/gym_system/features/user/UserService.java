@@ -40,30 +40,28 @@ public class UserService {
             return findAllUsersByStatus(enabled);
         }
 
-        return userRepository.findAll().stream()
-                .map(userMapper::convertToDto)
+        return credentialsRepository.findAll().stream()
+                .map(this::convertToDtoWithRole)
                 .toList();
     }
 
     public List<UserDTO> findAllUsersByStatus(Boolean enabled){
         List<CredentialsEntity> credentialsList = credentialsRepository.findAllByEnabled(enabled);
         return credentialsList.stream()
-                .map(CredentialsEntity::getUser)
-                .map(userMapper::convertToDto)
+                .map(this::convertToDtoWithRole)
                 .toList();
     }
 
     public UserDTO findByUsername(String username){
         return credentialsRepository.findByUsername(username)
-                .map(CredentialsEntity::getUser)
-                .map(userMapper::convertToDto)
+                .map(this::convertToDtoWithRole)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + username));
     }
 
     public UserDTO findByEmail(String email){
-        return userRepository.findByEmail(email)
-                .map(userMapper::convertToDto)
+        UserEntity userEntity = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. EMAIL: " + email));
+        return convertToDtoWithRole(userEntity);
     }
 
     @Transactional
@@ -131,7 +129,10 @@ public class UserService {
 
         credentials.getRoles().add(roleClient);
         credentialsRepository.save(credentials);
-        return userMapper.convertToDto(savedUser);
+        
+        UserDTO responseDTO = userMapper.convertToDto(savedUser);
+        responseDTO.setRole(Roles.ROLE_CLIENT);
+        return responseDTO;
     }
 
     @Transactional
@@ -180,13 +181,13 @@ public class UserService {
     @Transactional
     @Auditable(AuditActions.UPDATE_PROFILE)
     public UserDTO updateUser(String username, UserDTO userDTO){
-        UserEntity user = credentialsRepository.findByUsername(username)
-                .map(CredentialsEntity::getUser)
+        CredentialsEntity credentials = credentialsRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + username));
+        UserEntity user = credentials.getUser();
         userMapper.updateEntityFromDTO(userDTO, user);
 
         UserEntity savedUser = userRepository.save(user);
-        return userMapper.convertToDto(savedUser);
+        return convertToDtoWithRole(credentials);
     }
 
     // Función de baja lógica / reactivación de cuenta
@@ -215,9 +216,9 @@ public class UserService {
     public UserDTO updatePartialUser(UserPatchDTO userPatchDTO){
         String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
 
-        UserEntity user = credentialsRepository.findByUsername(username)
-                .map(CredentialsEntity::getUser)
+        CredentialsEntity credentials = credentialsRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + username));
+        UserEntity user = credentials.getUser();
         if (userPatchDTO.getFirstName() != null) {
             user.setFirstName(userPatchDTO.getFirstName());
         }
@@ -232,15 +233,14 @@ public class UserService {
         }
 
         UserEntity savedUser = userRepository.save(user);
-        return userMapper.convertToDto(savedUser);
+        return convertToDtoWithRole(credentials);
     }
 
     public List<UserDTO> findAllUsersByRole(Roles role){
         List<CredentialsEntity> credentialsList = credentialsRepository.findAllByRole(role);
 
         return credentialsList.stream()
-                .map(CredentialsEntity::getUser)
-                .map(userMapper::convertToDto)
+                .map(this::convertToDtoWithRole)
                 .toList();
     }
 
@@ -249,6 +249,31 @@ public class UserService {
         return credentialsRepository.findByUsername(username)
                 .map(CredentialsEntity::getUser)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + username));
+    }
+
+    private UserDTO convertToDtoWithRole(CredentialsEntity credentials) {
+        UserDTO dto = userMapper.convertToDto(credentials.getUser());
+        if (credentials.getRoles() != null && !credentials.getRoles().isEmpty()) {
+            credentials.getRoles().stream()
+                    .findFirst()
+                    .ifPresent(roleEntity -> dto.setRole(roleEntity.getRole()));
+        }
+        return dto;
+    }
+
+    private UserDTO convertToDtoWithRole(UserEntity userEntity) {
+        UserDTO dto = userMapper.convertToDto(userEntity);
+        if (userEntity.getPublicId() != null) {
+            credentialsRepository.findByUser_PublicId(userEntity.getPublicId())
+                    .ifPresent(credentials -> {
+                        if (credentials.getRoles() != null && !credentials.getRoles().isEmpty()) {
+                            credentials.getRoles().stream()
+                                    .findFirst()
+                                    .ifPresent(roleEntity -> dto.setRole(roleEntity.getRole()));
+                        }
+                    });
+        }
+        return dto;
     }
 
 }

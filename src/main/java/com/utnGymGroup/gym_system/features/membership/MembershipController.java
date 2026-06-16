@@ -26,8 +26,8 @@ public class MembershipController {
     private final MembershipService membershipService;
 
     @GetMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN') or hasRole('ROLE_PROFESSOR')")
-    @Operation(summary = "Obtener todas las membresías", description = "Devuelve un listado con todos los planes de membresía disponibles. Permitido para ADMIN y PROFESSOR.")
+    @PreAuthorize("hasRole('ADMIN') or hasRole('PROFESSOR') or hasRole('CLIENT')")
+    @Operation(summary = "Obtener todas las membresías", description = "Devuelve un listado con todos los planes de membresía disponibles. Permitido para ADMIN, PROFESSOR y CLIENT.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Listado obtenido correctamente"),
             @ApiResponse(responseCode = "403", description = "No tenés permisos para realizar esta acción")
@@ -47,7 +47,7 @@ public class MembershipController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Crear una nueva membresía", description = "Registra un nuevo plan de membresía en el sistema. Permitido únicamente para ADMIN.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Membresía creada exitosamente"),

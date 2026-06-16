@@ -25,7 +25,7 @@ public class PaymentController {
     private final PaymentService paymentService;
 
     @GetMapping
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Obtener todos los pagos registrados", description = "Devuelve el historial global de pagos de todo el gimnasio. Permitido únicamente para ADMIN.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Historial obtenido correctamente"),
@@ -36,7 +36,7 @@ public class PaymentController {
     }
 
     @GetMapping("/my-payments")
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @PreAuthorize("hasRole('CLIENT')")
     @Operation(summary = "Obtener pagos del cliente autenticado", description = "Devuelve el historial de pagos pertenecientes al cliente que realiza la petición. Permitido para CLIENT.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Historial del cliente obtenido correctamente"),
@@ -47,7 +47,7 @@ public class PaymentController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('ROLE_CLIENT')")
+    @PreAuthorize("hasRole('CLIENT')")
     @Operation(summary = "Registrar un nuevo pago", description = "Registra un pago asociado a una suscripción activa del cliente. Permitido para CLIENT.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Pago registrado exitosamente"),

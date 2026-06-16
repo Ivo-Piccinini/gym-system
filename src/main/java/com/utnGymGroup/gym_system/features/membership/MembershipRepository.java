@@ -7,5 +7,5 @@ import java.util.UUID;
 
 public interface MembershipRepository extends JpaRepository<MembershipEntity, Long> {
     Boolean existsByName(String name);
-    Optional<MembershipEntity> findByUUID(UUID id);
+    Optional<MembershipEntity> findByPublicId(UUID publicId);
 }

@@ -53,9 +53,9 @@ public class RoutineController
     }
 
     @GetMapping("/my-routine")
-    @PreAuthorize("hasRole('CLIENT')") //
-    public ResponseEntity<RoutineResponseDto> getMyRoutine(@PathVariable UUID publidId) {
-        return ResponseEntity.ok(routineService.getMyRoutine(publidId));
+    @PreAuthorize("hasRole('CLIENT')")
+    public ResponseEntity<RoutineResponseDto> getMyRoutine() {
+        return ResponseEntity.ok(routineService.getMyRoutine());
     }
 
 

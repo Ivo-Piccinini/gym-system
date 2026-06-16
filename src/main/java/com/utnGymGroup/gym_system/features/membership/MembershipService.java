@@ -31,7 +31,7 @@ public class MembershipService {
     }
 
     public MembershipResponseDto getMembershipById(UUID id) {
-        return membershipRepository.findByUUID(id)
+        return membershipRepository.findByPublicId(id)
                 .map(responseMapper::convertToDto)
                 .orElseThrow(() -> new MembershipNotFoundException("No se encontró el plan de membresía con ID: " + id));
     }

@@ -1,14 +1,20 @@
 package com.utnGymGroup.gym_system.features.routine;
 
+import com.utnGymGroup.gym_system.common.auth.credentials.CredentialsEntity;
+import com.utnGymGroup.gym_system.common.auth.credentials.CredentialsRepository;
 import com.utnGymGroup.gym_system.features.audit.AuditActions;
 import com.utnGymGroup.gym_system.features.audit.Auditable;
+import com.utnGymGroup.gym_system.features.fullRoutine.FullRoutineDtoResponse;
+import com.utnGymGroup.gym_system.features.fullRoutine.FullRoutineMapperResponse;
+import com.utnGymGroup.gym_system.features.fullRoutine.FullRoutineRepository;
 import com.utnGymGroup.gym_system.features.routine.exception.RoutineNotFoundException;
 import com.utnGymGroup.gym_system.features.user.UserEntity;
 import com.utnGymGroup.gym_system.features.user.UserRepository;
 import com.utnGymGroup.gym_system.features.user.exceptions.UserNotFoundException;
 import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,21 +26,44 @@ public class RoutineService
     private final RoutineRepository routineRepository;
     private final RoutineMapperRequest routineMapperRequest;
     private final RoutineMapperResponse routineMapperResponse;
-
     private final UserRepository userRepository;
+    private final CredentialsRepository credentialsRepository;
+    private final FullRoutineRepository fullRoutineRepository;
+    private final FullRoutineMapperResponse fullRoutineMapperResponse;
 
-    public RoutineService(RoutineRepository routineRepository, RoutineMapperRequest routineMapperRequest, RoutineMapperResponse routineMapperResponse, UserRepository userRepository) {
+    public RoutineService(
+            RoutineRepository routineRepository, 
+            RoutineMapperRequest routineMapperRequest, 
+            RoutineMapperResponse routineMapperResponse, 
+            UserRepository userRepository,
+            CredentialsRepository credentialsRepository,
+            FullRoutineRepository fullRoutineRepository,
+            FullRoutineMapperResponse fullRoutineMapperResponse
+    ) {
         this.routineRepository = routineRepository;
         this.routineMapperRequest = routineMapperRequest;
         this.routineMapperResponse = routineMapperResponse;
         this.userRepository = userRepository;
+        this.credentialsRepository = credentialsRepository;
+        this.fullRoutineRepository = fullRoutineRepository;
+        this.fullRoutineMapperResponse = fullRoutineMapperResponse;
+    }
+
+    private RoutineResponseDto convertAndPopulateExercises(RoutineEntity routine) {
+        RoutineResponseDto dto = routineMapperResponse.convertToDto(routine);
+        List<FullRoutineDtoResponse> exercises = fullRoutineRepository.findAllByRoutinePublicId(routine.getPublicId())
+                .stream()
+                .map(fullRoutineMapperResponse::convertToDto)
+                .toList();
+        dto.setExercises(exercises);
+        return dto;
     }
 
     @Transactional
     public List<RoutineResponseDto> getAllRoutines() {
         return routineRepository.findAll()
                 .stream()
-                .map(routineMapperResponse::convertToDto)
+                .map(this::convertAndPopulateExercises)
                 .toList();
     }
 
@@ -42,7 +71,7 @@ public class RoutineService
     public RoutineResponseDto getRoutineByPublicId(UUID publicId) {
         RoutineEntity routine = routineRepository.findByPublicId(publicId)
                 .orElseThrow(() -> new RoutineNotFoundException("No se encontró la rutina con el ID solicitado"));
-        return routineMapperResponse.convertToDto(routine);
+        return convertAndPopulateExercises(routine);
     }
 
     @Auditable(AuditActions.CREATE_ROUTINE)
@@ -62,7 +91,8 @@ public class RoutineService
         routineEntity.setClient(client);
         routineEntity.setProfessor(professor);
 
-        return routineMapperResponse.convertToDto(routineRepository.save(routineEntity));
+        RoutineEntity saved = routineRepository.save(routineEntity);
+        return convertAndPopulateExercises(saved);
     }
 
     @Auditable(AuditActions.UPDATE_ROUTINE)
@@ -90,7 +120,8 @@ public class RoutineService
 
         routineMapperRequest.updateEntityFromDTO(request, routineEntity);
 
-        return routineMapperResponse.convertToDto(routineRepository.save(routineEntity));
+        RoutineEntity saved = routineRepository.save(routineEntity);
+        return convertAndPopulateExercises(saved);
     }
 
 
@@ -104,16 +135,27 @@ public class RoutineService
     }
 
     @Transactional
-    public RoutineResponseDto getMyRoutine(UUID clientId)
+    public RoutineResponseDto getMyRoutine()
     {
-        UserEntity user = userRepository.findByPublicId(clientId)
-                .orElseThrow(()-> new UserNotFoundException("No se encontro al usuario"));
+        Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        String username;
+        if (principal instanceof UserDetails) {
+            username = ((UserDetails) principal).getUsername();
+        } else {
+            username = principal.toString();
+        }
 
-        RoutineEntity routine = routineRepository.findByClient_PublicId(clientId)
+        CredentialsEntity credentials = credentialsRepository.findByUsername(username)
+                .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado en el contexto de seguridad"));
+
+        UserEntity client = credentials.getUser();
+        if (client == null) {
+            throw new UserNotFoundException("El usuario logueado no posee un perfil de cliente configurado");
+        }
+
+        RoutineEntity routine = routineRepository.findByClient_PublicId(client.getPublicId())
                 .orElseThrow(() -> new UserNotFoundException("No tenés ninguna rutina asignada actualmente."));
 
-        return routineMapperResponse.convertToDto(routine);
+        return convertAndPopulateExercises(routine);
     }
-
-
 }

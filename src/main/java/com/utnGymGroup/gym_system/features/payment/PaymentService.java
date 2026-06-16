@@ -8,6 +8,7 @@ import com.utnGymGroup.gym_system.features.payment.mappers.PaymentRequestMapper;
 import com.utnGymGroup.gym_system.features.payment.mappers.PaymentResponseMapper; // 🎯 Importación del mapper de salida
 import com.utnGymGroup.gym_system.features.subscription.SubscriptionRepository;
 import com.utnGymGroup.gym_system.features.subscription.SubscriptionEntity;
+import com.utnGymGroup.gym_system.features.subscription.SubscriptionStatus;
 import com.utnGymGroup.gym_system.features.subscription.exceptions.SubscriptionNotFoundException;
 import com.utnGymGroup.gym_system.features.user.UserEntity;
 import com.utnGymGroup.gym_system.features.user.UserService;
@@ -31,7 +32,7 @@ public class PaymentService {
     @Auditable(AuditActions.PROCESS_PAYMENT)
     @Transactional
     public PaymentResponseDto createPayment(PaymentRequestDTO dto) {
-        SubscriptionEntity subscription = subscriptionRepository.findById(dto.getSubscriptionId())
+        SubscriptionEntity subscription = subscriptionRepository.findByPublicId(dto.getSubscriptionId())
                 .orElseThrow(() -> new SubscriptionNotFoundException("No se encontró la suscripción con ID: " + dto.getSubscriptionId()));
 
         PaymentEntity payment = new PaymentEntity();
@@ -39,6 +40,10 @@ public class PaymentService {
         payment.setAmount(dto.getAmount());
         payment.setPaymentDate(dto.getPaymentDate());
         payment.setMethod(dto.getMethod());
+
+        // Al realizar el pago, la suscripción pasa a estar activa
+        subscription.setStatus(SubscriptionStatus.ACTIVE);
+        subscriptionRepository.save(subscription);
 
         return responseMapper.convertToDto(paymentRepository.save(payment));
     }

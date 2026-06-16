@@ -1,5 +1,6 @@
 package com.utnGymGroup.gym_system.features.subscription.dtos;
 import java.time.LocalDate;
+import java.util.UUID;
 import com.utnGymGroup.gym_system.features.subscription.SubscriptionStatus;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -11,6 +12,7 @@ import lombok.Setter;
 @Setter
 public class SubscriptionResponseDto {
     private Long id;
+    private UUID publicId;
     private Long userId;
     private Long planId;
     private LocalDate startDate;

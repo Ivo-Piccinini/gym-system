@@ -15,7 +15,12 @@ public class PaymentResponseMapper implements IMapper<PaymentEntity, PaymentResp
 
     @Override
     public PaymentResponseDto convertToDto(PaymentEntity paymentEntity) {
-        return modelMapper.map(paymentEntity, PaymentResponseDto.class);
+        PaymentResponseDto dto = modelMapper.map(paymentEntity, PaymentResponseDto.class);
+        dto.setPublicId(paymentEntity.getPublicId());
+        if (paymentEntity.getSubscription() != null) {
+            dto.setSubscriptionId(paymentEntity.getSubscription().getId());
+        }
+        return dto;
     }
 
     @Override

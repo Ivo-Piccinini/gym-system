@@ -37,5 +37,11 @@ public class PaymentEntity {
     @Column(name = "method")
     private PaymentMethods method;
 
+    @PrePersist
+    void onCreate() {
+        if (this.publicId == null) {
+            this.publicId = UUID.randomUUID();
+        }
+    }
 
 }

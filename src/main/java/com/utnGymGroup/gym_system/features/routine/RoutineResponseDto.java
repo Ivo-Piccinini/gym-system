@@ -21,4 +21,6 @@ public class RoutineResponseDto {
 
     private UserDTO client;
     private UserDTO professor;
+
+    private java.util.List<com.utnGymGroup.gym_system.features.fullRoutine.FullRoutineDtoResponse> exercises;
 }

@@ -21,8 +21,9 @@ public class FullRoutineDtoRequest {
     @NotNull(message = "El ejercicio debe tener almenos un id")
     private UUID exerciseID;
 
-    @NotNull(message = "La rutina debe tener almenos un id")
     private UUID routineID;
+
+    private UUID clientID;
 
     @NotNull(message = "la rutina tiene que tener series" ,groups = ICreate.class)
     @Min(value = 1, groups = {ICreate.class, IUpdate.class})

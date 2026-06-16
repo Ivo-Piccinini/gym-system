@@ -15,7 +15,15 @@ public class SubscriptionResponseMapper implements IMapper<SubscriptionEntity, S
 
     @Override
     public SubscriptionResponseDto convertToDto(SubscriptionEntity subscriptionEntity) {
-        return modelMapper.map(subscriptionEntity, SubscriptionResponseDto.class);
+        SubscriptionResponseDto dto = modelMapper.map(subscriptionEntity, SubscriptionResponseDto.class);
+        dto.setPublicId(subscriptionEntity.getPublicId());
+        if (subscriptionEntity.getUser() != null) {
+            dto.setUserId(subscriptionEntity.getUser().getId());
+        }
+        if (subscriptionEntity.getPlan() != null) {
+            dto.setPlanId(subscriptionEntity.getPlan().getId());
+        }
+        return dto;
     }
 
     @Override

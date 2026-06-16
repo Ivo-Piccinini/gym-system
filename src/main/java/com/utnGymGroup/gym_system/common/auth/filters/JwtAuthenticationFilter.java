@@ -1,6 +1,7 @@
 package com.utnGymGroup.gym_system.common.auth.filters;
 
 import com.utnGymGroup.gym_system.common.auth.jwt.JwtService;
+import com.utnGymGroup.gym_system.features.user.exceptions.UserNotFoundException;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -50,10 +51,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     SecurityContextHolder.getContext().setAuthentication(authToken);
                 }
             }
-        } catch (JwtException e){
+        } catch (JwtException | UserNotFoundException e){
             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
             response.setContentType("application/json");
-            response.getWriter().write(String.format("{\"error\": \"Token JWT invalido o expirado\", \"status\": %d, \"path\": \"%s\"}",
+            response.getWriter().write(String.format("{\"error\": \"Token JWT invalido o el usuario no existe\", \"status\": %d, \"path\": \"%s\"}",
                     HttpServletResponse.SC_UNAUTHORIZED, request.getRequestURI()));
             response.getWriter().flush();
             return;

@@ -58,7 +58,7 @@ public class SubscriptionService {
     public SubscriptionResponseDto subscribe(UUID planId) {
         UserEntity user = userService.getAuthenticatedUserEntity();
 
-        MembershipEntity plan = membershipRepository.findByUUID(planId)
+        MembershipEntity plan = membershipRepository.findByPublicId(planId)
                 .orElseThrow(() -> new MembershipNotFoundException("No se encontró el plan con ID: " + planId));
 
         LocalDate startDate = LocalDate.now();
@@ -69,7 +69,7 @@ public class SubscriptionService {
         subscription.setPlan(plan);
         subscription.setStartDate(startDate);
         subscription.setEndDate(endDate);
-        subscription.setStatus(SubscriptionStatus.ACTIVE);
+        subscription.setStatus(SubscriptionStatus.PENDING);
 
         return responseMapper.convertToDto(subscriptionRepository.save(subscription));
     }
@@ -79,7 +79,7 @@ public class SubscriptionService {
     public SubscriptionResponseDto cancelSubscription(UUID id) {
         UserEntity authenticatedUser = userService.getAuthenticatedUserEntity();
 
-        SubscriptionEntity subscription = subscriptionRepository.findByUUID(id)
+        SubscriptionEntity subscription = subscriptionRepository.findByPublicId(id)
                 .orElseThrow(() -> new SubscriptionNotFoundException("No se encontró la suscripción con ID: " + id));
 
         if (!subscription.getUser().getPublicId().equals(authenticatedUser.getPublicId())) {

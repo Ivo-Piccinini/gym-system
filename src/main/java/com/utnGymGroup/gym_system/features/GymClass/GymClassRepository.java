@@ -16,7 +16,7 @@ public interface GymClassRepository extends JpaRepository<GymClassEntity, Long> 
 
     List<GymClassEntity> findByActiveTrue();
 
-    List<GymClassEntity> findByProfessorExternalIdAndActiveTrue(UUID professorId);
+    List<GymClassEntity> findByProfessorPublicIdAndActiveTrue(UUID professorId);
     List<GymClassEntity> findByActivityExternalIdAndActiveTrue(UUID activityId);
     List<GymClassEntity> findAllByDayOfWeekAndActiveTrue(DayOfWeek dayOfWeek);
 

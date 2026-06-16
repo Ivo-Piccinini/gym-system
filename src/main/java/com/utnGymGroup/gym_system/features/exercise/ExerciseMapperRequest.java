@@ -17,17 +17,35 @@ public class ExerciseMapperRequest implements IMapper <ExerciseEntity, ExerciseD
 
     @Override
     public ExerciseDtoRequest convertToDto(ExerciseEntity exerciseEntity) {
-        return modelMapper.map(exerciseEntity, ExerciseDtoRequest.class);
-
+        ExerciseDtoRequest dto = modelMapper.map(exerciseEntity, ExerciseDtoRequest.class);
+        if (exerciseEntity.getMuscleGroup() != null) {
+            dto.setMuscle_group(exerciseEntity.getMuscleGroup().name());
+        }
+        return dto;
     }
 
     @Override
     public ExerciseEntity convertToEntity(ExerciseDtoRequest exerciseDtoRequest) {
-       return modelMapper.map(exerciseDtoRequest,ExerciseEntity.class);
+        ExerciseEntity entity = modelMapper.map(exerciseDtoRequest, ExerciseEntity.class);
+        if (exerciseDtoRequest.getMuscle_group() != null && !exerciseDtoRequest.getMuscle_group().isBlank()) {
+            try {
+                entity.setMuscleGroup(MuscleGroup.valueOf(exerciseDtoRequest.getMuscle_group().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                entity.setMuscleGroup(null);
+            }
+        }
+        return entity;
     }
 
     @Override
     public void updateEntityFromDTO(ExerciseDtoRequest exerciseDtoRequest, ExerciseEntity exerciseEntity) {
         modelMapper.map(exerciseDtoRequest, exerciseEntity);
+        if (exerciseDtoRequest.getMuscle_group() != null && !exerciseDtoRequest.getMuscle_group().isBlank()) {
+            try {
+                exerciseEntity.setMuscleGroup(MuscleGroup.valueOf(exerciseDtoRequest.getMuscle_group().toUpperCase()));
+            } catch (IllegalArgumentException e) {
+                exerciseEntity.setMuscleGroup(null);
+            }
+        }
     }
 }

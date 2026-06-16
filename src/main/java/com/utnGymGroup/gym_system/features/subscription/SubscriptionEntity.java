@@ -42,5 +42,12 @@ public class SubscriptionEntity {
     @Enumerated(EnumType.STRING)
     private SubscriptionStatus status;
 
+    @PrePersist
+    void onCreate() {
+        if (this.publicId == null) {
+            this.publicId = UUID.randomUUID();
+        }
+    }
+
 
 }

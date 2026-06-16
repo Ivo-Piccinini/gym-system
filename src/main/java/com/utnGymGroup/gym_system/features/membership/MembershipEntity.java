@@ -30,4 +30,11 @@ public class MembershipEntity {
 
     @Column(name = "duration_days")
     private Integer durationDays;
+
+    @PrePersist
+    void onCreate() {
+        if (this.publicId == null) {
+            this.publicId = UUID.randomUUID();
+        }
+    }
 }

@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDate;
+import java.util.UUID;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -27,5 +28,5 @@ public class PaymentRequestDTO {
     private PaymentMethods method;
 
     @NotNull(message = "El ID de la suscripción es obligatorio", groups = ICreate.class)
-    private Long subscriptionId;
+    private UUID subscriptionId;
 }

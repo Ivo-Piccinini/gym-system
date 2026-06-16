@@ -37,7 +37,7 @@ public class UserController {
     )
     @ApiResponse(responseCode = "200", description = "Listado obtenido exitosamente.",
             content = @Content(array = @ArraySchema(schema = @Schema(implementation = UserDTO.class))))
-    @PreAuthorize("hasRole('ADMIN') or (hasRole('PROFESSOR') and #role == null)")
+    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
     public ResponseEntity<List<UserDTO>> getUsers(
             @Parameter(description = "Filtrar por estado activo (true) o inactivo (false)", required = false)
             @RequestParam(required = false) Boolean enabled,
@@ -45,6 +45,13 @@ public class UserController {
             @Parameter(description = "Filtrar por rol de usuario (ROLE_ADMIN, ROLE_PROFESSOR, ROLE_CLIENT)", required = false)
             @RequestParam(required = false) Roles role
         ){
+        org.springframework.security.core.Authentication auth = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication();
+        boolean isProfessor = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_PROFESSOR"));
+
+        if (isProfessor && role != null && role != Roles.ROLE_CLIENT) {
+            throw new org.springframework.security.access.AccessDeniedException("Los profesores solo pueden filtrar por rol de cliente (ROLE_CLIENT).");
+        }
         return ResponseEntity.ok(userService.findAllUsers(enabled, role));
     }
 
