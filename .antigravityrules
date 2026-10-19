@@ -24,3 +24,12 @@ enforce_source_truth = true
 
 [GRAVITY_DOCKING]
 Read the primary_source markdown document before executing any refactoring, code generation (Ctrl+K), or chat contextual queries (Ctrl+L).
+
+[GITFLOW_AND_COMMITS]
+Enforce rules defined in AGENTS.md:
+- Direct commits to 'develop' are strictly prohibited.
+- Work branches: feature/*, fix/*, refactor/*, docs/* created always from 'develop'.
+- Commits must use Conventional Commits strictly in Spanish: <tipo>(<alcance_opcional>): <descripción concisa y en minúsculas>.
+- Mandatory local validations before merging into develop (Frontend: npm run lint/build, Backend: ./mvnw test).
+- Atomic backlog updates and Docs-as-Code included in the same commit.
+- Integration back into 'develop', deletion of work branch, leaving terminal on 'develop'.
