@@ -43,7 +43,7 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
 
 ### `GS-5: Inicio y Cierre de Sesión Multinivel (JWT)`
 - **Tipo:** Historia
-- **Estado:** Por hacer
+- **Estado:** Completada
 - **Descripción:**
   Como usuario del sistema (Administrador, Profesor, Cliente), quiero iniciar y cerrar sesión en una interfaz web reactiva para acceder de forma segura a las funciones correspondientes a mi rol.
 - **Criterios de Aceptación:**
@@ -52,10 +52,10 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
   - Manejo de errores visuales ante credenciales inválidas (`HTTP 401`).
   - Cierre de sesión que limpie el almacenamiento local y redirija a `/login`.
 - **Subtareas Jira:**
-  - [ ] `GS-7`: Crear `AuthService` y DTOs de autenticación (`auth.service.ts`, `auth.models.ts`).
-  - [ ] `GS-8`: Diseñar componente Login con ReactiveForms (`login.ts`, `login.html`, `login.css`).
-  - [ ] `GS-9`: Implementar almacenamiento y decodificación de Token JWT (gestión de señales de sesión).
-  - [ ] `GS-10`: Crear e implementar `JwtInterceptor`.
+  - [x] `GS-7`: Crear `AuthService` y DTOs de autenticación (`auth.service.ts`, `auth.models.ts`).
+  - [x] `GS-8`: Diseñar componente Login con ReactiveForms (`login.ts`, `login.html`, `login.css`).
+  - [x] `GS-9`: Implementar almacenamiento y decodificación de Token JWT (gestión de señales de sesión).
+  - [x] `GS-10`: Crear e implementar `JwtInterceptor`.
 
 ### `GS-11: Autogestión de Perfil del Cliente`
 - **Tipo:** Historia
