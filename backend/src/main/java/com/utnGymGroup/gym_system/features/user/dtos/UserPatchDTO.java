@@ -1,5 +1,6 @@
 package com.utnGymGroup.gym_system.features.user.dtos;
 
+import com.fasterxml.jackson.annotation.JsonAlias;
 import com.utnGymGroup.gym_system.common.interfaces.ICreate;
 import com.utnGymGroup.gym_system.common.interfaces.IUpdate;
 import jakarta.validation.constraints.Size;
@@ -27,6 +28,7 @@ public class UserPatchDTO {
     private String phone;
 
     @Schema(description = "Fecha de nacimiento a modificar", example = "1995-10-15")
+    @JsonAlias({"birthDate", "birthDay"})
     private LocalDate birthDay;
 }
 

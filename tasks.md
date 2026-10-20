@@ -59,16 +59,16 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
 
 ### `GS-11: Autogestión de Perfil del Cliente`
 - **Tipo:** Historia
-- **Estado:** Por hacer
+- **Estado:** Completado
 - **Descripción:**
   Como Cliente, quiero actualizar parcialmente mis datos personales (teléfono y fecha de nacimiento) para mantener mi información al día.
 - **Criterios de Aceptación:**
   - Formulario que consuma el endpoint seguro `PATCH /api/users/me`.
   - Los campos bloqueados (nombre de usuario, DNI, rol) deben permanecer de solo lectura.
 - **Subtareas Jira:**
-  - [ ] `GS-12`: Crear `ProfileComponent` y servicio de actualización (`profile.service.ts`).
-  - [ ] `GS-13`: Integrar formulario reactivo para patch de datos personales.
-  - [ ] `GS-14`: Probar la persistencia parcial de datos de usuario con el backend.
+  - [x] `GS-12`: Crear `ProfileComponent` y servicio de actualización (`profile.service.ts`).
+  - [x] `GS-13`: Integrar formulario reactivo para patch de datos personales.
+  - [x] `GS-14`: Probar la persistencia parcial de datos de usuario con el backend.
 
 ### `[GS-AUTH-EXT] Actualización Obligatoria de Clave y Nombre de Usuario Temporal`
 - **Tipo:** Historia Complementaria

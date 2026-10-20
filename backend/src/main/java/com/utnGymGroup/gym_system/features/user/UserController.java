@@ -55,6 +55,21 @@ public class UserController {
         return ResponseEntity.ok(userService.findAllUsers(enabled, role));
     }
 
+    @GetMapping("/me")
+    @Operation(
+            summary = "Obtener perfil del usuario autenticado",
+            description = "Obtiene los detalles de cuenta y perfil del usuario actualmente autenticado."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Perfil obtenido con éxito.",
+                    content = @Content(schema = @Schema(implementation = UserDTO.class))),
+            @ApiResponse(responseCode = "404", description = "Usuario no encontrado.")
+    })
+    public ResponseEntity<UserDTO> getLoggedUser() {
+        String username = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        return ResponseEntity.ok(userService.findByUsername(username));
+    }
+
     @GetMapping("/{username}")
     @Operation(
             summary = "Obtener usuario por username",

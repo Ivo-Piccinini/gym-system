@@ -1,0 +1,303 @@
+<div class="profile-container">
+  <!-- Top Navigation Bar -->
+  <header class="profile-navbar">
+    <div class="navbar-brand">
+      <div class="brand-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6.5 6.5h11M6.5 17.5h11M6 12h12M4 9v6M20 9v6M9 6v12M15 6v12" />
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">Gym System</span>
+        <span class="brand-subtitle">Panel de Usuario</span>
+      </div>
+    </div>
+
+    <div class="navbar-actions">
+      <button type="button" class="btn-ghost" (click)="authService.logout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+        <span>Cerrar Sesión</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="profile-main">
+    <!-- Loading State -->
+    @if (isLoading()) {
+      <div class="state-card loading-state">
+        <div class="spinner"></div>
+        <p class="state-text">Cargando datos del perfil...</p>
+      </div>
+    }
+
+    <!-- Error State (when initial load fails) -->
+    @if (!isLoading() && !userProfile() && errorMessage()) {
+      <div class="state-card error-state">
+        <div class="error-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+        </div>
+        <p class="error-title">No pudimos cargar tu información</p>
+        <p class="error-desc">{{ errorMessage() }}</p>
+        <button type="button" class="btn-primary" (click)="loadProfile()">
+          Reintentar
+        </button>
+      </div>
+    }
+
+    <!-- Profile View & Form -->
+    @if (!isLoading() && userProfile()) {
+      <div class="profile-content">
+        <!-- Header Profile Card -->
+        <section class="profile-hero-card">
+          <div class="hero-left">
+            <div class="avatar-badge">
+              <span>{{ getInitials(userProfile()?.firstName, userProfile()?.lastName) }}</span>
+            </div>
+            <div class="hero-info">
+              <div class="hero-name-row">
+                <h1 class="hero-fullname">
+                  {{ userProfile()?.firstName }} {{ userProfile()?.lastName }}
+                </h1>
+                <span class="role-chip" [attr.data-role]="userProfile()?.role">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  </svg>
+                  {{ getRoleBadge(userProfile()?.role) }}
+                </span>
+              </div>
+              <div class="hero-meta-row">
+                <span class="meta-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="12" cy="7" r="4" />
+                  </svg>
+                  @{{ authService.username() || 'usuario' }}
+                </span>
+                <span class="meta-separator">•</span>
+                <span class="meta-item">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                    <polyline points="22,6 12,13 2,6" />
+                  </svg>
+                  {{ userProfile()?.email }}
+                </span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- Feedback Notifications -->
+        @if (successMessage()) {
+          <div class="alert-banner alert-success" role="alert">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+              <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+            <span>{{ successMessage() }}</span>
+          </div>
+        }
+
+        @if (errorMessage()) {
+          <div class="alert-banner alert-error" role="alert">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <span>{{ errorMessage() }}</span>
+          </div>
+        }
+
+        <div class="profile-grid">
+          <!-- Left Column: Read-Only Account Data -->
+          <section class="panel-card">
+            <div class="panel-header">
+              <div class="panel-header-icon lock-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                </svg>
+              </div>
+              <div>
+                <h2 class="panel-title">Datos de Cuenta</h2>
+                <p class="panel-subtitle">Campos protegidos de solo lectura administrados por el sistema</p>
+              </div>
+            </div>
+
+            <div class="readonly-fields">
+              <div class="readonly-group">
+                <label class="field-label">
+                  <span>Nombre de Usuario</span>
+                  <span class="badge-locked">Bloqueado</span>
+                </label>
+                <div class="readonly-value-box">
+                  <span class="value-text">{{ authService.username() || 'No asignado' }}</span>
+                </div>
+              </div>
+
+              <div class="readonly-group">
+                <label class="field-label">
+                  <span>Documento Nacional de Identidad (DNI)</span>
+                  <span class="badge-locked">Bloqueado</span>
+                </label>
+                <div class="readonly-value-box">
+                  <span class="value-text">{{ userProfile()?.dni }}</span>
+                </div>
+              </div>
+
+              <div class="readonly-group">
+                <label class="field-label">
+                  <span>Rol en el Gimnasio</span>
+                  <span class="badge-locked">Bloqueado</span>
+                </label>
+                <div class="readonly-value-box">
+                  <span class="value-text">{{ getRoleBadge(userProfile()?.role) }}</span>
+                </div>
+              </div>
+
+              <div class="readonly-group">
+                <label class="field-label">
+                  <span>Correo Electrónico</span>
+                  <span class="badge-locked">Bloqueado</span>
+                </label>
+                <div class="readonly-value-box">
+                  <span class="value-text">{{ userProfile()?.email }}</span>
+                </div>
+              </div>
+
+              <div class="readonly-group">
+                <label class="field-label">
+                  <span>Identificador Público (UUID)</span>
+                  <span class="badge-locked">Sistema</span>
+                </label>
+                <div class="readonly-value-box mono-font">
+                  <span class="value-text">{{ userProfile()?.publicId }}</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <!-- Right Column: Editable Personal Data -->
+          <section class="panel-card">
+            <div class="panel-header">
+              <div class="panel-header-icon edit-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 20h9" />
+                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
+                </svg>
+              </div>
+              <div>
+                <h2 class="panel-title">Datos Personales</h2>
+                <p class="panel-subtitle">Actualiza tu teléfono y fecha de nacimiento</p>
+              </div>
+            </div>
+
+            <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
+              <!-- Teléfono -->
+              <div class="form-group">
+                <label for="phone-input" class="field-label">
+                  <span>Teléfono de Contacto</span>
+                </label>
+                <div class="input-wrapper" [class.has-error]="profileForm.controls.phone.invalid && profileForm.controls.phone.touched">
+                  <span class="input-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
+                    </svg>
+                  </span>
+                  <input
+                    id="phone-input"
+                    type="tel"
+                    formControlName="phone"
+                    placeholder="Ej. 3415556677"
+                    maxlength="15"
+                    class="form-control"
+                  />
+                </div>
+                @if (profileForm.controls.phone.invalid && profileForm.controls.phone.touched) {
+                  <p class="form-error">
+                    El teléfono debe tener entre 7 y 15 dígitos numéricos.
+                  </p>
+                } @else {
+                  <p class="form-hint">
+                    Número al cual el gimnasio enviará notificaciones y recordatorios.
+                  </p>
+                }
+              </div>
+
+              <!-- Fecha de Nacimiento -->
+              <div class="form-group">
+                <label for="birthdate-input" class="field-label">
+                  <span>Fecha de Nacimiento</span>
+                </label>
+                <div class="input-wrapper" [class.has-error]="profileForm.controls.birthDate.invalid && profileForm.controls.birthDate.touched">
+                  <span class="input-icon">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                      <line x1="16" y1="2" x2="16" y2="6" />
+                      <line x1="8" y1="2" x2="8" y2="6" />
+                      <line x1="3" y1="10" x2="21" y2="10" />
+                    </svg>
+                  </span>
+                  <input
+                    id="birthdate-input"
+                    type="date"
+                    formControlName="birthDate"
+                    [max]="getMaxBirthDate()"
+                    class="form-control date-control"
+                  />
+                </div>
+                @if (profileForm.controls.birthDate.invalid && profileForm.controls.birthDate.touched) {
+                  <p class="form-error">
+                    La fecha de nacimiento es obligatoria.
+                  </p>
+                } @else {
+                  <p class="form-hint">
+                    Requerida para la habilitación de aptos físicos y coberturas médicas.
+                  </p>
+                }
+              </div>
+
+              <!-- Action buttons -->
+              <div class="form-actions">
+                <button
+                  type="button"
+                  class="btn-secondary"
+                  (click)="resetForm()"
+                  [disabled]="isSaving() || profileForm.pristine"
+                >
+                  Descartar
+                </button>
+
+                <button
+                  type="submit"
+                  class="btn-primary"
+                  [disabled]="isSaving() || profileForm.invalid || profileForm.pristine"
+                >
+                  @if (isSaving()) {
+                    <span class="btn-spinner"></span>
+                    <span>Guardando...</span>
+                  } @else {
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" />
+                      <polyline points="17 21 17 13 7 13 7 21" />
+                      <polyline points="7 3 7 8 15 8" />
+                    </svg>
+                    <span>Guardar Cambios</span>
+                  }
+                </button>
+              </div>
+            </form>
+          </section>
+        </div>
+      </div>
+    }
+  </main>
+</div>
