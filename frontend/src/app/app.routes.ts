@@ -12,6 +12,21 @@ export const routes: Routes = [
     loadComponent: () => import('./profile/profile').then((m) => m.Profile)
   },
   {
+    path: 'mi-entrenamiento',
+    redirectTo: 'perfil',
+    pathMatch: 'full'
+  },
+  {
+    path: 'admin/dashboard',
+    redirectTo: 'perfil',
+    pathMatch: 'full'
+  },
+  {
+    path: 'profesor/rutinas',
+    redirectTo: 'perfil',
+    pathMatch: 'full'
+  },
+  {
     path: '',
     redirectTo: 'login',
     pathMatch: 'full'

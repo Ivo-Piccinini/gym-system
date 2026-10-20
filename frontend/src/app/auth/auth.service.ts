@@ -61,13 +61,7 @@ export class AuthService {
   }
 
   getDefaultRedirectUrl(): string {
-    if (this.isAdmin()) {
-      return '/admin/dashboard';
-    }
-    if (this.isProfessor()) {
-      return '/profesor/rutinas';
-    }
-    return '/mi-entrenamiento';
+    return '/perfil';
   }
 
   private setSession(token: string): void {
