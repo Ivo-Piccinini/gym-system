@@ -96,6 +96,8 @@ public class UserService {
 
         UserDTO responseDTO = userMapper.convertToDto(savedUser);
         responseDTO.setRole(targetRole);
+        responseDTO.setUsername(defaultUsername);
+        responseDTO.setEnabled(true);
 
         return responseDTO;
     }
@@ -132,6 +134,8 @@ public class UserService {
         
         UserDTO responseDTO = userMapper.convertToDto(savedUser);
         responseDTO.setRole(Roles.ROLE_CLIENT);
+        responseDTO.setUsername(request.username());
+        responseDTO.setEnabled(true);
         return responseDTO;
     }
 
@@ -253,6 +257,8 @@ public class UserService {
 
     private UserDTO convertToDtoWithRole(CredentialsEntity credentials) {
         UserDTO dto = userMapper.convertToDto(credentials.getUser());
+        dto.setUsername(credentials.getUsername());
+        dto.setEnabled(credentials.getEnabled());
         if (credentials.getRoles() != null && !credentials.getRoles().isEmpty()) {
             credentials.getRoles().stream()
                     .findFirst()
@@ -266,6 +272,8 @@ public class UserService {
         if (userEntity.getPublicId() != null) {
             credentialsRepository.findByUser_PublicId(userEntity.getPublicId())
                     .ifPresent(credentials -> {
+                        dto.setUsername(credentials.getUsername());
+                        dto.setEnabled(credentials.getEnabled());
                         if (credentials.getRoles() != null && !credentials.getRoles().isEmpty()) {
                             credentials.getRoles().stream()
                                     .findFirst()

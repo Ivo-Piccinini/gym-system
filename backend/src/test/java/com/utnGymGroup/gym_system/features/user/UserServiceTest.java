@@ -142,5 +142,30 @@ class UserServiceTest {
         assertEquals("Juan", result.getFirstName());
         assertEquals("Perez", result.getLastName());
         assertEquals(Roles.ROLE_CLIENT, result.getRole());
+        assertEquals(testUsername, result.getUsername());
+        assertTrue(result.getEnabled());
+    }
+
+    @Test
+    @DisplayName("findAllUsers devuelve la lista de usuarios con username y estado enabled")
+    void shouldFindAllUsersWithUsernameAndStatus() {
+        // Arrange
+        when(credentialsRepository.findAll()).thenReturn(java.util.List.of(testCredentials));
+
+        UserDTO mappedDto = new UserDTO();
+        mappedDto.setFirstName("Juan");
+        mappedDto.setLastName("Perez");
+        when(userMapper.convertToDto(testUser)).thenReturn(mappedDto);
+
+        // Act
+        java.util.List<UserDTO> results = userService.findAllUsers(null, null);
+
+        // Assert
+        assertNotNull(results);
+        assertEquals(1, results.size());
+        UserDTO dto = results.getFirst();
+        assertEquals(testUsername, dto.getUsername());
+        assertTrue(dto.getEnabled());
+        assertEquals(Roles.ROLE_CLIENT, dto.getRole());
     }
 }

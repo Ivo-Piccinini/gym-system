@@ -50,5 +50,11 @@ public class UserDTO {
 
     @Schema(description = "Rol asignado al usuario", example = "ROLE_CLIENT")
     private Roles role;
+
+    @Schema(description = "Nombre de usuario único", example = "juanperez")
+    private String username;
+
+    @Schema(description = "Estado de habilitación de la cuenta", example = "true")
+    private Boolean enabled;
 }
 
