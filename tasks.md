@@ -67,6 +67,7 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
   - [x] `GS-DESIGN-2`: Importar Google Fonts `Outfit` e implementar tokens globales en `styles.css`.
   - [x] `GS-DESIGN-3`: Rediseñar componente Login con capas de viñeteado, modal vidrioso e isotipo de pesa (`login.html`, `login.css`).
   - [x] `GS-DESIGN-4`: Armonizar navbars y branding en vistas de usuario y administración.
+  - [x] `GS-DESIGN-5`: Refinar formulario de login con enfoque minimalista, sobrio y sin sobrecarga decorativa.
 
 ---
 
