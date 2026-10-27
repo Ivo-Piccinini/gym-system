@@ -1,6 +1,6 @@
 # Gym System - API
 
-Este proyecto es el backend de gestión para el **Gym System**, desarrollado bajo el framework **Spring Boot** (Java 21) utilizando una arquitectura limpia modular orientada a características (**Package by Feature**), seguridad jerárquica con **Spring Security + JWT**, y persistencia relacional con **Spring Data JPA** y **MySQL**.
+Este proyecto es el backend de gestión para el **Gym System**, desarrollado bajo el framework **Spring Boot** (Java 21) utilizando una arquitectura limpia modular orientada a características (**Package by Feature**), seguridad jerárquica con **Spring Security + JWT**, y persistencia relacional con **Spring Data JPA** y **PostgreSQL (Supabase)**.
 
 ---
 
@@ -40,14 +40,14 @@ El sistema está diseñado para resolver los desafíos comunes de administració
 
 ### 1. Requisitos Previos
 * **Java 21 JDK** instalado.
-* **MySQL Server** en ejecución.
-* Crear una base de datos vacía en MySQL (ej. `gym_system_db`).
+* **Java 21 JDK** instalado.
+* **Base de datos PostgreSQL en Supabase** (o instancia local de PostgreSQL).
 
 ### 2. Configurar Variables de Entorno
-Crea las siguientes variables de entorno en tu sistema o configúralas en tu archivo `application.yaml`:
-* `DB_URL`: URL de conexión a tu base de datos MySQL (ej. `jdbc:mysql://localhost:3306/gym_system_db`)
-* `DB_USER`: Tu usuario de base de datos MySQL (ej. `root`)
-* `DB_PASSWORD`: Tu contraseña de base de datos MySQL.
+Crea las siguientes variables de entorno en tu sistema o en el archivo de entorno de tu IDE:
+* `DB_URL`: URL JDBC hacia PostgreSQL / Supabase con SSL (ej. `jdbc:postgresql://<host>:5432/postgres?sslmode=require` o mediante connection pooler).
+* `DB_USER`: Tu usuario de base de datos en Supabase (ej. `postgres.<PROJECT_REF>` o `postgres`).
+* `DB_PASSWORD`: Tu contraseña de base de datos en Supabase.
 
 ### 3. Compilar y Ejecutar la Aplicación
 Utiliza el Maven Wrapper provisto en la raíz del proyecto:

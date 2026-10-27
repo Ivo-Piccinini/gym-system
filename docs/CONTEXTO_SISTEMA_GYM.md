@@ -11,6 +11,7 @@ El sistema está diseñado bajo una arquitectura modular y escalable que prioriz
 ### Patrones y Principios Clave:
 * **Package by Feature:** El código fuente de Java se organiza en módulos funcionales autónomos (features). Cada módulo contiene sus propios controladores, servicios, repositorios, entidades y DTOs (ej. `com.utnGymGroup.gym_system.features.user`).
 * **Ocultamiento de Identificadores Internos:** Para mitigar ataques de enumeración (inyección/manipulación de IDs secuenciales), el sistema maneja internamente claves primarias de tipo `Long` (`IDENTITY`), pero **exclusivamente** expone un `publicId` de tipo `UUID` hacia el exterior (APIs, Frontend).
+* **Persistencia Relacional y Conectividad Cloud:** Base de datos relacional PostgreSQL hosteada en Supabase, utilizando Hibernate/JPA con pooling HikariCP y soporte SSL mandatario.
 * **Principio DRY (Don't Repeat Yourself):** Toda la lógica transversal (seguridad, manejo de excepciones, auditoría) está centralizada en componentes comunes utilizando Filtros de Spring Security y Programación Orientada a Aspectos (AOP).
 
 ---

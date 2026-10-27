@@ -35,6 +35,22 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
   - [ ] `GS-CORE-3`: Construir el componente Layout Shell (Navbar / Sidebar responsivo) con tokens del Design System en `src/app/shared/layout/`.
   - [ ] `GS-CORE-4`: Configurar el enrutador principal en `app.routes.ts` con carga perezosa (*lazy loading*) de features.
 
+### `[GS-INFRA-DB] Migración de Persistencia a PostgreSQL (Supabase)`
+- **Tipo:** Tarea Técnica de Infraestructura
+- **Estado:** Completada
+- **Descripción:**
+  Migrar el almacenamiento relacional de MySQL a PostgreSQL administrado en Supabase, configurando el driver JDBC `org.postgresql:postgresql`, optimizando el connection pooler (HikariCP) y adaptando la suite de pruebas con base H2 aislada.
+- **Criterios de Aceptación:**
+  - Driver PostgreSQL integrado en `pom.xml`.
+  - Configuración de datasource y HikariCP en `application.yaml` con soporte SSL.
+  - Generación automática de esquema relacional (`ddl-auto: update`) y semillas iniciales de seguridad y catálogo.
+  - Aislamiento de tests en `src/test/resources/application.yaml` con H2.
+- **Tareas de Desarrollo:**
+  - [x] `GS-DB-1`: Reemplazar conector MySQL por driver PostgreSQL en `pom.xml`.
+  - [x] `GS-DB-2`: Ajustar configuración de datasource, timeouts y pooling HikariCP para Supabase en `application.yaml`.
+  - [x] `GS-DB-3`: Configurar perfil de pruebas y eliminar test suites desactualizadas.
+  - [x] `GS-DB-4`: Documentar variables de entorno y conexión a Supabase en `README.md`.
+
 ---
 
 ## Épica 1: Seguridad, Autenticación y Perfiles
