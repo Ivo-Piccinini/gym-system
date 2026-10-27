@@ -1,0 +1,104 @@
+<div class="login-viewport">
+  <!-- Fondo fotográfico del gimnasio con velo oscuro sutil -->
+  <div class="gym-bg-layer" aria-hidden="true"></div>
+  <div class="gym-overlay-layer" aria-hidden="true"></div>
+
+  <!-- Modal Vidrioso Minimalista -->
+  <main class="login-wrapper">
+    <div class="login-card">
+      <!-- Header con Logo de Pesa Minimalista -->
+      <header class="login-header">
+        <div class="brand-icon-wrapper" aria-hidden="true">
+          <svg class="dumbbell-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <!-- Barra -->
+            <rect x="14" y="22" width="20" height="4" rx="2" fill="currentColor" opacity="0.9" />
+            <!-- Topes internos -->
+            <rect x="12" y="19" width="2" height="10" rx="1" fill="#f59e0b" />
+            <rect x="34" y="19" width="2" height="10" rx="1" fill="#f59e0b" />
+            <!-- Discos grandes -->
+            <rect x="7" y="12" width="5" height="24" rx="2" fill="currentColor" />
+            <rect x="36" y="12" width="5" height="24" rx="2" fill="currentColor" />
+            <!-- Discos chicos externos -->
+            <rect x="3" y="16" width="4" height="16" rx="2" fill="currentColor" opacity="0.5" />
+            <rect x="41" y="16" width="4" height="16" rx="2" fill="currentColor" opacity="0.5" />
+          </svg>
+        </div>
+        <h1 class="brand-title">Gym System</h1>
+        <p class="brand-subtitle">Ingresa tus credenciales para continuar</p>
+      </header>
+
+      <!-- Feedback de Error -->
+      @if (errorMessage()) {
+        <div class="alert-error" role="alert">
+          <span>{{ errorMessage() }}</span>
+        </div>
+      }
+
+      <!-- Formulario Minimalista -->
+      <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="login-form" novalidate>
+        <div class="form-group">
+          <label for="username" class="form-label">Usuario o DNI</label>
+          <input
+            id="username"
+            type="text"
+            formControlName="username"
+            class="form-input"
+            placeholder="Ej. usuario o DNI"
+            autocomplete="username"
+            [class.input-invalid]="loginForm.controls.username.invalid && loginForm.controls.username.touched"
+          />
+          @if (loginForm.controls.username.invalid && loginForm.controls.username.touched) {
+            <span class="field-error">Ingresa tu nombre de usuario o DNI.</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <div class="label-row">
+            <label for="password" class="form-label">Contraseña</label>
+          </div>
+          <div class="password-wrapper">
+            <input
+              id="password"
+              [type]="showPassword() ? 'text' : 'password'"
+              formControlName="password"
+              class="form-input"
+              placeholder="••••••••"
+              autocomplete="current-password"
+              [class.input-invalid]="loginForm.controls.password.invalid && loginForm.controls.password.touched"
+            />
+            <button
+              type="button"
+              class="toggle-password-btn"
+              (click)="togglePasswordVisibility()"
+              [attr.aria-label]="showPassword() ? 'Ocultar contraseña' : 'Ver contraseña'"
+            >
+              @if (showPassword()) {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24" />
+                  <line x1="1" y1="1" x2="23" y2="23" />
+                </svg>
+              } @else {
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
+                  <circle cx="12" cy="12" r="3" />
+                </svg>
+              }
+            </button>
+          </div>
+          @if (loginForm.controls.password.invalid && loginForm.controls.password.touched) {
+            <span class="field-error">Ingresa tu contraseña (mínimo 4 caracteres).</span>
+          }
+        </div>
+
+        <button type="submit" class="submit-btn" [disabled]="isLoading()">
+          @if (isLoading()) {
+            <span class="btn-spinner"></span>
+            <span>Iniciando sesión...</span>
+          } @else {
+            <span>Ingresar</span>
+          }
+        </button>
+      </form>
+    </div>
+  </main>
+</div>

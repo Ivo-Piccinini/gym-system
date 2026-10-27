@@ -1,0 +1,243 @@
+/* ==========================================================================
+   Gym System — Minimalist Glassmorphism Login
+   ========================================================================== */
+
+.login-viewport {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background-color: #07080a;
+}
+
+/* Fondo con Fotografía del Gimnasio */
+.gym-bg-layer {
+  position: absolute;
+  inset: 0;
+  background-image: url('/assets/gym_dark_cinematic_bg.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: brightness(0.65) contrast(1.05);
+  z-index: 1;
+}
+
+/* Velo sutil de oscurecimiento */
+.gym-overlay-layer {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(7, 8, 10, 0.5) 0%, rgba(7, 8, 10, 0.8) 100%);
+  z-index: 2;
+}
+
+/* Wrapper del Modal */
+.login-wrapper {
+  position: relative;
+  z-index: 10;
+  width: 100%;
+  max-width: 400px;
+  padding: 1.25rem;
+  animation: fadeIn 0.3s ease;
+}
+
+/* Tarjeta Vidriosa Minimalista */
+.login-card {
+  background: rgba(12, 14, 18, 0.72);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 2.25rem 2rem;
+  box-shadow: 0 20px 45px -10px rgba(0, 0, 0, 0.7);
+}
+
+/* Header & Marca */
+.login-header {
+  text-align: center;
+  margin-bottom: 1.75rem;
+}
+
+.brand-icon-wrapper {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #f8fafc;
+  margin-bottom: 0.85rem;
+}
+
+.dumbbell-icon {
+  width: 24px;
+  height: 24px;
+}
+
+.brand-title {
+  font-family: var(--font-display, 'Outfit', sans-serif);
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: #f8fafc;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.35rem;
+}
+
+.brand-subtitle {
+  font-size: 0.825rem;
+  color: #94a3b8;
+  line-height: 1.4;
+}
+
+/* Alerta de Error Minimalista */
+.alert-error {
+  padding: 0.7rem 0.9rem;
+  border-radius: 8px;
+  background: rgba(244, 63, 94, 0.12);
+  border: 1px solid rgba(244, 63, 94, 0.25);
+  color: #fca5a5;
+  font-size: 0.825rem;
+  margin-bottom: 1.25rem;
+  line-height: 1.4;
+}
+
+/* Formulario */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.form-label {
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: #cbd5e1;
+}
+
+.password-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  background: rgba(255, 255, 255, 0.035);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  color: #f8fafc;
+  font-size: 0.875rem;
+  outline: none;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+}
+
+.form-input::placeholder {
+  color: #64748b;
+}
+
+.form-input:focus {
+  border-color: #f59e0b;
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.password-wrapper .form-input {
+  padding-right: 2.5rem;
+}
+
+.toggle-password-btn {
+  position: absolute;
+  right: 0.6rem;
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  transition: color 0.15s ease;
+}
+
+.toggle-password-btn:hover {
+  color: #cbd5e1;
+}
+
+.toggle-password-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.input-invalid {
+  border-color: rgba(244, 63, 94, 0.6) !important;
+}
+
+.field-error {
+  font-size: 0.75rem;
+  color: #f87171;
+  margin-top: 0.1rem;
+}
+
+/* Botón Minimalista Sólido */
+.submit-btn {
+  width: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  margin-top: 0.5rem;
+  background-color: #f59e0b;
+  color: #09090b;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+
+.submit-btn:hover:not(:disabled) {
+  opacity: 0.92;
+  transform: translateY(-1px);
+}
+
+.submit-btn:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.submit-btn:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-spinner {
+  display: inline-block;
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(9, 9, 11, 0.3);
+  border-top-color: #09090b;
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
