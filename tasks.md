@@ -51,6 +51,23 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
   - [x] `GS-DB-3`: Configurar perfil de pruebas y eliminar test suites desactualizadas.
   - [x] `GS-DB-4`: Documentar variables de entorno y conexión a Supabase en `README.md`.
 
+### `[GS-DESIGN-KINETIC] Rediseño Visual "Stealth Kinetic Dark" & Login Glassmorphism`
+- **Tipo:** Tarea Técnica de Diseño & UI
+- **Estado:** Completada
+- **Descripción:**
+  Rediseñar integralmente la experiencia visual del sistema aplicando un diseño artesanal de alto rendimiento deportivo, fotografía cinematográfica en el login, modal con efecto de cristal ahumado (*glassmorphism*), nuevo logo SVG de mancuerna/pesa y sistema de tokens en Vanilla CSS.
+- **Criterios de Aceptación:**
+  - Tokens CSS personalizados con paleta de grafito profundo, titanio y acentos Kinetic Amber (`styles.css`).
+  - Fotografía cinematográfica real de fondo de gimnasio sin placeholders (`gym_dark_cinematic_bg.jpg`).
+  - Modal de login translúcido con `backdrop-filter: blur(28px) saturate(190%)` y specular highlights.
+  - Isotipo SVG geométrico de pesa olímpica con acabado metálico.
+  - Armonización de tipografía `Outfit` y `Plus Jakarta Sans` en `index.html` y barras de navegación.
+- **Tareas de Desarrollo:**
+  - [x] `GS-DESIGN-1`: Generar asset fotográfico cinematográfico y configurar almacenamiento en `public/assets/`.
+  - [x] `GS-DESIGN-2`: Importar Google Fonts `Outfit` e implementar tokens globales en `styles.css`.
+  - [x] `GS-DESIGN-3`: Rediseñar componente Login con capas de viñeteado, modal vidrioso e isotipo de pesa (`login.html`, `login.css`).
+  - [x] `GS-DESIGN-4`: Armonizar navbars y branding en vistas de usuario y administración.
+
 ---
 
 ## Épica 1: Seguridad, Autenticación y Perfiles
