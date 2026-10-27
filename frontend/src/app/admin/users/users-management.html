@@ -1,0 +1,552 @@
+<div class="admin-container">
+  <!-- Top Navigation Bar -->
+  <header class="admin-navbar">
+    <div class="navbar-brand">
+      <div class="brand-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+          <circle cx="9" cy="7" r="4" />
+          <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+          <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">Gym System</span>
+        <span class="brand-subtitle">Panel Administrativo</span>
+      </div>
+    </div>
+
+    <div class="navbar-actions">
+      <a routerLink="/perfil" class="btn-ghost">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+        <span>Mi Perfil</span>
+      </a>
+      <button type="button" class="btn-ghost" (click)="authService.logout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+        <span>Cerrar Sesión</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="admin-main">
+    <!-- Notifications / Toast Banners -->
+    @if (successMessage()) {
+      <div class="toast-banner success-banner">
+        <div class="toast-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+          </svg>
+        </div>
+        <div class="toast-content">{{ successMessage() }}</div>
+        <button type="button" class="toast-close" (click)="successMessage.set(null)" aria-label="Cerrar notificación">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+    }
+
+    @if (errorMessage()) {
+      <div class="toast-banner error-banner">
+        <div class="toast-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+        </div>
+        <div class="toast-content">{{ errorMessage() }}</div>
+        <button type="button" class="toast-close" (click)="errorMessage.set(null)" aria-label="Cerrar alerta">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+    }
+
+    <!-- Header Section with Title and Stats -->
+    <section class="admin-header-section">
+      <div class="header-titles">
+        <h1 class="page-title">Gestión de Usuarios y Accesos</h1>
+        <p class="page-subtitle">Administra cuentas, asigna roles de staff y controla el estado de habilitación de socios.</p>
+      </div>
+      <div class="header-action">
+        <button type="button" class="btn-primary" (click)="openCreateModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          <span>Registrar Usuario</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- KPI Metrics Grid -->
+    <section class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-label">Total Usuarios</span>
+          <div class="kpi-icon icon-zinc">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+              <circle cx="9" cy="7" r="4" />
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+            </svg>
+          </div>
+        </div>
+        <div class="kpi-value">{{ totalCount() }}</div>
+        <span class="kpi-subtext">Cuentas registradas</span>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-label">Socios (Clientes)</span>
+          <div class="kpi-icon icon-blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+          </div>
+        </div>
+        <div class="kpi-value">{{ clientCount() }}</div>
+        <span class="kpi-subtext">Padrón de socios</span>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-label">Profesores</span>
+          <div class="kpi-icon icon-emerald">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+              <path d="M6 12v5c3 3 9 3 12 0v-5" />
+            </svg>
+          </div>
+        </div>
+        <div class="kpi-value">{{ professorCount() }}</div>
+        <span class="kpi-subtext">Staff de entrenadores</span>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-header">
+          <span class="kpi-label">Estado de Cuentas</span>
+          <div class="kpi-icon icon-amber">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+          </div>
+        </div>
+        <div class="kpi-split-value">
+          <span class="text-emerald">{{ activeCount() }} activas</span>
+          <span class="text-divider">/</span>
+          <span class="text-rose">{{ inactiveCount() }} suspendidas</span>
+        </div>
+        <span class="kpi-subtext">Seguridad y acceso</span>
+      </div>
+    </section>
+
+    <!-- Filters & Search Toolbar -->
+    <section class="toolbar-card">
+      <div class="search-box">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Buscar por nombre, apellido, DNI, email o usuario..."
+          [value]="searchTerm()"
+          (input)="updateSearch($event)"
+        />
+        @if (searchTerm()) {
+          <button type="button" class="search-clear" (click)="searchTerm.set('')" aria-label="Limpiar búsqueda">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        }
+      </div>
+
+      <div class="filter-controls">
+        <!-- Role Filters -->
+        <div class="segmented-control" role="group" aria-label="Filtro por rol">
+          <button
+            type="button"
+            class="seg-btn"
+            [class.active]="selectedRole() === 'ALL'"
+            (click)="setRoleFilter('ALL')"
+          >
+            Todos los roles
+          </button>
+          <button
+            type="button"
+            class="seg-btn"
+            [class.active]="selectedRole() === 'ROLE_CLIENT'"
+            (click)="setRoleFilter('ROLE_CLIENT')"
+          >
+            Socios
+          </button>
+          <button
+            type="button"
+            class="seg-btn"
+            [class.active]="selectedRole() === 'ROLE_PROFESSOR'"
+            (click)="setRoleFilter('ROLE_PROFESSOR')"
+          >
+            Profesores
+          </button>
+          <button
+            type="button"
+            class="seg-btn"
+            [class.active]="selectedRole() === 'ROLE_ADMIN'"
+            (click)="setRoleFilter('ROLE_ADMIN')"
+          >
+            Admins
+          </button>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="segmented-control" role="group" aria-label="Filtro por estado">
+          <button
+            type="button"
+            class="seg-btn"
+            [class.active]="selectedStatus() === 'ALL'"
+            (click)="setStatusFilter('ALL')"
+          >
+            Todos
+          </button>
+          <button
+            type="button"
+            class="seg-btn"
+            [class.active]="selectedStatus() === 'ACTIVE'"
+            (click)="setStatusFilter('ACTIVE')"
+          >
+            Activos
+          </button>
+          <button
+            type="button"
+            class="seg-btn"
+            [class.active]="selectedStatus() === 'INACTIVE'"
+            (click)="setStatusFilter('INACTIVE')"
+          >
+            Inactivos
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Table Container -->
+    <section class="table-container">
+      @if (isLoading()) {
+        <div class="table-state-box loading-box">
+          <div class="spinner"></div>
+          <p class="state-message">Cargando directorio de usuarios...</p>
+        </div>
+      } @else if (filteredUsers().length === 0) {
+        <div class="table-state-box empty-box">
+          <div class="empty-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="8" y1="12" x2="16" y2="12" />
+            </svg>
+          </div>
+          <p class="empty-title">No se encontraron usuarios</p>
+          <p class="empty-subtitle">Intenta modificando los términos de búsqueda o los filtros seleccionados.</p>
+        </div>
+      } @else {
+        <div class="table-responsive">
+          <table class="user-table">
+            <thead>
+              <tr>
+                <th>Usuario / Nombre</th>
+                <th>DNI</th>
+                <th>Contacto</th>
+                <th>Rol</th>
+                <th>Estado de Acceso</th>
+                <th class="text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (user of filteredUsers(); track user.publicId) {
+                <tr class="table-row" [class.row-disabled]="!user.enabled">
+                  <td class="cell-user">
+                    <div class="user-avatar" [class.avatar-disabled]="!user.enabled">
+                      {{ user.firstName[0] }}{{ user.lastName[0] }}
+                    </div>
+                    <div class="user-info">
+                      <span class="user-fullname">{{ user.firstName }} {{ user.lastName }}</span>
+                      <span class="user-handle">&#64;{{ user.username || user.dni }}</span>
+                    </div>
+                  </td>
+
+                  <td class="cell-dni">
+                    <span class="dni-badge">{{ user.dni }}</span>
+                  </td>
+
+                  <td class="cell-contact">
+                    <div class="contact-email">{{ user.email }}</div>
+                    <div class="contact-phone">{{ user.phone || 'Sin teléfono' }}</div>
+                  </td>
+
+                  <td class="cell-role">
+                    <span class="role-badge" [ngClass]="getRoleBadgeClass(user.role)">
+                      {{ getRoleLabel(user.role) }}
+                    </span>
+                  </td>
+
+                  <td class="cell-status">
+                    <div class="status-toggle-wrapper">
+                      <label class="toggle-switch" [title]="user.enabled ? 'Cuenta activa (click para suspender)' : 'Cuenta inactiva (click para activar)'">
+                        <input
+                          type="checkbox"
+                          [checked]="user.enabled"
+                          (change)="promptToggleStatus(user)"
+                        />
+                        <span class="toggle-slider"></span>
+                      </label>
+                      <span class="status-text" [class.status-active]="user.enabled" [class.status-inactive]="!user.enabled">
+                        {{ user.enabled ? 'Habilitado' : 'Suspendido' }}
+                      </span>
+                    </div>
+                  </td>
+
+                  <td class="cell-actions text-right">
+                    <button
+                      type="button"
+                      class="action-btn edit-btn"
+                      title="Editar usuario"
+                      (click)="openEditModal(user)"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                      </svg>
+                      <span>Editar</span>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <span>Mostrando {{ filteredUsers().length }} de {{ totalCount() }} usuarios registrados</span>
+        </div>
+      }
+    </section>
+  </main>
+
+  <!-- Modal: Crear / Editar Usuario -->
+  @if (isUserModalOpen()) {
+    <div class="modal-backdrop" (click)="closeUserModal()">
+      <div class="modal-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+        <header class="modal-header">
+          <div class="modal-header-text">
+            <h2 class="modal-title">{{ editingUser() ? 'Editar Usuario' : 'Registrar Nuevo Usuario' }}</h2>
+            <p class="modal-subtitle">
+              {{ editingUser() ? 'Modifica la información personal y asignación de rol.' : 'Crea una nueva cuenta de socio o miembro del staff.' }}
+            </p>
+          </div>
+          <button type="button" class="modal-close-btn" (click)="closeUserModal()" aria-label="Cerrar modal">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        </header>
+
+        @if (!editingUser()) {
+          <div class="modal-notice">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="16" x2="12" y2="12" />
+              <line x1="12" y1="8" x2="12.01" y2="8" />
+            </svg>
+            <p>
+              El <strong>nombre de usuario inicial</strong> y la <strong>contraseña temporal</strong> se generarán automáticamente a partir del número de DNI ingresado.
+            </p>
+          </div>
+        }
+
+        <form [formGroup]="userForm" (ngSubmit)="saveUser()" class="modal-form">
+          <div class="form-grid">
+            <!-- Nombre -->
+            <div class="form-group">
+              <label for="firstName" class="form-label">Nombre</label>
+              <input
+                id="firstName"
+                type="text"
+                class="form-input"
+                placeholder="Ej. Martín"
+                formControlName="firstName"
+                [class.input-invalid]="userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched"
+              />
+              @if (userForm.get('firstName')?.invalid && userForm.get('firstName')?.touched) {
+                <span class="field-error">El nombre debe tener entre 3 y 20 caracteres.</span>
+              }
+            </div>
+
+            <!-- Apellido -->
+            <div class="form-group">
+              <label for="lastName" class="form-label">Apellido</label>
+              <input
+                id="lastName"
+                type="text"
+                class="form-input"
+                placeholder="Ej. Palermo"
+                formControlName="lastName"
+                [class.input-invalid]="userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched"
+              />
+              @if (userForm.get('lastName')?.invalid && userForm.get('lastName')?.touched) {
+                <span class="field-error">El apellido debe tener entre 3 y 30 caracteres.</span>
+              }
+            </div>
+
+            <!-- DNI -->
+            <div class="form-group">
+              <label for="dni" class="form-label">DNI</label>
+              <input
+                id="dni"
+                type="text"
+                class="form-input"
+                placeholder="8 dígitos sin puntos"
+                formControlName="dni"
+                [class.input-invalid]="userForm.get('dni')?.invalid && userForm.get('dni')?.touched"
+              />
+              @if (userForm.get('dni')?.invalid && userForm.get('dni')?.touched) {
+                <span class="field-error">El DNI debe tener exactamente 8 números.</span>
+              }
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+              <label for="email" class="form-label">Correo Electrónico</label>
+              <input
+                id="email"
+                type="email"
+                class="form-input"
+                placeholder="socio@gym.com"
+                formControlName="email"
+                [class.input-invalid]="userForm.get('email')?.invalid && userForm.get('email')?.touched"
+              />
+              @if (userForm.get('email')?.invalid && userForm.get('email')?.touched) {
+                <span class="field-error">Ingrese un correo electrónico válido.</span>
+              }
+            </div>
+
+            <!-- Teléfono -->
+            <div class="form-group">
+              <label for="phone" class="form-label">Teléfono (opcional)</label>
+              <input
+                id="phone"
+                type="tel"
+                class="form-input"
+                placeholder="Ej. 3415556677"
+                formControlName="phone"
+                [class.input-invalid]="userForm.get('phone')?.invalid && userForm.get('phone')?.touched"
+              />
+              @if (userForm.get('phone')?.invalid && userForm.get('phone')?.touched) {
+                <span class="field-error">Formato de teléfono no válido.</span>
+              }
+            </div>
+
+            <!-- Fecha de Nacimiento -->
+            <div class="form-group">
+              <label for="birthDate" class="form-label">Fecha de Nacimiento</label>
+              <input
+                id="birthDate"
+                type="date"
+                class="form-input"
+                formControlName="birthDate"
+                [class.input-invalid]="userForm.get('birthDate')?.invalid && userForm.get('birthDate')?.touched"
+              />
+              @if (userForm.get('birthDate')?.invalid && userForm.get('birthDate')?.touched) {
+                <span class="field-error">La fecha de nacimiento es requerida.</span>
+              }
+            </div>
+
+            <!-- Rol -->
+            <div class="form-group span-full">
+              <label for="role" class="form-label">Rol en el Sistema</label>
+              <select id="role" class="form-select" formControlName="role">
+                <option value="ROLE_CLIENT">Socio / Cliente (ROLE_CLIENT)</option>
+                <option value="ROLE_PROFESSOR">Profesor / Entrenador (ROLE_PROFESSOR)</option>
+                <option value="ROLE_ADMIN">Administrador General (ROLE_ADMIN)</option>
+              </select>
+            </div>
+          </div>
+
+          <footer class="modal-footer">
+            <button type="button" class="btn-ghost" (click)="closeUserModal()" [disabled]="isSaving()">
+              Cancelar
+            </button>
+            <button type="submit" class="btn-primary" [disabled]="isSaving() || userForm.invalid">
+              @if (isSaving()) {
+                <span class="spinner-sm"></span>
+                <span>Guardando...</span>
+              } @else {
+                <span>{{ editingUser() ? 'Guardar Cambios' : 'Crear Usuario' }}</span>
+              }
+            </button>
+          </footer>
+        </form>
+      </div>
+    </div>
+  }
+
+  <!-- Modal: Confirmar Toggle de Estado -->
+  @if (isConfirmModalOpen() && userToToggle()) {
+    <div class="modal-backdrop" (click)="cancelToggleStatus()">
+      <div class="modal-card modal-confirm-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+        <div class="confirm-icon" [class.icon-danger]="userToToggle()!.enabled" [class.icon-activate]="!userToToggle()!.enabled">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+        </div>
+
+        <h3 class="confirm-title">
+          {{ userToToggle()!.enabled ? '¿Suspender cuenta de usuario?' : '¿Reactivar cuenta de usuario?' }}
+        </h3>
+
+        <p class="confirm-desc">
+          @if (userToToggle()!.enabled) {
+            La cuenta de <strong>{{ userToToggle()!.firstName }} {{ userToToggle()!.lastName }}</strong> no podrá iniciar sesión en la plataforma ni reservar clases hasta ser reactivada.
+          } @else {
+            La cuenta de <strong>{{ userToToggle()!.firstName }} {{ userToToggle()!.lastName }}</strong> recuperará inmediatamente el acceso al sistema.
+          }
+        </p>
+
+        <div class="modal-footer confirm-footer">
+          <button type="button" class="btn-ghost" (click)="cancelToggleStatus()" [disabled]="isSaving()">
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn-danger"
+            [class.btn-emerald]="!userToToggle()!.enabled"
+            (click)="confirmToggleStatus()"
+            [disabled]="isSaving()"
+          >
+            @if (isSaving()) {
+              <span class="spinner-sm"></span>
+              <span>Procesando...</span>
+            } @else {
+              <span>{{ userToToggle()!.enabled ? 'Sí, suspender acceso' : 'Sí, habilitar acceso' }}</span>
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>

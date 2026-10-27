@@ -222,16 +222,16 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
 
 ### `GS-42: Panel Administrativo y CRUD de Usuarios`
 - **Tipo:** Historia
-- **Estado:** Por hacer
+- **Estado:** Completada
 - **Descripción:**
   Como Administrador, quiero dar de alta, editar, listar y habilitar/deshabilitar cuentas de profesores y clientes mediante su UUID para gestionar los accesos a la plataforma.
 - **Criterios de Aceptación:**
   - CRUD completo de usuarios (formulario de alta, edición y listado general).
   - Conmutador para activar/desactivar cuentas vía `PATCH /api/users/{publicId}/status`.
 - **Subtareas Jira:**
-  - [ ] `GS-43`: Crear `AdminUserService` y DTOs de gestión de usuarios.
-  - [ ] `GS-44`: Diseñar modal de alta y edición de socios y staff (profesores/admin).
-  - [ ] `GS-45`: Integrar toggle de estado con `PATCH /api/users/{publicId}/status`.
+  - [x] `GS-43`: Crear `AdminUserService` y DTOs de gestión de usuarios.
+  - [x] `GS-44`: Diseñar modal de alta y edición de socios y staff (profesores/admin).
+  - [x] `GS-45`: Integrar toggle de estado con `PATCH /api/users/{publicId}/status`.
 
 ### `GS-46: Auditoría de Precios y Dashboard de Métricas (Chart.js)`
 - **Tipo:** Historia

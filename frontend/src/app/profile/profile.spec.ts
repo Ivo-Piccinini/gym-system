@@ -19,6 +19,7 @@ describe('Profile Component', () => {
     username: ReturnType<typeof signal<string>>;
     userRoles: ReturnType<typeof signal<string[]>>;
     isAuthenticated: ReturnType<typeof signal<boolean>>;
+    isAdmin: ReturnType<typeof signal<boolean>>;
     logout: ReturnType<typeof vi.fn>;
   };
 
@@ -43,6 +44,7 @@ describe('Profile Component', () => {
       username: signal('leomessi'),
       userRoles: signal(['ROLE_CLIENT']),
       isAuthenticated: signal(true),
+      isAdmin: signal(false),
       logout: vi.fn()
     };
 
