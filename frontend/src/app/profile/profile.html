@@ -1,5 +1,4 @@
 <div class="profile-container">
-  
   <header class="profile-navbar">
     <div class="navbar-brand">
       <div class="brand-logo">
@@ -14,13 +13,13 @@
               <stop offset="100%" stop-color="#64748b" />
             </linearGradient>
           </defs>
-          <rect x="18" y="29" width="28" height="6" rx="3" fill="url(#navSteelGrad2)" />
-          <rect x="15" y="26" width="3" height="12" rx="1.5" fill="url(#navAmberGrad2)" />
-          <rect x="46" y="26" width="3" height="12" rx="1.5" fill="url(#navAmberGrad2)" />
-          <rect x="10" y="16" width="5" height="32" rx="2.5" fill="url(#navSteelGrad2)" />
-          <rect x="49" y="16" width="5" height="32" rx="2.5" fill="url(#navSteelGrad2)" />
-          <rect x="5" y="21" width="5" height="22" rx="2.5" fill="url(#navAmberGrad2)" />
-          <rect x="54" y="21" width="5" height="22" rx="2.5" fill="url(#navAmberGrad2)" />
+          <rect x="18" y="29" width="28" height="6" rx="2" fill="url(#navSteelGrad2)" />
+          <rect x="15" y="26" width="3" height="12" rx="1" fill="url(#navAmberGrad2)" />
+          <rect x="46" y="26" width="3" height="12" rx="1" fill="url(#navAmberGrad2)" />
+          <rect x="10" y="16" width="5" height="32" rx="1.5" fill="url(#navSteelGrad2)" />
+          <rect x="49" y="16" width="5" height="32" rx="1.5" fill="url(#navSteelGrad2)" />
+          <rect x="5" y="21" width="5" height="22" rx="1.5" fill="url(#navAmberGrad2)" />
+          <rect x="54" y="21" width="5" height="22" rx="1.5" fill="url(#navAmberGrad2)" />
         </svg>
       </div>
       <div class="brand-text">
@@ -53,7 +52,6 @@
   </header>
 
   <main class="profile-main">
-    
     @if (isLoading()) {
       <div class="state-card loading-state">
         <div class="spinner"></div>
@@ -61,7 +59,6 @@
       </div>
     }
 
-    
     @if (!isLoading() && !userProfile() && errorMessage()) {
       <div class="state-card error-state">
         <div class="error-icon">
@@ -79,49 +76,35 @@
       </div>
     }
 
-    
     @if (!isLoading() && userProfile()) {
       <div class="profile-content">
-        
-        <section class="profile-hero-card">
-          <div class="hero-left">
-            <div class="avatar-badge">
-              <span>{{ getInitials(userProfile()?.firstName, userProfile()?.lastName) }}</span>
+        <section class="profile-header-strip">
+          <div class="header-avatar">
+            {{ getInitials(userProfile()?.firstName, userProfile()?.lastName) }}
+          </div>
+          <div class="header-details">
+            <div class="header-name-row">
+              <h1 class="header-fullname">
+                {{ userProfile()?.firstName }} {{ userProfile()?.lastName }}
+              </h1>
+              <span class="role-badge" [attr.data-role]="userProfile()?.role">
+                {{ getRoleBadge(userProfile()?.role) }}
+              </span>
             </div>
-            <div class="hero-info">
-              <div class="hero-name-row">
-                <h1 class="hero-fullname">
-                  {{ userProfile()?.firstName }} {{ userProfile()?.lastName }}
-                </h1>
-                <span class="role-chip" [attr.data-role]="userProfile()?.role">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-                  </svg>
-                  {{ getRoleBadge(userProfile()?.role) }}
-                </span>
-              </div>
-              <div class="hero-meta-row">
-                <span class="meta-item">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                    <circle cx="12" cy="7" r="4" />
-                  </svg>
-                  @{{ authService.username() || 'usuario' }}
-                </span>
-                <span class="meta-separator">•</span>
-                <span class="meta-item">
-                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-                    <polyline points="22,6 12,13 2,6" />
-                  </svg>
-                  {{ userProfile()?.email }}
-                </span>
-              </div>
+            <div class="header-meta-row">
+              <span class="meta-item">
+                <span class="meta-label">Usuario</span>
+                <span class="meta-val">&#64;{{ authService.username() || 'usuario' }}</span>
+              </span>
+              <span class="meta-sep">/</span>
+              <span class="meta-item">
+                <span class="meta-label">Email</span>
+                <span class="meta-val">{{ userProfile()?.email }}</span>
+              </span>
             </div>
           </div>
         </section>
 
-        
         @if (successMessage()) {
           <div class="alert-banner alert-success" role="alert">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -144,156 +127,91 @@
         }
 
         <div class="profile-grid">
-          
-          <section class="panel-card">
-            <div class="panel-header">
-              <div class="panel-header-icon lock-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                  <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-                </svg>
-              </div>
-              <div>
-                <h2 class="panel-title">Datos de Cuenta</h2>
-                <p class="panel-subtitle">Campos protegidos de solo lectura administrados por el sistema</p>
-              </div>
+          <section class="panel-section">
+            <div class="panel-heading">
+              <h2 class="panel-title">Ficha de Cuenta</h2>
+              <p class="panel-subtitle">Registro institucional emitido por la administración del gimnasio.</p>
             </div>
 
-            <div class="readonly-fields">
-              <div class="readonly-group">
-                <label class="field-label">
-                  <span>Nombre de Usuario</span>
-                  <span class="badge-locked">Bloqueado</span>
-                </label>
-                <div class="readonly-value-box">
-                  <span class="value-text">{{ authService.username() || 'No asignado' }}</span>
-                </div>
+            <dl class="account-specs-list">
+              <div class="spec-row">
+                <dt class="spec-term">Nombre de usuario</dt>
+                <dd class="spec-value">&#64;{{ authService.username() || 'No asignado' }}</dd>
               </div>
 
-              <div class="readonly-group">
-                <label class="field-label">
-                  <span>Documento Nacional de Identidad (DNI)</span>
-                  <span class="badge-locked">Bloqueado</span>
-                </label>
-                <div class="readonly-value-box">
-                  <span class="value-text">{{ userProfile()?.dni }}</span>
-                </div>
+              <div class="spec-row">
+                <dt class="spec-term">Documento Nacional de Identidad</dt>
+                <dd class="spec-value spec-mono">{{ userProfile()?.dni }}</dd>
               </div>
 
-              <div class="readonly-group">
-                <label class="field-label">
-                  <span>Rol en el Gimnasio</span>
-                  <span class="badge-locked">Bloqueado</span>
-                </label>
-                <div class="readonly-value-box">
-                  <span class="value-text">{{ getRoleBadge(userProfile()?.role) }}</span>
-                </div>
+              <div class="spec-row">
+                <dt class="spec-term">Rol institucional</dt>
+                <dd class="spec-value">{{ getRoleBadge(userProfile()?.role) }}</dd>
               </div>
 
-              <div class="readonly-group">
-                <label class="field-label">
-                  <span>Correo Electrónico</span>
-                  <span class="badge-locked">Bloqueado</span>
-                </label>
-                <div class="readonly-value-box">
-                  <span class="value-text">{{ userProfile()?.email }}</span>
-                </div>
+              <div class="spec-row">
+                <dt class="spec-term">Correo electrónico</dt>
+                <dd class="spec-value">{{ userProfile()?.email }}</dd>
               </div>
 
-              <div class="readonly-group">
-                <label class="field-label">
-                  <span>Identificador Público (UUID)</span>
-                  <span class="badge-locked">Sistema</span>
-                </label>
-                <div class="readonly-value-box mono-font">
-                  <span class="value-text">{{ userProfile()?.publicId }}</span>
-                </div>
+              <div class="spec-row">
+                <dt class="spec-term">Identificador único (UUID)</dt>
+                <dd class="spec-value spec-mono spec-uuid">{{ userProfile()?.publicId }}</dd>
               </div>
-            </div>
+            </dl>
           </section>
 
-          
-          <section class="panel-card">
-            <div class="panel-header">
-              <div class="panel-header-icon edit-icon">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 20h9" />
-                  <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z" />
-                </svg>
-              </div>
-              <div>
-                <h2 class="panel-title">Datos Personales</h2>
-                <p class="panel-subtitle">Actualiza tu teléfono y fecha de nacimiento</p>
-              </div>
+          <section class="panel-section">
+            <div class="panel-heading">
+              <h2 class="panel-title">Datos Personales y Contacto</h2>
+              <p class="panel-subtitle">Información editable de contacto y apto físico.</p>
             </div>
 
             <form [formGroup]="profileForm" (ngSubmit)="onSubmit()" class="profile-form">
-              
-              <div class="form-group">
-                <label for="phone-input" class="field-label">
-                  <span>Teléfono de Contacto</span>
-                </label>
-                <div class="input-wrapper" [class.has-error]="profileForm.controls.phone.invalid && profileForm.controls.phone.touched">
-                  <span class="input-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" />
-                    </svg>
-                  </span>
-                  <input
-                    id="phone-input"
-                    type="tel"
-                    formControlName="phone"
-                    placeholder="Ej. 3415556677"
-                    maxlength="15"
-                    class="form-control"
-                  />
-                </div>
+              <div class="field-item">
+                <label for="phone-input" class="field-label">Teléfono de contacto</label>
+                <input
+                  id="phone-input"
+                  type="tel"
+                  formControlName="phone"
+                  placeholder="Ej. 3415556677"
+                  maxlength="15"
+                  class="field-input"
+                  [class.has-error]="profileForm.controls.phone.invalid && profileForm.controls.phone.touched"
+                />
                 @if (profileForm.controls.phone.invalid && profileForm.controls.phone.touched) {
-                  <p class="form-error">
+                  <span class="field-error">
                     El teléfono debe tener entre 7 y 15 dígitos numéricos.
-                  </p>
-                } @else {
-                  <p class="form-hint">
-                    Número al cual el gimnasio enviará notificaciones y recordatorios.
-                  </p>
-                }
-              </div>
-
-              
-              <div class="form-group">
-                <label for="birthdate-input" class="field-label">
-                  <span>Fecha de Nacimiento</span>
-                </label>
-                <div class="input-wrapper" [class.has-error]="profileForm.controls.birthDate.invalid && profileForm.controls.birthDate.touched">
-                  <span class="input-icon">
-                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-                      <line x1="16" y1="2" x2="16" y2="6" />
-                      <line x1="8" y1="2" x2="8" y2="6" />
-                      <line x1="3" y1="10" x2="21" y2="10" />
-                    </svg>
                   </span>
-                  <input
-                    id="birthdate-input"
-                    type="date"
-                    formControlName="birthDate"
-                    [max]="getMaxBirthDate()"
-                    class="form-control date-control"
-                  />
-                </div>
-                @if (profileForm.controls.birthDate.invalid && profileForm.controls.birthDate.touched) {
-                  <p class="form-error">
-                    La fecha de nacimiento es obligatoria.
-                  </p>
                 } @else {
-                  <p class="form-hint">
-                    Requerida para la habilitación de aptos físicos y coberturas médicas.
-                  </p>
+                  <span class="field-hint">
+                    Para recordatorios de turnos, cancelaciones y novedades.
+                  </span>
                 }
               </div>
 
-              
-              <div class="form-actions">
+              <div class="field-item">
+                <label for="birthdate-input" class="field-label">Fecha de nacimiento</label>
+                <input
+                  id="birthdate-input"
+                  type="date"
+                  formControlName="birthDate"
+                  [max]="getMaxBirthDate()"
+                  class="field-input"
+                  [class.has-error]="profileForm.controls.birthDate.invalid && profileForm.controls.birthDate.touched"
+                />
+                @if (profileForm.controls.birthDate.invalid && profileForm.controls.birthDate.touched) {
+                  <span class="field-error">
+                    La fecha de nacimiento es obligatoria.
+                  </span>
+                } @else {
+                  <span class="field-hint">
+                    Requerida para la habilitación de aptos físicos y seguros de cobertura.
+                  </span>
+                }
+              </div>
+
+              <div class="form-actions-row">
                 <button
                   type="button"
                   class="btn-secondary"

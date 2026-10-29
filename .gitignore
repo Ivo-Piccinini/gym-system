@@ -38,3 +38,6 @@ Thumbs.db
 .antigravityrules
 .env
 *.env
+# Agent skills
+.agents/
+skills-lock.json

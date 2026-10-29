@@ -1,5 +1,4 @@
 <div class="admin-container">
-  
   <header class="admin-navbar">
     <div class="navbar-brand">
       <div class="brand-logo">
@@ -14,13 +13,13 @@
               <stop offset="100%" stop-color="#64748b" />
             </linearGradient>
           </defs>
-          <rect x="18" y="29" width="28" height="6" rx="3" fill="url(#navSteelGrad1)" />
-          <rect x="15" y="26" width="3" height="12" rx="1.5" fill="url(#navAmberGrad1)" />
-          <rect x="46" y="26" width="3" height="12" rx="1.5" fill="url(#navAmberGrad1)" />
-          <rect x="10" y="16" width="5" height="32" rx="2.5" fill="url(#navSteelGrad1)" />
-          <rect x="49" y="16" width="5" height="32" rx="2.5" fill="url(#navSteelGrad1)" />
-          <rect x="5" y="21" width="5" height="22" rx="2.5" fill="url(#navAmberGrad1)" />
-          <rect x="54" y="21" width="5" height="22" rx="2.5" fill="url(#navAmberGrad1)" />
+          <rect x="18" y="29" width="28" height="6" rx="2" fill="url(#navSteelGrad1)" />
+          <rect x="15" y="26" width="3" height="12" rx="1" fill="url(#navAmberGrad1)" />
+          <rect x="46" y="26" width="3" height="12" rx="1" fill="url(#navAmberGrad1)" />
+          <rect x="10" y="16" width="5" height="32" rx="1.5" fill="url(#navSteelGrad1)" />
+          <rect x="49" y="16" width="5" height="32" rx="1.5" fill="url(#navSteelGrad1)" />
+          <rect x="5" y="21" width="5" height="22" rx="1.5" fill="url(#navAmberGrad1)" />
+          <rect x="54" y="21" width="5" height="22" rx="1.5" fill="url(#navAmberGrad1)" />
         </svg>
       </div>
       <div class="brand-text">
@@ -49,7 +48,6 @@
   </header>
 
   <main class="admin-main">
-    
     @if (successMessage()) {
       <div class="toast-banner success-banner">
         <div class="toast-icon">
@@ -87,14 +85,13 @@
       </div>
     }
 
-    
     <section class="admin-header-section">
       <div class="header-titles">
-        <h1 class="page-title">Gestión de Usuarios y Accesos</h1>
-        <p class="page-subtitle">Administra cuentas, asigna roles de staff y controla el estado de habilitación de socios.</p>
+        <h1 class="page-title">Padrón de Usuarios</h1>
+        <p class="page-subtitle">Administración de cuentas de socios, personal técnico y estado de accesos.</p>
       </div>
       <div class="header-action">
-        <button type="button" class="btn-primary" (click)="openCreateModal()">
+        <button type="button" class="btn-primary btn-register-user" (click)="openCreateModal()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <line x1="12" y1="5" x2="12" y2="19" />
             <line x1="5" y1="12" x2="19" y2="12" />
@@ -104,73 +101,35 @@
       </div>
     </section>
 
-    
-    <section class="kpi-grid">
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <span class="kpi-label">Total Usuarios</span>
-          <div class="kpi-icon icon-zinc">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
-              <circle cx="9" cy="7" r="4" />
-              <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
-              <path d="M16 3.13a4 4 0 0 1 0 7.75" />
-            </svg>
-          </div>
-        </div>
-        <div class="kpi-value">{{ totalCount() }}</div>
-        <span class="kpi-subtext">Cuentas registradas</span>
+    <section class="roster-strip">
+      <div class="roster-stat">
+        <span class="stat-number">{{ totalCount() }}</span>
+        <span class="stat-tag">Padrón total</span>
       </div>
-
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <span class="kpi-label">Socios (Clientes)</span>
-          <div class="kpi-icon icon-blue">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-              <circle cx="12" cy="7" r="4" />
-            </svg>
-          </div>
-        </div>
-        <div class="kpi-value">{{ clientCount() }}</div>
-        <span class="kpi-subtext">Padrón de socios</span>
+      <div class="stat-divider"></div>
+      <div class="roster-stat">
+        <span class="stat-number text-client">{{ clientCount() }}</span>
+        <span class="stat-tag">Socios</span>
       </div>
-
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <span class="kpi-label">Profesores</span>
-          <div class="kpi-icon icon-emerald">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
-              <path d="M6 12v5c3 3 9 3 12 0v-5" />
-            </svg>
-          </div>
-        </div>
-        <div class="kpi-value">{{ professorCount() }}</div>
-        <span class="kpi-subtext">Staff de entrenadores</span>
+      <div class="stat-divider"></div>
+      <div class="roster-stat">
+        <span class="stat-number text-professor">{{ professorCount() }}</span>
+        <span class="stat-tag">Profesores</span>
       </div>
-
-      <div class="kpi-card">
-        <div class="kpi-header">
-          <span class="kpi-label">Estado de Cuentas</span>
-          <div class="kpi-icon icon-amber">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-            </svg>
-          </div>
-        </div>
-        <div class="kpi-split-value">
-          <span class="text-emerald">{{ activeCount() }} activas</span>
-          <span class="text-divider">/</span>
-          <span class="text-rose">{{ inactiveCount() }} suspendidas</span>
-        </div>
-        <span class="kpi-subtext">Seguridad y acceso</span>
+      <div class="stat-divider"></div>
+      <div class="roster-stat">
+        <span class="stat-number text-active">{{ activeCount() }}</span>
+        <span class="stat-tag">Habilitados</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="roster-stat">
+        <span class="stat-number text-inactive">{{ inactiveCount() }}</span>
+        <span class="stat-tag">Suspendidos</span>
       </div>
     </section>
 
-    
-    <section class="toolbar-card">
-      <div class="search-box">
+    <section class="toolbar-section">
+      <div class="search-field">
         <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <circle cx="11" cy="11" r="8" />
           <line x1="21" y1="21" x2="16.65" y2="16.65" />
@@ -178,7 +137,7 @@
         <input
           type="text"
           class="search-input"
-          placeholder="Buscar por nombre, apellido, DNI, email o usuario..."
+          placeholder="Buscar por apellido, nombre, DNI o email..."
           [value]="searchTerm()"
           (input)="updateSearch($event)"
         />
@@ -192,8 +151,7 @@
         }
       </div>
 
-      <div class="filter-controls">
-        
+      <div class="filter-groups">
         <div class="segmented-control" role="group" aria-label="Filtro por rol">
           <button
             type="button"
@@ -201,7 +159,7 @@
             [class.active]="selectedRole() === 'ALL'"
             (click)="setRoleFilter('ALL')"
           >
-            Todos los roles
+            Todos
           </button>
           <button
             type="button"
@@ -229,7 +187,6 @@
           </button>
         </div>
 
-        
         <div class="segmented-control" role="group" aria-label="Filtro por estado">
           <button
             type="button"
@@ -259,35 +216,28 @@
       </div>
     </section>
 
-    
     <section class="table-container">
       @if (isLoading()) {
-        <div class="table-state-box loading-box">
+        <div class="table-state-box">
           <div class="spinner"></div>
-          <p class="state-message">Cargando directorio de usuarios...</p>
+          <p class="state-message">Consultando padrón de usuarios...</p>
         </div>
       } @else if (filteredUsers().length === 0) {
-        <div class="table-state-box empty-box">
-          <div class="empty-icon">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <line x1="8" y1="12" x2="16" y2="12" />
-            </svg>
-          </div>
-          <p class="empty-title">No se encontraron usuarios</p>
-          <p class="empty-subtitle">Intenta modificando los términos de búsqueda o los filtros seleccionados.</p>
+        <div class="table-state-box">
+          <p class="empty-title">Sin resultados coincidentes</p>
+          <p class="empty-subtitle">No se hallaron registros con el criterio de búsqueda o filtros indicados.</p>
         </div>
       } @else {
         <div class="table-responsive">
           <table class="user-table">
             <thead>
               <tr>
-                <th>Usuario / Nombre</th>
+                <th>Usuario</th>
                 <th>DNI</th>
                 <th>Contacto</th>
                 <th>Rol</th>
-                <th>Estado de Acceso</th>
-                <th class="text-right">Acciones</th>
+                <th>Estado</th>
+                <th class="text-right">Acción</th>
               </tr>
             </thead>
             <tbody>
@@ -304,12 +254,12 @@
                   </td>
 
                   <td class="cell-dni">
-                    <span class="dni-badge">{{ user.dni }}</span>
+                    <span class="dni-text">{{ user.dni }}</span>
                   </td>
 
                   <td class="cell-contact">
                     <div class="contact-email">{{ user.email }}</div>
-                    <div class="contact-phone">{{ user.phone || 'Sin teléfono' }}</div>
+                    <div class="contact-phone">{{ user.phone || '—' }}</div>
                   </td>
 
                   <td class="cell-role">
@@ -320,7 +270,7 @@
 
                   <td class="cell-status">
                     <div class="status-toggle-wrapper">
-                      <label class="toggle-switch" [title]="user.enabled ? 'Cuenta activa (click para suspender)' : 'Cuenta inactiva (click para activar)'">
+                      <label class="toggle-switch" [title]="user.enabled ? 'Click para suspender cuenta' : 'Click para habilitar cuenta'">
                         <input
                           type="checkbox"
                           [checked]="user.enabled"
@@ -337,7 +287,7 @@
                   <td class="cell-actions text-right">
                     <button
                       type="button"
-                      class="action-btn edit-btn"
+                      class="btn-table-action"
                       title="Editar usuario"
                       (click)="openEditModal(user)"
                     >
@@ -360,7 +310,6 @@
     </section>
   </main>
 
-  
   @if (isUserModalOpen()) {
     <div class="modal-backdrop" (click)="closeUserModal()">
       <div class="modal-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
@@ -368,10 +317,10 @@
           <div class="modal-header-text">
             <h2 class="modal-title">{{ editingUser() ? 'Editar Usuario' : 'Registrar Nuevo Usuario' }}</h2>
             <p class="modal-subtitle">
-              {{ editingUser() ? 'Modifica la información personal y asignación de rol.' : 'Crea una nueva cuenta de socio o miembro del staff.' }}
+              {{ editingUser() ? 'Modifica los datos personales y rol institucional.' : 'Genera una nueva alta en el padrón del gimnasio.' }}
             </p>
           </div>
-          <button type="button" class="modal-close-btn" (click)="closeUserModal()" aria-label="Cerrar modal">
+          <button type="button" class="modal-close-btn" (click)="closeUserModal()" aria-label="Cerrar ventana">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <line x1="18" y1="6" x2="6" y2="18" />
               <line x1="6" y1="6" x2="18" y2="18" />
@@ -387,14 +336,13 @@
               <line x1="12" y1="8" x2="12.01" y2="8" />
             </svg>
             <p>
-              El <strong>nombre de usuario inicial</strong> y la <strong>contraseña temporal</strong> se generarán automáticamente a partir del número de DNI ingresado.
+              El nombre de usuario y contraseña inicial se generarán automáticamente a partir del número de DNI.
             </p>
           </div>
         }
 
         <form [formGroup]="userForm" (ngSubmit)="saveUser()" class="modal-form">
           <div class="form-grid">
-            
             <div class="form-group">
               <label for="firstName" class="form-label">Nombre</label>
               <input
@@ -410,7 +358,6 @@
               }
             </div>
 
-            
             <div class="form-group">
               <label for="lastName" class="form-label">Apellido</label>
               <input
@@ -426,14 +373,13 @@
               }
             </div>
 
-            
             <div class="form-group">
               <label for="dni" class="form-label">DNI</label>
               <input
                 id="dni"
                 type="text"
                 class="form-input"
-                placeholder="8 dígitos sin puntos"
+                placeholder="8 dígitos numéricos"
                 formControlName="dni"
                 [class.input-invalid]="userForm.get('dni')?.invalid && userForm.get('dni')?.touched"
               />
@@ -442,7 +388,6 @@
               }
             </div>
 
-            
             <div class="form-group">
               <label for="email" class="form-label">Correo Electrónico</label>
               <input
@@ -458,7 +403,6 @@
               }
             </div>
 
-            
             <div class="form-group">
               <label for="phone" class="form-label">Teléfono (opcional)</label>
               <input
@@ -474,7 +418,6 @@
               }
             </div>
 
-            
             <div class="form-group">
               <label for="birthDate" class="form-label">Fecha de Nacimiento</label>
               <input
@@ -489,13 +432,12 @@
               }
             </div>
 
-            
             <div class="form-group span-full">
-              <label for="role" class="form-label">Rol en el Sistema</label>
+              <label for="role" class="form-label">Rol Asignado</label>
               <select id="role" class="form-select" formControlName="role">
-                <option value="ROLE_CLIENT">Socio / Cliente (ROLE_CLIENT)</option>
-                <option value="ROLE_PROFESSOR">Profesor / Entrenador (ROLE_PROFESSOR)</option>
-                <option value="ROLE_ADMIN">Administrador General (ROLE_ADMIN)</option>
+                <option value="ROLE_CLIENT">Socio</option>
+                <option value="ROLE_PROFESSOR">Profesor</option>
+                <option value="ROLE_ADMIN">Administrador</option>
               </select>
             </div>
           </div>
@@ -518,7 +460,6 @@
     </div>
   }
 
-  
   @if (isConfirmModalOpen() && userToToggle()) {
     <div class="modal-backdrop" (click)="cancelToggleStatus()">
       <div class="modal-card modal-confirm-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
@@ -534,7 +475,7 @@
 
         <p class="confirm-desc">
           @if (userToToggle()!.enabled) {
-            La cuenta de <strong>{{ userToToggle()!.firstName }} {{ userToToggle()!.lastName }}</strong> no podrá iniciar sesión en la plataforma ni reservar clases hasta ser reactivada.
+            La cuenta de <strong>{{ userToToggle()!.firstName }} {{ userToToggle()!.lastName }}</strong> no podrá acceder al sistema ni agendar turnos hasta ser reactivada.
           } @else {
             La cuenta de <strong>{{ userToToggle()!.firstName }} {{ userToToggle()!.lastName }}</strong> recuperará inmediatamente el acceso al sistema.
           }

@@ -1,44 +1,45 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Space+Grotesk:wght@500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,400..800;1,400..800&family=Inter:ital,opsz,wght@0,14..32,400..700;1,14..32,400..700&display=swap');
 
 :root {
-  --bg-base: #060709;
-  --bg-surface: #0b0d12;
-  --bg-elevated: #11141b;
-  --bg-interaction: #171b24;
-  --bg-glass: rgba(11, 13, 18, 0.88);
-  --bg-glass-strong: rgba(11, 13, 18, 0.95);
-  --bg-glass-input: rgba(255, 255, 255, 0.03);
+  --bg-base: #0a0b0e;
+  --bg-surface: #101217;
+  --bg-elevated: #161820;
+  --bg-interaction: #1d202b;
+  --bg-glass: rgba(16, 18, 23, 0.95);
+  --bg-glass-strong: rgba(16, 18, 23, 0.98);
+  --bg-glass-input: #101217;
 
-  --accent-amber: #e59a19;
-  --accent-amber-light: #f5b041;
-  --accent-amber-glow: rgba(229, 154, 25, 0.12);
-  --accent-amber-border: rgba(229, 154, 25, 0.28);
-  --accent-amber-bg: rgba(229, 154, 25, 0.08);
+  --accent-amber: #d97706;
+  --accent-amber-light: #f59e0b;
+  --accent-amber-glow: transparent;
+  --accent-amber-border: #b45309;
+  --accent-amber-bg: rgba(217, 119, 6, 0.1);
 
-  --font-display: 'Space Grotesk', system-ui, -apple-system, sans-serif;
-  --font-body: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Archivo', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 
-  --text-primary: #f8fafc;
-  --text-body: #94a3b8;
-  --text-muted: #64748b;
-  --text-subtle: #475569;
+  --text-primary: #f3f4f6;
+  --text-body: #9ca3af;
+  --text-muted: #6b7280;
+  --text-subtle: #4b5563;
 
-  --border-subtle: rgba(255, 255, 255, 0.06);
-  --border-glass: rgba(255, 255, 255, 0.08);
-  --border-focus: rgba(229, 154, 25, 0.5);
-  --specular-top: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --border-subtle: #20232d;
+  --border-glass: #252934;
+  --border-focus: #d97706;
+  --specular-top: none;
 
-  --accent-rose-bg: rgba(244, 63, 94, 0.08);
-  --accent-rose-border: rgba(244, 63, 94, 0.25);
-  --accent-rose-text: #fb7185;
+  --accent-rose-bg: rgba(225, 29, 72, 0.1);
+  --accent-rose-border: rgba(225, 29, 72, 0.3);
+  --accent-rose-text: #f43f5e;
 
-  --accent-emerald-bg: rgba(16, 185, 129, 0.08);
-  --accent-emerald-border: rgba(16, 185, 129, 0.25);
-  --accent-emerald-text: #34d399;
+  --accent-emerald-bg: rgba(16, 185, 129, 0.1);
+  --accent-emerald-border: rgba(16, 185, 129, 0.3);
+  --accent-emerald-text: #10b981;
 
-  --shadow-glass: 0 18px 40px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05);
-  --shadow-amber-glow: 0 4px 14px rgba(229, 154, 25, 0.18);
+  --shadow-glass: none;
+  --shadow-amber-glow: none;
 }
+
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -52,12 +53,10 @@ html, body {
   font-family: var(--font-body);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  letter-spacing: -0.01em;
 }
 
 h1, h2, h3, h4, h5, h6, .display-font {
   font-family: var(--font-display);
-  letter-spacing: -0.025em;
   color: var(--text-primary);
 }
 
@@ -65,7 +64,6 @@ button, input, select, textarea {
   font-family: inherit;
 }
 
-/* Custom Sleek Scrollbar */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -74,11 +72,11 @@ button, input, select, textarea {
   background: var(--bg-base);
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 999px;
+  background: #20232d;
+  border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: var(--accent-amber);
+  background: #2f3442;
 }
 
 .btn-primary {
@@ -88,7 +86,7 @@ button, input, select, textarea {
   gap: 0.45rem;
   padding: 0.55rem 1.15rem;
   background-color: #d97706;
-  color: #060709;
+  color: #0a0b0e;
   border: 1px solid #b45309;
   border-radius: 6px;
   font-family: var(--font-display);
@@ -112,7 +110,7 @@ button, input, select, textarea {
   align-items: center;
   gap: 0.45rem;
   padding: 0.45rem 0.85rem;
-  background-color: #11141b;
+  background-color: #161820;
   color: var(--text-body);
   border: 1px solid var(--border-subtle);
   border-radius: 6px;
@@ -123,9 +121,9 @@ button, input, select, textarea {
 }
 
 .btn-ghost:hover:not(:disabled) {
-  background-color: #181c25;
+  background-color: #1e212c;
   color: var(--text-primary);
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: #2e3341;
 }
 
 .btn-ghost svg {
@@ -139,7 +137,7 @@ button, input, select, textarea {
   justify-content: center;
   gap: 0.45rem;
   padding: 0.55rem 1rem;
-  background-color: #11141b;
+  background-color: #161820;
   color: var(--text-body);
   border: 1px solid var(--border-subtle);
   border-radius: 6px;
@@ -149,9 +147,9 @@ button, input, select, textarea {
 }
 
 .btn-secondary:hover:not(:disabled) {
-  background-color: #171b24;
+  background-color: #1e212c;
   color: var(--text-primary);
-  border-color: rgba(255, 255, 255, 0.15);
+  border-color: #2e3341;
 }
 
 .btn-secondary:disabled {
@@ -186,11 +184,11 @@ button, input, select, textarea {
 .btn-emerald:hover:not(:disabled) {
   background-color: #047857;
 }
-/* Spinners */
+
 .spinner {
-  width: 32px;
-  height: 32px;
-  border: 3px solid rgba(245, 158, 11, 0.15);
+  width: 28px;
+  height: 28px;
+  border: 2px solid #20232d;
   border-top-color: var(--accent-amber);
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
@@ -198,9 +196,9 @@ button, input, select, textarea {
 
 .spinner-sm {
   display: inline-block;
-  width: 16px;
-  height: 16px;
-  border: 2px solid rgba(7, 8, 11, 0.3);
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(0, 0, 0, 0.25);
   border-top-color: currentColor;
   border-radius: 50%;
   animation: spin 0.7s linear infinite;
@@ -215,50 +213,30 @@ button, input, select, textarea {
   to { opacity: 1; }
 }
 
-@keyframes modalSlide {
-  from { opacity: 0; transform: scale(0.97) translateY(-10px); }
-  to { opacity: 1; transform: scale(1) translateY(0); }
-}
-
-/* Glassmorphism Surface Class */
-.glass-panel {
-  background: var(--bg-glass);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid var(--border-glass);
-  box-shadow: var(--specular-top), var(--shadow-glass);
-  border-radius: 16px;
-}
-
-/* Toast Banners */
 .toast-banner {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.9rem 1.35rem;
-  border-radius: 12px;
-  font-size: 0.875rem;
-  backdrop-filter: blur(12px);
-  animation: fadeIn 0.3s ease;
+  gap: 0.65rem;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
 }
 
 .success-banner {
-  background-color: var(--accent-emerald-bg);
-  border: 1px solid var(--accent-emerald-border);
-  color: var(--accent-emerald-text);
-  box-shadow: 0 8px 24px rgba(16, 185, 129, 0.15);
+  background-color: #0c1a14;
+  border: 1px solid #134e35;
+  color: #34d399;
 }
 
 .error-banner {
-  background-color: var(--accent-rose-bg);
-  border: 1px solid var(--accent-rose-border);
-  color: var(--accent-rose-text);
-  box-shadow: 0 8px 24px rgba(244, 63, 94, 0.15);
+  background-color: #1c0f13;
+  border: 1px solid #4c1d27;
+  color: #fb7185;
 }
 
 .toast-icon svg {
-  width: 18px;
-  height: 18px;
+  width: 16px;
+  height: 16px;
   display: block;
 }
 
@@ -273,7 +251,6 @@ button, input, select, textarea {
   color: inherit;
   cursor: pointer;
   opacity: 0.7;
-  transition: opacity 0.2s;
   padding: 2px;
 }
 
@@ -282,83 +259,72 @@ button, input, select, textarea {
 }
 
 .toast-close svg {
-  width: 16px;
-  height: 16px;
+  width: 14px;
+  height: 14px;
 }
 
-/* Modals with Smoked Glass */
 .modal-backdrop {
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(3, 4, 6, 0.82);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+  background-color: rgba(5, 6, 8, 0.8);
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 1.5rem;
+  padding: 1.25rem;
   z-index: 50;
-  animation: fadeIn 0.2s ease;
 }
 
 .modal-card {
-  background: var(--bg-glass-strong);
-  backdrop-filter: blur(28px) saturate(180%);
-  -webkit-backdrop-filter: blur(28px) saturate(180%);
-  border: 1px solid var(--border-glass);
-  box-shadow: var(--specular-top), 0 30px 60px -12px rgba(0, 0, 0, 0.85);
-  border-radius: 18px;
+  background: #101217;
+  border: 1px solid #242833;
+  border-radius: 8px;
   width: 100%;
-  max-width: 580px;
+  max-width: 520px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  animation: modalSlide 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .modal-header {
-  padding: 1.35rem 1.6rem;
-  border-bottom: 1px solid var(--border-subtle);
+  padding: 1.15rem 1.4rem;
+  border-bottom: 1px solid #20232d;
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
 }
 
 .modal-title {
-  font-size: 1.25rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--text-primary);
-  font-family: var(--font-display);
 }
 
 .modal-subtitle {
-  font-size: 0.85rem;
+  font-size: 0.825rem;
   color: var(--text-muted);
-  margin-top: 0.25rem;
+  margin-top: 0.2rem;
 }
 
 .modal-close-btn {
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid var(--border-subtle);
-  border-radius: 8px;
+  background: #161820;
+  border: 1px solid #20232d;
+  border-radius: 5px;
   color: var(--text-muted);
   cursor: pointer;
-  padding: 6px;
-  transition: all 0.2s;
+  padding: 5px;
 }
 
 .modal-close-btn:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: #1e212c;
   color: var(--text-primary);
-  border-color: var(--border-glass);
 }
 
 .modal-close-btn svg {
-  width: 16px;
-  height: 16px;
+  width: 15px;
+  height: 15px;
   display: block;
 }
 
@@ -366,39 +332,33 @@ button, input, select, textarea {
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 0.75rem;
-  padding: 1rem 1.6rem;
-  border-top: 1px solid var(--border-subtle);
-  background: rgba(7, 8, 11, 0.4);
+  gap: 0.65rem;
+  padding: 0.85rem 1.4rem;
+  border-top: 1px solid #20232d;
+  background: #0a0b0e;
 }
 
-/* High Performance Form Controls */
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.45rem;
+  gap: 0.35rem;
 }
 
 .form-label {
-  font-size: 0.8rem;
+  font-size: 0.78rem;
   font-weight: 600;
   color: var(--text-muted);
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-  font-family: var(--font-display);
+  letter-spacing: 0.01em;
 }
 
 .form-input, .form-select {
-  padding: 0.75rem 1rem;
-  background-color: var(--bg-glass-input);
-  border: 1px solid var(--border-subtle);
-  border-radius: 10px;
+  padding: 0.55rem 0.8rem;
+  background-color: #0c0d11;
+  border: 1px solid #242833;
+  border-radius: 6px;
   color: var(--text-primary);
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   outline: none;
-  backdrop-filter: blur(6px);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35);
-  transition: all 0.2s ease;
 }
 
 .form-input::placeholder {
@@ -407,8 +367,6 @@ button, input, select, textarea {
 
 .form-input:focus, .form-select:focus {
   border-color: var(--accent-amber);
-  background-color: rgba(255, 255, 255, 0.06);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.2), 0 0 0 3px rgba(245, 158, 11, 0.18);
 }
 
 .form-select {
@@ -416,13 +374,12 @@ button, input, select, textarea {
 }
 
 .form-select option {
-  background-color: var(--bg-surface);
+  background-color: #101217;
   color: var(--text-primary);
 }
 
 .input-invalid {
   border-color: var(--accent-rose-border) !important;
-  box-shadow: 0 0 0 3px rgba(244, 63, 94, 0.15) !important;
 }
 
 .field-error {
