@@ -85,6 +85,18 @@
   gap: 1.5rem;
 }
 
+.header-action .btn-primary {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  gap: 0.35rem;
+}
+
+.header-action .btn-primary svg {
+  width: 14px;
+  height: 14px;
+}
+
 .admin-header-section {
   display: flex;
   align-items: center;
@@ -299,7 +311,7 @@
   padding: 0.35rem 0.75rem;
   border-radius: 6px;
   cursor: pointer;
-  transition: all 0.15s ease;
+  
   white-space: nowrap;
 }
 
@@ -536,7 +548,7 @@
   font-size: 0.8rem;
   font-weight: 500;
   cursor: pointer;
-  transition: all 0.15s ease;
+  
 }
 
 .action-btn:hover {
@@ -659,7 +671,7 @@
   color: var(--text-muted);
   cursor: pointer;
   padding: 6px;
-  transition: all 0.15s;
+  
 }
 
 .modal-close-btn:hover {
