@@ -172,7 +172,7 @@ describe('UsersManagement Component', () => {
   });
 
   it('should toggle user status via confirmation modal', () => {
-    const user = mockUsers[0]; // enabled = true
+    const user = mockUsers[0];
     (component as any).promptToggleStatus(user);
 
     expect((component as any).isConfirmModalOpen()).toBe(true);
@@ -185,7 +185,7 @@ describe('UsersManagement Component', () => {
     expect(mockAdminUserService.toggleUserStatus).toHaveBeenCalledWith(user.publicId, false);
     expect((component as any).isConfirmModalOpen()).toBe(false);
 
-    // Verify local reactive update
+   
     const updated = (component as any).users().find((u: AdminUser) => u.publicId === user.publicId);
     expect(updated?.enabled).toBe(false);
   });
@@ -204,3 +204,4 @@ describe('UsersManagement Component', () => {
     expect((component as any).isConfirmModalOpen()).toBe(false);
   });
 });
+

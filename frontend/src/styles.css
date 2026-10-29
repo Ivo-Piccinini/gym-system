@@ -1,51 +1,44 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400..700;1,9..40,400..700&family=Space+Grotesk:wght@500;600;700&display=swap');
 
 :root {
-  /* Stealth Kinetic Dark Palette */
-  --bg-base: #07080b;
-  --bg-surface: #0e1117;
-  --bg-elevated: #151821;
-  --bg-interaction: #1d212d;
-  --bg-glass: rgba(14, 17, 23, 0.72);
-  --bg-glass-strong: rgba(14, 17, 23, 0.88);
-  --bg-glass-input: rgba(255, 255, 255, 0.035);
+  --bg-base: #060709;
+  --bg-surface: #0b0d12;
+  --bg-elevated: #11141b;
+  --bg-interaction: #171b24;
+  --bg-glass: rgba(11, 13, 18, 0.88);
+  --bg-glass-strong: rgba(11, 13, 18, 0.95);
+  --bg-glass-input: rgba(255, 255, 255, 0.03);
 
-  /* Kinetic Amber & Gold Accent */
-  --accent-amber: #f59e0b;
-  --accent-amber-light: #fbbf24;
-  --accent-amber-glow: rgba(245, 158, 11, 0.22);
-  --accent-amber-border: rgba(245, 158, 11, 0.35);
-  --accent-amber-bg: rgba(245, 158, 11, 0.08);
+  --accent-amber: #e59a19;
+  --accent-amber-light: #f5b041;
+  --accent-amber-glow: rgba(229, 154, 25, 0.12);
+  --accent-amber-border: rgba(229, 154, 25, 0.28);
+  --accent-amber-bg: rgba(229, 154, 25, 0.08);
 
-  /* Editorial & High-Legibility Typography */
-  --font-display: 'Outfit', system-ui, -apple-system, sans-serif;
-  --font-body: 'Plus Jakarta Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-display: 'Space Grotesk', system-ui, -apple-system, sans-serif;
+  --font-body: 'DM Sans', system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
 
   --text-primary: #f8fafc;
-  --text-body: #cbd5e1;
-  --text-muted: #94a3b8;
-  --text-subtle: #64748b;
+  --text-body: #94a3b8;
+  --text-muted: #64748b;
+  --text-subtle: #475569;
 
-  /* Borders & Specular Highlights */
-  --border-subtle: rgba(255, 255, 255, 0.07);
-  --border-glass: rgba(255, 255, 255, 0.1);
-  --border-focus: rgba(245, 158, 11, 0.6);
-  --specular-top: inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  --border-subtle: rgba(255, 255, 255, 0.06);
+  --border-glass: rgba(255, 255, 255, 0.08);
+  --border-focus: rgba(229, 154, 25, 0.5);
+  --specular-top: inset 0 1px 0 rgba(255, 255, 255, 0.06);
 
-  /* Status Accents */
-  --accent-rose-bg: rgba(244, 63, 94, 0.1);
-  --accent-rose-border: rgba(244, 63, 94, 0.3);
+  --accent-rose-bg: rgba(244, 63, 94, 0.08);
+  --accent-rose-border: rgba(244, 63, 94, 0.25);
   --accent-rose-text: #fb7185;
 
-  --accent-emerald-bg: rgba(16, 185, 129, 0.1);
-  --accent-emerald-border: rgba(16, 185, 129, 0.3);
+  --accent-emerald-bg: rgba(16, 185, 129, 0.08);
+  --accent-emerald-border: rgba(16, 185, 129, 0.25);
   --accent-emerald-text: #34d399;
 
-  /* Shadows */
-  --shadow-glass: 0 25px 50px -12px rgba(0, 0, 0, 0.75), 0 0 0 1px rgba(255, 255, 255, 0.06);
-  --shadow-amber-glow: 0 0 24px -4px rgba(245, 158, 11, 0.4);
+  --shadow-glass: 0 18px 40px -12px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05);
+  --shadow-amber-glow: 0 4px 14px rgba(229, 154, 25, 0.18);
 }
-
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;

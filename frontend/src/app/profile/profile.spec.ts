@@ -67,7 +67,7 @@ describe('Profile Component', () => {
     expect(mockProfileService.getProfile).toHaveBeenCalled();
     expect(component['userProfile']()).toEqual(initialProfile);
 
-    // Verify form populated
+   
     expect(component['profileForm'].value.phone).toBe('3415551010');
     expect(component['profileForm'].value.birthDate).toBe('1987-06-24');
   });
@@ -76,10 +76,10 @@ describe('Profile Component', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const textContent = compiled.textContent;
 
-    expect(textContent).toContain('33445566'); // DNI
-    expect(textContent).toContain('lionel@gym.com'); // Email
-    expect(textContent).toContain('Socio / Cliente'); // Rol
-    expect(textContent).toContain('uuid-1234-5678'); // PublicId
+    expect(textContent).toContain('33445566');
+    expect(textContent).toContain('lionel@gym.com');
+    expect(textContent).toContain('Socio / Cliente');
+    expect(textContent).toContain('uuid-1234-5678');
   });
 
   it('should validate phone pattern and mark form as invalid on bad input', () => {
@@ -146,3 +146,4 @@ describe('Profile Component', () => {
     expect(component['profileForm'].pristine).toBe(true);
   });
 });
+
