@@ -20,6 +20,11 @@ export const routes: Routes = [
     loadComponent: () => import('./profile/profile').then((m) => m.Profile)
   },
   {
+  path: 'clases',
+  canActivate: [authGuard],
+  loadComponent: () => import('./classes/class-agenda').then((m) => m.ClassAgenda)
+},
+  {
     path: 'admin/usuarios',
     canActivate: [authGuard, adminGuard],
     loadComponent: () => import('./admin/users/users-management').then((m) => m.UsersManagement)
