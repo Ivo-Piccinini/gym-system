@@ -1,8 +1,11 @@
 package com.utnGymGroup.gym_system.features.user;
 
+import com.utnGymGroup.gym_system.common.auth.dto.AuthResponse;
 import com.utnGymGroup.gym_system.common.auth.permissions.Roles;
+import com.utnGymGroup.gym_system.features.user.dtos.PasswordChangeDTO;
 import com.utnGymGroup.gym_system.features.user.dtos.UserDTO;
 import com.utnGymGroup.gym_system.features.user.dtos.UserPatchDTO;
+import com.utnGymGroup.gym_system.features.user.dtos.UsernameChangeDTO;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -97,5 +100,32 @@ class UserControllerTest {
         assertEquals("3417778899", response.getBody().getPhone());
         assertEquals(LocalDate.of(1997, 7, 20), response.getBody().getBirthDate());
         verify(userService, times(1)).updatePartialUser(patchDTO);
+    }
+
+    @Test
+    @DisplayName("PATCH /api/users/change-password invoca changePassword para el usuario autenticado")
+    void shouldChangePasswordLoggedUser() {
+        PasswordChangeDTO request = new PasswordChangeDTO("oldPass123", "newPass123", "newPass123");
+        doNothing().when(userService).changePassword(authUsername, request);
+
+        ResponseEntity<Void> response = userController.changePasswordLoggedUser(request);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        verify(userService, times(1)).changePassword(authUsername, request);
+    }
+
+    @Test
+    @DisplayName("PATCH /api/users/change-username invoca changeUsername para el usuario autenticado")
+    void shouldChangeUsernameLoggedUser() {
+        UsernameChangeDTO request = new UsernameChangeDTO("cliente_renombrado");
+        AuthResponse mockAuth = new AuthResponse("token_nuevo", "Nombre de usuario cambiado con éxito.", false);
+        when(userService.changeUsername(authUsername, "cliente_renombrado")).thenReturn(mockAuth);
+
+        ResponseEntity<AuthResponse> response = userController.changeUsernameLoggedUser(request);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        assertNotNull(response.getBody());
+        assertEquals("token_nuevo", response.getBody().token());
+        verify(userService, times(1)).changeUsername(authUsername, "cliente_renombrado");
     }
 }

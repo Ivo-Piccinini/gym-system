@@ -46,12 +46,37 @@ describe('AuthService', () => {
 
     const req = httpTesting.expectOne(`${environment.apiUrl}/auth/login`);
     expect(req.request.method).toBe('POST');
-    req.flush({ token: mockToken, message: 'Autenticación exitosa' });
+    req.flush({ token: mockToken, message: 'Autenticación exitosa', requiresPasswordChange: false });
 
     expect(service.isAuthenticated()).toBe(true);
     expect(service.username()).toBe('admin');
     expect(service.isAdmin()).toBe(true);
+    expect(service.requiresPasswordChange()).toBe(false);
     expect(service.getToken()).toBe(mockToken);
+  });
+
+  it('should detect temporary credentials and set requiresPasswordChange flag', () => {
+    const futureExp = Math.floor(Date.now() / 1000) + 3600;
+    const header = btoa(JSON.stringify({ alg: 'HS256', typ: 'JWT' }));
+    const payload = btoa(JSON.stringify({ sub: '12345678', authorities: ['ROLE_CLIENT'], exp: futureExp }));
+    const mockToken = `${header}.${payload}.signature`;
+
+    service.login({ username: '12345678', password: 'password123' }).subscribe();
+
+    const req = httpTesting.expectOne(`${environment.apiUrl}/auth/login`);
+    req.flush({
+      token: mockToken,
+      message: 'Por seguridad, debes cambiar tu nombre de usuario y contraseña en tu primer ingreso.',
+      requiresPasswordChange: true
+    });
+
+    expect(service.isAuthenticated()).toBe(true);
+    expect(service.requiresPasswordChange()).toBe(true);
+    expect(localStorage.getItem('gym_auth_temp_pass')).toBe('true');
+
+    service.clearPasswordChangeRequirement();
+    expect(service.requiresPasswordChange()).toBe(false);
+    expect(localStorage.getItem('gym_auth_temp_pass')).toBeNull();
   });
 
   it('should logout and clear session', () => {

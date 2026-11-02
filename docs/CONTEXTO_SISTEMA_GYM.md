@@ -1,4 +1,4 @@
-markdown_content = """# Contexto Consolidado del Proyecto: Sistema Gym (Backend Spring Boot)
+﻿markdown_content = """# Contexto Consolidado del Proyecto: Sistema Gym (Backend Spring Boot)
 
 Este documento sirve como la **Fuente Única de Verdad (Single Source of Truth)** para el desarrollo, mantenimiento e integraciones avanzadas del backend del **Sistema Gym**. Consolida todos los requisitos funcionales, el diseño de la base de datos relacional (DER), las especificaciones de la API (OpenAPI), los estándares de validación de DTOs y la arquitectura interna bajo las directrices académicas de la UTN.
 
@@ -169,6 +169,8 @@ Todos los endpoints base están prefijados bajo la ruta global `/api/v1`.
 | `POST` | `/auth/register` | Público | Registro autónomo de clientes. Asigna automáticamente `ROLE_CLIENT`. |
 | `GET` | `/users/me` | Autenticado | Obtiene los detalles de cuenta y perfil del usuario logueado. |
 | `PATCH` | `/users/me` | Autenticado | Modificación parcial de datos personales en `ProfileEntity`. |
+| `PATCH` | `/users/change-password` | Autenticado | Actualización segura de contraseña para usuario logueado. |
+| `PATCH` | `/users/change-username` | Autenticado | Personalización obligatoria de username para usuarios con credenciales temporales. |
 | `POST` | `/admin/users/staff` | `ADMIN` | Alta manual de usuarios internos con roles `PROFESSOR` o `ADMIN`. |
 | `GET` | `/admin/profiles/{publicId}`| `ADMIN` | Obtiene el perfil detallado de cualquier usuario mediante su UUID. |
 

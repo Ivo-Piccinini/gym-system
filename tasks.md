@@ -1,4 +1,4 @@
-# Plan Maestro de Tareas — Gym System (tasks.md)
+﻿# Plan Maestro de Tareas — Gym System (tasks.md)
 
 Este documento consolida **todas las Historias de Usuario y Subtareas existentes en el tablero de Jira**, integrando además las **tareas arquitectónicas y de negocio complementarias** necesarias para que el Frontend (Angular) y el Backend (Spring Boot) encastren al 100% y se logre la finalización total del proyecto.
 
@@ -114,8 +114,8 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
   - Formulario reactivo para cambio de clave enviado a `PATCH /api/users/change-password`.
   - Formulario reactivo para cambio de nombre de usuario enviado a `PATCH /api/users/change-username`.
 - **Tareas de Desarrollo:**
-  - [ ] `GS-AUTH-EXT-1`: Crear componente modal / vista de primer login (`change-credentials.ts`).
-  - [ ] `GS-AUTH-EXT-2`: Conectar endpoints de cambio de clave y username en `UserService`.
+  - [x] `GS-AUTH-EXT-1`: Crear componente modal / vista de primer login (`change-credentials.ts`).
+  - [x] `GS-AUTH-EXT-2`: Conectar endpoints de cambio de clave y username en `UserService`.
 
 ---
 

@@ -2,9 +2,12 @@ package com.utnGymGroup.gym_system.features.user;
 
 import com.utnGymGroup.gym_system.common.auth.credentials.CredentialsEntity;
 import com.utnGymGroup.gym_system.common.auth.credentials.CredentialsRepository;
+import com.utnGymGroup.gym_system.common.auth.dto.AuthResponse;
+import com.utnGymGroup.gym_system.common.auth.jwt.JwtService;
 import com.utnGymGroup.gym_system.common.auth.permissions.RoleEntity;
 import com.utnGymGroup.gym_system.common.auth.permissions.RoleRepository;
 import com.utnGymGroup.gym_system.common.auth.permissions.Roles;
+import com.utnGymGroup.gym_system.features.user.dtos.PasswordChangeDTO;
 import com.utnGymGroup.gym_system.features.user.dtos.UserDTO;
 import com.utnGymGroup.gym_system.features.user.dtos.UserPatchDTO;
 import com.utnGymGroup.gym_system.features.user.mappers.UserMapper;
@@ -46,6 +49,9 @@ class UserServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private JwtService jwtService;
 
     @InjectMocks
     private UserService userService;
@@ -167,5 +173,36 @@ class UserServiceTest {
         assertEquals(testUsername, dto.getUsername());
         assertTrue(dto.getEnabled());
         assertEquals(Roles.ROLE_CLIENT, dto.getRole());
+    }
+
+    @Test
+    @DisplayName("changePassword actualiza la contraseña exitosamente si las validaciones pasan")
+    void shouldChangePasswordSuccessfully() {
+        PasswordChangeDTO request = new PasswordChangeDTO("encoded_pass", "newPassword123", "newPassword123");
+        when(credentialsRepository.findByUsername(testUsername)).thenReturn(Optional.of(testCredentials));
+        when(passwordEncoder.matches("encoded_pass", "encoded_pass")).thenReturn(true);
+        when(passwordEncoder.encode("newPassword123")).thenReturn("new_encoded_pass");
+
+        userService.changePassword(testUsername, request);
+
+        assertEquals("new_encoded_pass", testCredentials.getPassword());
+        verify(credentialsRepository, times(1)).save(testCredentials);
+    }
+
+    @Test
+    @DisplayName("changeUsername permite personalizar username si el actual es su DNI y genera nuevo token")
+    void shouldChangeUsernameSuccessfullyWhenUsernameIsDni() {
+        testCredentials.setUsername("12345678");
+        when(credentialsRepository.findByUsername("12345678")).thenReturn(Optional.of(testCredentials));
+        when(credentialsRepository.findByUsername("juan_nuevo")).thenReturn(Optional.empty());
+        when(jwtService.generateToken(testCredentials)).thenReturn("new_mocked_jwt");
+
+        AuthResponse response = userService.changeUsername("12345678", "juan_nuevo");
+
+        assertNotNull(response);
+        assertEquals("new_mocked_jwt", response.token());
+        assertEquals("juan_nuevo", testCredentials.getUsername());
+        assertFalse(response.requiresPasswordChange());
+        verify(credentialsRepository, times(1)).save(testCredentials);
     }
 }

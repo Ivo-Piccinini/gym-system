@@ -40,10 +40,14 @@ export class Login {
     const { username, password } = this.loginForm.getRawValue();
 
     this.authService.login({ username: username.trim(), password }).subscribe({
-      next: () => {
+      next: (response) => {
         this.isLoading.set(false);
-        const destination = this.authService.getDefaultRedirectUrl();
-        this.router.navigateByUrl(destination);
+        if (response.requiresPasswordChange || response.message?.includes('primer ingreso')) {
+          this.router.navigateByUrl('/cambiar-credenciales');
+        } else {
+          const destination = this.authService.getDefaultRedirectUrl();
+          this.router.navigateByUrl(destination);
+        }
       },
       error: (err) => {
         this.isLoading.set(false);
