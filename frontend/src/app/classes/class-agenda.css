@@ -79,6 +79,7 @@
 
 .date-nav {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.4rem;
 }
@@ -175,14 +176,16 @@
 /* ---- grilla ---- */
 .week-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  /* 6 columnas del mismo ancho; minmax(0, 1fr) evita que el contenido las ensanche */
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   gap: 0.85rem;
-  align-items: start;
+  align-items: stretch; /* todas las columnas con la misma altura */
 }
 
 .day-column {
   display: flex;
   flex-direction: column;
+  min-width: 0;
   gap: 0.6rem;
   padding: 0.85rem;
   background-color: var(--bg-surface);
@@ -212,6 +215,7 @@
 .class-card {
   display: flex;
   flex-direction: column;
+  min-width: 0;
   gap: 0.15rem;
   padding: 0.6rem 0.7rem;
   background-color: var(--bg-elevated);
@@ -230,15 +234,18 @@
 
 .class-top {
   display: flex;
+  flex-direction: column;
   align-items: flex-start;
-  justify-content: space-between;
-  gap: 0.4rem;
+  gap: 0.3rem;
+  min-width: 0;
 }
 
 .class-name {
+  max-width: 100%;
   font-size: 0.88rem;
   font-weight: 600;
   color: var(--text-primary);
+  overflow-wrap: anywhere;
 }
 
 .class-hours {
@@ -251,6 +258,7 @@
 .class-spots {
   font-size: 0.76rem;
   color: var(--text-muted);
+  overflow-wrap: anywhere;
 }
 
 .class-card.full .class-spots {
@@ -295,15 +303,30 @@
 .card-action {
   margin-top: 0.5rem;
   width: 100%;
+  min-height: 2.4rem;
   justify-content: center;
-  padding-top: 0.4rem;
-  padding-bottom: 0.4rem;
+  padding: 0.4rem 0.5rem;
   font-size: 0.78rem;
+  line-height: 1.2;
+  text-align: center;
+  white-space: normal;
 }
 
 .card-action:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+}
+
+@media (max-width: 1100px) {
+  .week-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .week-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 640px) {
@@ -313,5 +336,11 @@
 
   .agenda-main {
     padding: 1.5rem 1rem 3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .week-grid {
+    grid-template-columns: minmax(0, 1fr);
   }
 }

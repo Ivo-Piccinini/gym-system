@@ -12,6 +12,8 @@
 .segmented-control {
   display: inline-flex;
   align-items: center;
+  max-width: 100%;
+  overflow-x: auto;
   background-color: #101217;
   border: 1px solid var(--border-subtle);
   border-radius: 6px;
