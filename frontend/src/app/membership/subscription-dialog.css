@@ -1,0 +1,156 @@
+.dialog-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem 1.4rem;
+}
+
+.plan-summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.95rem 1rem;
+  background-color: #0c0d11;
+  border: 1px solid var(--border-glass);
+  border-radius: 8px;
+}
+
+.plan-summary-name {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.plan-summary-price {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--accent-amber-light);
+  font-variant-numeric: tabular-nums;
+}
+
+.summary-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.summary-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.65rem 0;
+  border-bottom: 1px solid #161822;
+}
+
+.summary-row:last-child {
+  border-bottom: none;
+}
+
+.summary-term {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.summary-value {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  text-align: right;
+}
+
+.summary-highlight {
+  color: var(--accent-amber-light);
+  font-weight: 600;
+}
+
+.dialog-note {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+/* --- estados finales (éxito / conflicto) --- */
+.dialog-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1.75rem 1.4rem 1rem;
+}
+
+.state-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 8px;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.state-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.icon-success {
+  background-color: var(--accent-emerald-bg);
+  border: 1px solid var(--accent-emerald-border);
+  color: var(--accent-emerald-text);
+}
+
+.icon-warning {
+  background-color: var(--accent-amber-bg);
+  border: 1px solid var(--accent-amber-border);
+  color: var(--accent-amber-light);
+}
+
+.state-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-bottom: 0.4rem;
+}
+
+.state-desc {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+  max-width: 340px;
+}
+
+.state-desc strong {
+  color: var(--text-primary);
+}
+
+.state-summary {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.25rem 1rem;
+  background-color: #0c0d11;
+  border: 1px solid var(--border-glass);
+  border-radius: 8px;
+}
+
+.state-footer {
+  justify-content: center;
+  margin-top: 0.75rem;
+}
+
+@media (max-width: 480px) {
+  .plan-summary,
+  .summary-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .summary-value {
+    text-align: left;
+  }
+}
