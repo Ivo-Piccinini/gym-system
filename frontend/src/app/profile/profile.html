@@ -40,11 +40,10 @@
         </svg>
         <span>Panel Admin</span>
       </a>
-    }
       <a routerLink="/clases" class="btn-ghost">
           <span>Clases</span>
         </a>
-      
+      }
 
       @if (authService.isAdmin() || authService.isClient()) {
       <a routerLink="/membresias" class="btn-ghost">
@@ -56,6 +55,17 @@
         <span>Membresías</span>
       </a>
      }
+
+      @if (authService.isClient()) {
+      <a routerLink="/pagos" class="btn-ghost">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z" />
+          <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" />
+          <path d="M12 17.5v-11" />
+        </svg>
+        <span>Mis pagos</span>
+      </a>
+      }
 
       <button type="button" class="btn-ghost" (click)="authService.logout()">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"

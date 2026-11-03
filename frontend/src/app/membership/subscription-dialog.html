@@ -43,7 +43,7 @@
           </dl>
 
           <p class="dialog-note">
-            La fecha de finalización definitiva se confirma al registrar la suscripción.
+            La fecha de finalización definitiva se confirma al registrar la suscripción. En el siguiente paso elegís cómo pagar.
           </p>
 
           @if (errorMessage()) {
@@ -69,10 +69,20 @@
               <span class="spinner-sm"></span>
               <span>Procesando...</span>
             } @else {
-              <span>Confirmar suscripción</span>
+              <span>Continuar al pago</span>
             }
           </button>
         </footer>
+      }
+
+      @case ('payment') {
+        <app-payment-simulation
+          [plan]="plan()"
+          [isSubmitting]="isPaying()"
+          [errorMessage]="paymentError()"
+          (confirmed)="pay($event)"
+          (postponed)="close()"
+        />
       }
 
       @case ('success') {
@@ -83,22 +93,28 @@
               <polyline points="22 4 12 14.01 9 11.01" />
             </svg>
           </div>
-          <h2 id="subscription-dialog-title" class="state-title">¡Suscripción registrada!</h2>
-          <p class="state-desc">Tu plan <strong>{{ plan().name }}</strong> quedó registrado correctamente.</p>
+          <h2 id="subscription-dialog-title" class="state-title">¡Pago registrado!</h2>
+          <p class="state-desc">Tu plan <strong>{{ plan().name }}</strong> ya está activo.</p>
 
-          @if (result(); as sub) {
+          @if (payment(); as receipt) {
             <dl class="summary-list state-summary">
               <div class="summary-row">
-                <dt class="summary-term">Inicio</dt>
-                <dd class="summary-value">{{ formatDate(sub.startDate) }}</dd>
+                <dt class="summary-term">Monto</dt>
+                <dd class="summary-value">{{ formatPrice(receipt.amount) }}</dd>
               </div>
               <div class="summary-row">
-                <dt class="summary-term">Finalización</dt>
-                <dd class="summary-value summary-highlight">{{ formatDate(sub.endDate) }}</dd>
+                <dt class="summary-term">Método</dt>
+                <dd class="summary-value">{{ methodLabel(receipt) }}</dd>
               </div>
+              @if (result(); as sub) {
+                <div class="summary-row">
+                  <dt class="summary-term">Vigente hasta</dt>
+                  <dd class="summary-value summary-highlight">{{ formatDate(sub.endDate) }}</dd>
+                </div>
+              }
               <div class="summary-row">
                 <dt class="summary-term">Estado</dt>
-                <dd class="summary-value">{{ statusLabel(sub) }}</dd>
+                <dd class="summary-value">{{ activeLabel }}</dd>
               </div>
             </dl>
           }

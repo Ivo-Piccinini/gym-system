@@ -31,6 +31,11 @@ export const routes: Routes = [
     loadComponent: () => import('./membership/membership-plans').then((m) => m.MembershipPlans)
   },
   {
+    path: 'pagos',
+    canActivate: [authGuard, clientGuard],
+    loadComponent: () => import('./membership/payment-history').then((m) => m.PaymentHistory)
+  },
+  {
     path: 'admin/usuarios',
     canActivate: [authGuard, adminGuard],
     loadComponent: () => import('./admin/users/users-management').then((m) => m.UsersManagement)

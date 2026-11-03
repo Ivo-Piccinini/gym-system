@@ -1,0 +1,112 @@
+<div class="history-container">
+  <header class="history-navbar">
+    <div class="navbar-brand">
+      <div class="brand-logo">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="phAmberGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#fbbf24" />
+              <stop offset="100%" stop-color="#d97706" />
+            </linearGradient>
+            <linearGradient id="phSteelGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#f8fafc" />
+              <stop offset="100%" stop-color="#64748b" />
+            </linearGradient>
+          </defs>
+          <rect x="18" y="29" width="28" height="6" rx="2" fill="url(#phSteelGrad)" />
+          <rect x="15" y="26" width="3" height="12" rx="1" fill="url(#phAmberGrad)" />
+          <rect x="46" y="26" width="3" height="12" rx="1" fill="url(#phAmberGrad)" />
+          <rect x="10" y="16" width="5" height="32" rx="1.5" fill="url(#phSteelGrad)" />
+          <rect x="49" y="16" width="5" height="32" rx="1.5" fill="url(#phSteelGrad)" />
+          <rect x="5" y="21" width="5" height="22" rx="1.5" fill="url(#phAmberGrad)" />
+          <rect x="54" y="21" width="5" height="22" rx="1.5" fill="url(#phAmberGrad)" />
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">Gym System</span>
+        <span class="brand-subtitle">Mis pagos</span>
+      </div>
+    </div>
+
+    <div class="navbar-actions">
+      <a routerLink="/membresias" class="btn-ghost">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="5" width="20" height="14" rx="2" />
+          <line x1="2" y1="10" x2="22" y2="10" />
+        </svg>
+        <span>Membresías</span>
+      </a>
+      <a routerLink="/perfil" class="btn-ghost">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="19" y1="12" x2="5" y2="12" />
+          <polyline points="12 19 5 12 12 5" />
+        </svg>
+        <span>Mi perfil</span>
+      </a>
+      <button type="button" class="btn-ghost" (click)="authService.logout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+        <span>Cerrar Sesión</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="history-main">
+    <section class="history-heading">
+      <h1 class="history-title">Historial de pagos</h1>
+      <p class="history-subtitle">
+        Consultá tus comprobantes y llevá el control de tus cuotas.
+      </p>
+    </section>
+
+    @if (isLoading()) {
+      <div class="state-card">
+        <div class="spinner"></div>
+        <p class="state-text">Cargando pagos...</p>
+      </div>
+    } @else if (errorMessage()) {
+      <div class="state-card error-state" role="alert">
+        <p class="state-title">No pudimos cargar tus pagos</p>
+        <p class="state-text">{{ errorMessage() }}</p>
+        <button type="button" class="btn-primary" (click)="retry()">Reintentar</button>
+      </div>
+    } @else if (rows().length === 0) {
+      <div class="state-card">
+        <p class="state-title">Todavía no registraste pagos</p>
+        <p class="state-text">Cuando contrates un plan y pagues tu cuota, el comprobante aparece acá.</p>
+        <a routerLink="/membresias" class="btn-primary">Ver planes</a>
+      </div>
+    } @else {
+      <p class="history-summary">{{ summary() }}</p>
+
+      <div class="table-card">
+        <table class="payments-table">
+          <caption class="sr-only">Historial de pagos del cliente</caption>
+          <thead>
+            <tr>
+              <th scope="col">Fecha</th>
+              <th scope="col">Comprobante</th>
+              <th scope="col">Plan</th>
+              <th scope="col">Método</th>
+              <th scope="col" class="col-amount">Monto</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of rows(); track row.key) {
+              <tr>
+                <td data-label="Fecha">{{ row.dateLabel }}</td>
+                <td data-label="Comprobante" class="cell-receipt">{{ row.receipt }}</td>
+                <td data-label="Plan" class="cell-plan">{{ row.planName }}</td>
+                <td data-label="Método"><span class="method-chip">{{ row.methodLabel }}</span></td>
+                <td data-label="Monto" class="col-amount cell-amount">{{ row.amountLabel }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </main>
+</div>

@@ -24,6 +24,15 @@ export function formatDate(iso: string): string {
 }
 
 
+/** "2026-12-02" -> "02/12/2026" (para tablas). */
+export function formatShortDate(iso: string): string {
+  return parseIsoDate(iso).toLocaleDateString('es-AR', {
+    day: '2-digit',
+    month: '2-digit',
+    year: 'numeric'
+  });
+}
+
 /** 30 -> "1 mes", 180 -> "6 meses", 365 -> "1 año", 45 -> "45 días". */
 export function durationLabel(days: number): string {
   if (days % 365 === 0) {
@@ -55,4 +64,12 @@ export function isCurrentlyActive(
   today: string = toIsoDate(new Date())
 ): boolean {
   return subscription.status === 'ACTIVE' && subscription.endDate >= today;
+}
+
+/** Suscripción creada pero sin pago registrado (el back la deja PENDING hasta que se paga). */
+export function isPendingPayment(
+  subscription: Subscription,
+  today: string = toIsoDate(new Date())
+): boolean {
+  return subscription.status === 'PENDING' && subscription.endDate >= today;
 }

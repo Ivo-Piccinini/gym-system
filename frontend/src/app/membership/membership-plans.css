@@ -302,7 +302,32 @@
   height: 15px;
 }
 
+.lock-notice .lock-action {
+  margin-left: auto;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.badge-pending {
+  background-color: var(--accent-amber-bg);
+  border-color: var(--accent-amber-border);
+  color: var(--accent-amber-light);
+}
+
+.plan-card.pending {
+  border-color: var(--accent-amber-border);
+}
+
 @media (max-width: 640px) {
+  .lock-notice {
+    flex-wrap: wrap;
+  }
+
+  .lock-notice .lock-action {
+    margin-left: 0;
+    width: 100%;
+  }
+
   .membership-navbar {
     padding: 0.75rem 1rem;
   }

@@ -29,6 +29,16 @@
     </div>
 
     <div class="navbar-actions">
+      @if (authService.isClient()) {
+        <a routerLink="/pagos" class="btn-ghost">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1Z" />
+          <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8" />
+          <path d="M12 17.5v-11" />
+        </svg>
+          <span>Mis pagos</span>
+        </a>
+      }
       <a routerLink="/perfil" class="btn-ghost">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <line x1="19" y1="12" x2="5" y2="12" />
@@ -95,6 +105,31 @@
       </div>
     }
 
+    @if (pendingSubscription(); as pending) {
+      <div class="lock-notice" role="status">
+        <div class="lock-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+        </div>
+        <div>
+          <p class="lock-title">Tenés un pago pendiente</p>
+          <p class="lock-text">
+            @if (pendingPlan(); as plan) {
+              Tu suscripción al plan <strong>{{ plan.name }}</strong> todavía no está activa.
+            } @else {
+              Tu suscripción todavía no está activa.
+            }
+            Registrá el pago para habilitar tu acceso al gimnasio.
+          </p>
+        </div>
+        <button type="button" class="btn-primary lock-action" [disabled]="!pendingPlan()" (click)="openPendingPayment()">
+          Completar pago
+        </button>
+      </div>
+    }
+
     @if (isLoading()) {
       <div class="state-card">
         <div class="spinner"></div>
@@ -118,12 +153,15 @@
             class="plan-card"
             [class.best]="card.isBestValue"
             [class.current]="card.isCurrent"
-            [class.locked]="!!activeSubscription() && !card.isCurrent"
+            [class.pending]="card.isPending"
+            [class.locked]="isLocked(card)"
           >
             <div class="plan-top">
               <div class="plan-badges">
                 @if (card.isCurrent) {
                   <span class="plan-badge badge-current">Tu plan actual</span>
+                } @else if (card.isPending) {
+                  <span class="plan-badge badge-pending">Pago pendiente</span>
                 } @else if (card.isBestValue) {
                   <span class="plan-badge badge-best">Mejor precio por día</span>
                 }
@@ -154,12 +192,12 @@
             <button
               type="button"
               class="plan-action"
-              [class.btn-primary]="!activeSubscription()"
-              [class.btn-secondary]="!!activeSubscription()"
-              [disabled]="!canSubscribe()"
-              (click)="openDialog(card.plan)"
+              [class.btn-primary]="card.isPending || !isBlocked()"
+              [class.btn-secondary]="!card.isPending && isBlocked()"
+              [disabled]="card.isPending ? !pendingPlan() : !canSubscribe()"
+              (click)="onAction(card)"
             >
-              @if (activeSubscription() && !card.isCurrent) {
+              @if (isLocked(card)) {
                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                   <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                   <path d="M7 11V7a5 5 0 0 1 10 0v4" />
@@ -176,7 +214,8 @@
   @if (selectedPlan(); as plan) {
     <app-subscription-dialog
       [plan]="plan"
-      (subscribed)="onSubscribed($event)"
+      [pendingSubscription]="selectedPending()"
+      (paid)="onPaid($event)"
       (closed)="onDialogClosed($event)"
     />
   }

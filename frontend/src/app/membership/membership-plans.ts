@@ -1,12 +1,13 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
-import { MembershipPlan, Subscription } from './membership.models';
+import { MembershipPlan, Payment, Subscription } from './membership.models';
 import {
   durationLabel,
   formatDate,
   formatPrice,
   isCurrentlyActive,
+  isPendingPayment,
   pricePerDay,
   pricePerMonth
 } from './membership.utils';
@@ -22,6 +23,7 @@ interface PlanCard {
   perMonthLabel: string;
   isBestValue: boolean;
   isCurrent: boolean;
+  isPending: boolean;
 }
 
 @Component({
@@ -45,6 +47,8 @@ export class MembershipPlans implements OnInit {
   protected readonly isCheckingSubscriptions = signal<boolean>(true);
 
   protected readonly selectedPlan = signal<MembershipPlan | null>(null);
+  /** Suscripción PENDING que se está pagando (null si el modal arranca desde la confirmación del plan). */
+  protected readonly selectedPending = signal<Subscription | null>(null);
   protected readonly successMessage = signal<string | null>(null);
 
   // --- derivados ---
@@ -58,15 +62,31 @@ export class MembershipPlans implements OnInit {
     return active ? (this.plans().find((p) => p.id === active.planId) ?? null) : null;
   });
 
+  /** Suscripción creada que todavía no se pagó: hay que completarla antes de contratar otro plan. */
+  protected readonly pendingSubscription = computed(
+    () => this.subscriptions().find((s) => isPendingPayment(s)) ?? null
+  );
+
+  protected readonly pendingPlan = computed(() => {
+    const pending = this.pendingSubscription();
+    return pending ? (this.plans().find((p) => p.id === pending.planId) ?? null) : null;
+  });
+
+  /** Hay una membresía vigente o un pago pendiente: no se puede contratar otro plan. */
+  protected readonly isBlocked = computed(
+    () => !!this.activeSubscription() || !!this.pendingSubscription()
+  );
+
   /** Mientras se verifica no se habilita contratar; si la verificación falla, el 409 del back protege igual. */
   protected readonly canSubscribe = computed(
-    () => !this.isCheckingSubscriptions() && !this.activeSubscription()
+    () => !this.isCheckingSubscriptions() && !this.isBlocked()
   );
 
   protected readonly cards = computed<PlanCard[]>(() => {
     const plans = [...this.plans()].sort((a, b) => a.durationDays - b.durationDays);
     const bestValueId = this.bestValuePlanId(plans);
     const currentId = this.activePlan()?.id;
+    const pendingId = this.pendingPlan()?.id;
 
     return plans.map((plan) => ({
       plan,
@@ -75,7 +95,8 @@ export class MembershipPlans implements OnInit {
       perDayLabel: formatPrice(pricePerDay(plan)),
       perMonthLabel: formatPrice(pricePerMonth(plan)),
       isBestValue: plan.id === bestValueId,
-      isCurrent: plan.id === currentId
+      isCurrent: plan.id === currentId,
+      isPending: plan.id === pendingId && plan.id !== currentId
     }));
   });
 
@@ -137,18 +158,40 @@ export class MembershipPlans implements OnInit {
       return;
     }
     this.successMessage.set(null);
+    this.selectedPending.set(null);
     this.selectedPlan.set(plan);
   }
 
-  protected onSubscribed(subscription: Subscription): void {
+  /** Reabre el modal directo en el paso de pago de la suscripción PENDING. */
+  protected openPendingPayment(): void {
+    const pending = this.pendingSubscription();
+    const plan = this.pendingPlan();
+    if (!pending || !plan) {
+      return;
+    }
+    this.successMessage.set(null);
+    this.selectedPending.set(pending);
+    this.selectedPlan.set(plan);
+  }
+
+  protected onAction(card: PlanCard): void {
+    if (card.isPending) {
+      this.openPendingPayment();
+    } else {
+      this.openDialog(card.plan);
+    }
+  }
+
+  protected onPaid(payment: Payment): void {
     const plan = this.selectedPlan();
     this.successMessage.set(
-      `Tu suscripción${plan ? ` al plan ${plan.name}` : ''} quedó registrada y finaliza el ${formatDate(subscription.endDate)}.`
+      `Registramos tu pago de ${formatPrice(payment.amount)}${plan ? ` y tu plan ${plan.name} ya está activo` : ''}.`
     );
   }
 
   protected onDialogClosed(needsRefresh: boolean): void {
     this.selectedPlan.set(null);
+    this.selectedPending.set(null);
     if (needsRefresh) {
       this.fetchSubscriptions();
       this.fetchPlans(false);
@@ -158,11 +201,19 @@ export class MembershipPlans implements OnInit {
   // --- helpers de vista ---
   protected formatDate = formatDate;
 
+  /** Tarjeta bloqueada: hay algo vigente o pendiente y esta no es esa tarjeta. */
+  protected isLocked(card: PlanCard): boolean {
+    return this.isBlocked() && !card.isCurrent && !card.isPending;
+  }
+
   protected buttonLabel(card: PlanCard): string {
+    if (card.isPending) {
+      return 'Completar pago';
+    }
     if (card.isCurrent) {
       return 'Plan vigente';
     }
-    return this.activeSubscription() ? 'No disponible' : 'Contratar plan';
+    return this.isBlocked() ? 'No disponible' : 'Contratar plan';
   }
 
   /** El de menor valor por día, solo si realmente hay diferencia entre planes. */

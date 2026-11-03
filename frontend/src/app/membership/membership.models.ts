@@ -25,3 +25,27 @@ export interface Subscription {
   endDate: string; // "YYYY-MM-DD", la calcula el back (inicio + durationDays)
   status: SubscriptionStatus;
 }
+
+export type PaymentMethod = 'EFECTIVO' | 'TARJETA';
+
+export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+  EFECTIVO: 'Efectivo',
+  TARJETA: 'Tarjeta'
+};
+
+export interface Payment {
+  id: number;
+  publicId: string | null;
+  subscriptionId: number; // id numérico de la suscripción (Subscription.id), no el UUID
+  amount: number;
+  paymentDate: string; // "YYYY-MM-DD"
+  method: PaymentMethod;
+}
+
+/** Body de POST /api/payments. */
+export interface PaymentRequest {
+  subscriptionId: string; // UUID de la suscripción (Subscription.publicId)
+  amount: number;
+  paymentDate: string; // "YYYY-MM-DD"
+  method: PaymentMethod;
+}
