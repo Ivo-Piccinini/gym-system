@@ -57,6 +57,22 @@
       />
     </section>
 
+    @if (feedback(); as fb) {
+      <div
+        class="feedback"
+        [class.feedback-success]="fb.kind === 'success'"
+        [class.feedback-warning]="fb.kind === 'warning'"
+        [class.feedback-error]="fb.kind === 'error'"
+        [attr.role]="fb.kind === 'success' ? 'status' : 'alert'"
+      >
+        <div class="feedback-body">
+          <strong class="feedback-title">{{ fb.title }}</strong>
+          <span class="feedback-message">{{ fb.message }}</span>
+        </div>
+        <button type="button" class="feedback-close" (click)="dismissFeedback()" aria-label="Cerrar aviso">×</button>
+      </div>
+    }
+
     @if (isLoading()) {
       <div class="state-card">
         <div class="spinner"></div>
@@ -83,13 +99,44 @@
             </h2>
 
             @for (c of d.classes; track c.externalId) {
-              <div class="class-card" [class.full]="isFull(c)">
-                <span class="class-name">{{ disciplineOf(c) }}</span>
+              <div
+                class="class-card"
+                [class.full]="statusOf(c) === 'full'"
+                [class.enrolled]="statusOf(c) === 'enrolled'"
+              >
+                <div class="class-top">
+                  <span class="class-name">{{ disciplineOf(c) }}</span>
+                  @if (statusOf(c); as status) {
+                    <span class="badge" [attr.data-status]="status">{{ statusLabel(status) }}</span>
+                  }
+                </div>
                 <span class="class-hours">{{ time(c.startTime) }} – {{ time(c.endTime) }}</span>
                 @if (professorName(c)) {
                   <span class="class-prof">Prof. {{ professorName(c) }}</span>
                 }
                 <span class="class-spots">{{ spotsLabel(c) }}</span>
+
+                @if (authService.isClient()) {
+                  @if (enrollmentOf(c)) {
+                    <button
+                      type="button"
+                      class="btn-ghost card-action"
+                      [disabled]="pendingClassId() !== null"
+                      (click)="cancel(c)"
+                    >
+                      {{ pendingClassId() === c.externalId ? 'Cancelando…' : 'Cancelar inscripción' }}
+                    </button>
+                  } @else {
+                    <button
+                      type="button"
+                      class="btn-primary card-action"
+                      [disabled]="pendingClassId() !== null || isFull(c)"
+                      (click)="enroll(c)"
+                    >
+                      {{ pendingClassId() === c.externalId ? 'Inscribiendo…' : 'Inscribirme' }}
+                    </button>
+                  }
+                }
               </div>
             } @empty {
               <p class="day-empty">Sin clases</p>

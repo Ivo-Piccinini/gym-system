@@ -45,3 +45,17 @@ export interface GymClass {
   enrolledCount?: number;
   availableSpots?: number;
 }
+
+export interface Enrollment {
+  externalId: string;
+  gymClass: GymClass;
+  enrollmentDate: string; // "YYYY-MM-DD" (el back siempre guarda la fecha de hoy)
+}
+
+export type ClassStatus = 'enrolled' | 'full' | 'available';
+
+export const STATUS_LABELS: Record<ClassStatus, string> = {
+  enrolled: 'Inscripto',
+  full: 'Cupo completo',
+  available: 'Disponible'
+};

@@ -19,7 +19,6 @@
   z-index: 20;
 }
 
-
 .brand-text {
   display: flex;
   flex-direction: column;
@@ -91,6 +90,61 @@
   border-radius: 8px;
 }
 
+/* ---- alertas de inscripción (GS-34) ---- */
+.feedback {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+  font-size: 0.88rem;
+}
+
+.feedback-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.feedback-title {
+  font-weight: 600;
+}
+
+.feedback-success {
+  background-color: var(--accent-emerald-bg);
+  border-color: var(--accent-emerald-border);
+  color: var(--accent-emerald-text);
+}
+
+.feedback-warning {
+  background-color: var(--accent-amber-bg);
+  border-color: var(--accent-amber-border);
+  color: var(--accent-amber-light);
+}
+
+.feedback-error {
+  background-color: var(--accent-rose-bg);
+  border-color: var(--accent-rose-border);
+  color: var(--accent-rose-text);
+}
+
+.feedback-close {
+  background: transparent;
+  border: none;
+  color: inherit;
+  font-size: 1.2rem;
+  line-height: 1;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+.feedback-close:hover {
+  opacity: 1;
+}
+
+/* ---- estados de la pantalla ---- */
 .state-card {
   display: flex;
   flex-direction: column;
@@ -118,6 +172,7 @@
   color: var(--accent-rose-text);
 }
 
+/* ---- grilla ---- */
 .week-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
@@ -169,6 +224,17 @@
   border-color: var(--accent-rose-border);
 }
 
+.class-card.enrolled {
+  border-color: var(--accent-emerald-border);
+}
+
+.class-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
 .class-name {
   font-size: 0.88rem;
   font-weight: 600;
@@ -195,6 +261,49 @@
 .day-empty {
   font-size: 0.8rem;
   color: var(--text-subtle);
+}
+
+/* ---- badges de estado (GS-33) ---- */
+.badge {
+  flex-shrink: 0;
+  padding: 0.12rem 0.45rem;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge[data-status='enrolled'] {
+  background-color: var(--accent-emerald-bg);
+  border-color: var(--accent-emerald-border);
+  color: var(--accent-emerald-text);
+}
+
+.badge[data-status='full'] {
+  background-color: var(--accent-rose-bg);
+  border-color: var(--accent-rose-border);
+  color: var(--accent-rose-text);
+}
+
+.badge[data-status='available'] {
+  background-color: var(--accent-amber-bg);
+  border-color: var(--accent-amber-border);
+  color: var(--accent-amber-light);
+}
+
+.card-action {
+  margin-top: 0.5rem;
+  width: 100%;
+  justify-content: center;
+  padding-top: 0.4rem;
+  padding-bottom: 0.4rem;
+  font-size: 0.78rem;
+}
+
+.card-action:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
 }
 
 @media (max-width: 640px) {

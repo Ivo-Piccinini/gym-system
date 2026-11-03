@@ -40,10 +40,11 @@
         </svg>
         <span>Panel Admin</span>
       </a>
+    }
       <a routerLink="/clases" class="btn-ghost">
           <span>Clases</span>
         </a>
-      }
+      
 
       @if (authService.isAdmin() || authService.isClient()) {
       <a routerLink="/membresias" class="btn-ghost">
