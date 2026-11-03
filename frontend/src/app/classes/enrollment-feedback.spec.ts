@@ -30,10 +30,10 @@ describe('enrollment-feedback', () => {
     const fb = feedbackForEnrollmentError({ status: 500 });
     expect(fb.message).toContain('error inesperado');
   });
-
+//
   it('should build a cancel error with the server message', () => {
     const fb = feedbackForCancelError({ status: 400, error: { message: 'No te pertenece' } });
     expect(fb.title).toBe('No se pudo cancelar');
     expect(fb.message).toBe('No te pertenece');
   });
-});
+}); 
