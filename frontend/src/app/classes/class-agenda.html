@@ -92,7 +92,11 @@
     } @else {
       <div class="week-grid">
         @for (d of agenda(); track d.apiDay) {
-          <article class="day-column" [class.selected]="d.iso === selectedDate()">
+          <article
+            class="day-column"
+            [class.selected]="d.iso === selectedDate()"
+            (click)="selectDate(d.iso)"
+          >
             <h2 class="day-title">
               <span>{{ d.label }}</span>
               <small>{{ d.date.getDate() }}/{{ d.date.getMonth() + 1 }}</small>
@@ -122,7 +126,7 @@
                       type="button"
                       class="btn-ghost card-action"
                       [disabled]="pendingClassId() !== null"
-                      (click)="cancel(c)"
+                      (click)="$event.stopPropagation(); cancel(c)"
                     >
                       {{ pendingClassId() === c.externalId ? 'Cancelando…' : 'Cancelar inscripción' }}
                     </button>
@@ -131,7 +135,7 @@
                       type="button"
                       class="btn-primary card-action"
                       [disabled]="pendingClassId() !== null || isFull(c)"
-                      (click)="enroll(c)"
+                      (click)="$event.stopPropagation(); enroll(c)"
                     >
                       {{ pendingClassId() === c.externalId ? 'Inscribiendo…' : 'Inscribirme' }}
                     </button>

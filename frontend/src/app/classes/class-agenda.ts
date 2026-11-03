@@ -115,7 +115,11 @@ export class ClassAgenda {
     toObservable(this.selectedDate)
       .pipe(
         tap(() => {
-          this.isLoading.set(true);
+          // El spinner a pantalla completa solo en la primera carga; después la grilla
+          // queda visible mientras se actualizan los datos.
+          if (this.classes().length === 0) {
+            this.isLoading.set(true);
+          }
           this.errorMessage.set(null);
         }),
         switchMap((date) =>
@@ -160,6 +164,11 @@ export class ClassAgenda {
 
   protected goToToday(): void {
     this.selectedDate.set(toIsoDate(new Date()));
+  }
+
+  /** Clic en una columna: ese día pasa a ser la fecha elegida. */
+  protected selectDate(iso: string): void {
+    this.selectedDate.set(iso);
   }
 
   protected retry(): void {

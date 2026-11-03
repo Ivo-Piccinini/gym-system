@@ -193,6 +193,15 @@
   border-radius: 8px;
 }
 
+.day-column {
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.day-column:not(.selected):hover {
+  border-color: var(--text-subtle);
+}
+
 .day-column.selected {
   border-color: var(--accent-amber-border);
 }
