@@ -1,6 +1,7 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './auth/auth.guard';
 import { adminGuard } from './auth/admin.guard';
+import { clientGuard } from './auth/client.guard';
 import { changeCredentialsGuard } from './auth/change-credentials.guard';
 
 export const routes: Routes = [
@@ -24,6 +25,11 @@ export const routes: Routes = [
   canActivate: [authGuard],
   loadComponent: () => import('./classes/class-agenda').then((m) => m.ClassAgenda)
 },
+  {
+    path: 'membresias',
+    canActivate: [authGuard, clientGuard],
+    loadComponent: () => import('./membership/membership-plans').then((m) => m.MembershipPlans)
+  },
   {
     path: 'admin/usuarios',
     canActivate: [authGuard, adminGuard],
