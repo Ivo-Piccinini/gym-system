@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './auth/auth.guard';
+import { roleGuard } from './auth/role.guard';
 import { adminGuard } from './auth/admin.guard';
 import { clientGuard } from './auth/client.guard';
 import { changeCredentialsGuard } from './auth/change-credentials.guard';
@@ -21,23 +22,26 @@ export const routes: Routes = [
     loadComponent: () => import('./profile/profile').then((m) => m.Profile)
   },
   {
-  path: 'clases',
-  canActivate: [authGuard],
-  loadComponent: () => import('./classes/class-agenda').then((m) => m.ClassAgenda)
-},
+    path: 'clases',
+    canActivate: [authGuard],
+    loadComponent: () => import('./classes/class-agenda').then((m) => m.ClassAgenda)
+  },
   {
     path: 'membresias',
-    canActivate: [authGuard, clientGuard],
+    canActivate: [authGuard, roleGuard, clientGuard],
+    data: { roles: ['ROLE_CLIENT', 'ROLE_ADMIN'] },
     loadComponent: () => import('./membership/membership-plans').then((m) => m.MembershipPlans)
   },
   {
     path: 'pagos',
-    canActivate: [authGuard, clientGuard],
+    canActivate: [authGuard, roleGuard, clientGuard],
+    data: { roles: ['ROLE_CLIENT', 'ROLE_ADMIN'] },
     loadComponent: () => import('./membership/payment-history').then((m) => m.PaymentHistory)
   },
   {
     path: 'admin/usuarios',
-    canActivate: [authGuard, adminGuard],
+    canActivate: [authGuard, roleGuard, adminGuard],
+    data: { roles: ['ROLE_ADMIN'] },
     loadComponent: () => import('./admin/users/users-management').then((m) => m.UsersManagement)
   },
   {

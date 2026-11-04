@@ -30,10 +30,10 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
   - Guard funcional `CanActivateFn` para proteger rutas por rol (`ROLE_ADMIN`, `ROLE_PROFESSOR`, `ROLE_CLIENT`).
   - Layout Shell con sidebar/navbar responsivo siguiendo el sistema de diseño (superficies Nivel 0 `bg-[#09090b]` a Nivel 3, cero emojis, iconografía SVG).
 - **Tareas de Desarrollo:**
-  - [ ] `GS-CORE-1`: Configurar `app.config.ts` y estructura de interceptores funcionales (`jwt.interceptor.ts`, `error.interceptor.ts`).
-  - [ ] `GS-CORE-2`: Implementar `auth.guard.ts` y `role.guard.ts` basados en `CanActivateFn` y señales reactivas.
-  - [ ] `GS-CORE-3`: Construir el componente Layout Shell (Navbar / Sidebar responsivo) con tokens del Design System en `src/app/shared/layout/`.
-  - [ ] `GS-CORE-4`: Configurar el enrutador principal en `app.routes.ts` con carga perezosa (*lazy loading*) de features.
+  - [x] `GS-CORE-1`: Configurar `app.config.ts` y estructura de interceptores funcionales (`jwt.interceptor.ts`, `error.interceptor.ts`).
+  - [x] `GS-CORE-2`: Implementar `auth.guard.ts` y `role.guard.ts` basados en `CanActivateFn` y señales reactivas.
+  - [x] `GS-CORE-3`: Construir el componente Layout Shell (Navbar / Sidebar responsivo) con tokens del Design System en `src/app/shared/layout/`.
+  - [x] `GS-CORE-4`: Configurar el enrutador principal en `app.routes.ts` con carga perezosa (*lazy loading*) de features.
 
 ### `[GS-INFRA-DB] Migración de Persistencia a PostgreSQL (Supabase)`
 - **Tipo:** Tarea Técnica de Infraestructura
