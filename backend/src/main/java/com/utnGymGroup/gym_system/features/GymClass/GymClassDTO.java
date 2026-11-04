@@ -46,4 +46,7 @@ public class GymClassDTO {
     @Min(value = 1, message = "La capacidad debe ser al menos 1", groups = {ICreate.class, IUpdate.class})
     @Max(value = 50, message = "La capacidad no puede exceder los 50", groups = {ICreate.class, IUpdate.class})
     private Integer capacityMax;
+
+    private Integer enrolledCount;
+    private Integer availableSpots;
 }

@@ -186,7 +186,8 @@ Todos los endpoints base están prefijados bajo la ruta global `/api/v1`.
 | Método | Endpoint | Acceso | Descripción |
 | :--- | :--- | :--- | :--- |
 | `GET` | `/activities` | Público | Lista el catálogo de disciplinas/actividades del complejo. |
-| `GET` | `/activities/classes` | Público | Retorna la grilla horaria/agenda con cupos dinámicos en tiempo real. |
+| `GET` | `/gym-classes?date=YYYY-MM-DD` | Autenticado (`ADMIN`, `PROFESSOR`, `CLIENT`) | Retorna la grilla horaria con cálculo de cupos (`enrolledCount`, `availableSpots`) para la fecha indicada (por defecto hoy). |
+| `GET` | `/gym-classes/{externalId}` | Autenticado | Detalle de una clase programada por UUID. |
 | `POST` | `/activities/enrollments` | `CLIENT` | Inscribe al cliente en una clase (Aplica validación de cupo y pago). |
 | `DELETE`| `/activities/enrollments/{id}`| `CLIENT` | Cancela la asistencia liberando el cupo inmediatamente. |
 

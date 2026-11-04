@@ -173,7 +173,7 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
 - **Descripción:**
   Como Cliente o Profesor, quiero consultar las clases disponibles con sus cupos libres en tiempo real y filtrarlas para planificar mis horarios.
 - **Criterios de Aceptación:**
-  - Listado de clases consumiendo `GET /api/activities/classes` calculando los cupos libres (`capacity_max` menos inscripciones por fecha).
+  - Listado de clases consumiendo `GET /api/gym-classes?date=YYYY-MM-DD` calculando los cupos libres (`capacity_max` menos inscripciones por fecha, `enrolledCount` y `availableSpots`).
   - Filtros interactivos por día de la semana y por disciplina.
 - **Subtareas Jira:**
   - [ ] `GS-28`: Crear `ClassService` y DTOs de agenda (`class.models.ts`).
