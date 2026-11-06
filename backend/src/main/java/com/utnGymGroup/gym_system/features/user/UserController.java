@@ -3,6 +3,7 @@ package com.utnGymGroup.gym_system.features.user;
 import com.utnGymGroup.gym_system.common.auth.permissions.Roles;
 import com.utnGymGroup.gym_system.common.interfaces.ICreate;
 import com.utnGymGroup.gym_system.common.interfaces.IUpdate;
+import com.utnGymGroup.gym_system.common.auth.dto.AuthResponse;
 import com.utnGymGroup.gym_system.features.user.dtos.*;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -106,7 +107,6 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(userService.userRegister(request));
     }
 
-
     @PutMapping("/{username}")
     @Operation(
             summary = "Actualizar perfil de usuario",
@@ -125,6 +125,41 @@ public class UserController {
             @RequestBody UserDTO request
     ){
         return ResponseEntity.ok(userService.updateUser(username, request));
+    }
+
+    @PatchMapping("/change-password")
+    @Operation(
+            summary = "Cambiar contraseña del usuario autenticado",
+            description = "Actualiza de manera segura la contraseña del usuario logueado validando su clave actual y codificando la nueva contraseña."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Contraseña cambiada con éxito."),
+            @ApiResponse(responseCode = "400", description = "Las contraseñas no coinciden, la clave actual es incorrecta o la nueva contraseña es igual a la anterior.")
+    })
+    public ResponseEntity<Void> changePasswordLoggedUser(
+            @Validated(IUpdate.class)
+            @RequestBody PasswordChangeDTO request
+    ){
+        String username = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        userService.changePassword(username, request);
+        return ResponseEntity.ok().build();
+    }
+
+    @PatchMapping("/change-username")
+    @Operation(
+            summary = "Personalizar nombre de usuario del usuario autenticado",
+            description = "Permite personalizar el nombre de usuario del socio autenticado por primera vez cuando ha sido registrado con su DNI por defecto."
+    )
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Nombre de usuario cambiado con éxito."),
+            @ApiResponse(responseCode = "400", description = "El nuevo nombre de usuario no es válido o ya se encuentra en uso.")
+    })
+    public ResponseEntity<AuthResponse> changeUsernameLoggedUser(
+            @Validated @RequestBody UsernameChangeDTO request
+    ) {
+        String username = org.springframework.security.core.context.SecurityContextHolder.getContext().getAuthentication().getName();
+        AuthResponse response = userService.changeUsername(username, request.newUsername());
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{username}/password")
@@ -148,7 +183,7 @@ public class UserController {
     }
 
     @PatchMapping("/{username}/username")
-    @PreAuthorize("#username == authentication.name") // Solo el propio usuario autenticado puede cambiarse su propio username
+    @PreAuthorize("#username == authentication.name")
     @Operation(
             summary = "Personalizar el nombre de usuario por primera y única vez",
             description = "Permite personalizar el nombre de usuario del socio por primera vez cuando ha sido registrado con su DNI por defecto."
@@ -157,12 +192,12 @@ public class UserController {
             @ApiResponse(responseCode = "200", description = "Nombre de usuario cambiado con éxito."),
             @ApiResponse(responseCode = "400", description = "El nuevo nombre de usuario no es válido o ya se encuentra en uso.")
     })
-    public ResponseEntity<Void> changeUsername(
+    public ResponseEntity<AuthResponse> changeUsername(
             @PathVariable String username,
             @Validated @RequestBody UsernameChangeDTO request
     ) {
-        userService.changeUsername(username, request.newUsername());
-        return ResponseEntity.ok().build();
+        AuthResponse response = userService.changeUsername(username, request.newUsername());
+        return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/status")
@@ -218,4 +253,3 @@ public class UserController {
     }
 
 }
-

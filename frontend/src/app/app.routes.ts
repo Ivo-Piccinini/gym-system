@@ -1,6 +1,9 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './auth/auth.guard';
+import { roleGuard } from './auth/role.guard';
 import { adminGuard } from './auth/admin.guard';
+import { clientGuard } from './auth/client.guard';
+import { changeCredentialsGuard } from './auth/change-credentials.guard';
 
 export const routes: Routes = [
   {
@@ -8,13 +11,37 @@ export const routes: Routes = [
     loadComponent: () => import('./auth/login').then((m) => m.Login)
   },
   {
+    path: 'cambiar-credenciales',
+    canActivate: [changeCredentialsGuard],
+    loadComponent: () =>
+      import('./auth/change-credentials').then((m) => m.ChangeCredentials)
+  },
+  {
     path: 'perfil',
     canActivate: [authGuard],
     loadComponent: () => import('./profile/profile').then((m) => m.Profile)
   },
   {
+    path: 'clases',
+    canActivate: [authGuard],
+    loadComponent: () => import('./classes/class-agenda').then((m) => m.ClassAgenda)
+  },
+  {
+    path: 'membresias',
+    canActivate: [authGuard, roleGuard, clientGuard],
+    data: { roles: ['ROLE_CLIENT', 'ROLE_ADMIN'] },
+    loadComponent: () => import('./membership/membership-plans').then((m) => m.MembershipPlans)
+  },
+  {
+    path: 'pagos',
+    canActivate: [authGuard, roleGuard, clientGuard],
+    data: { roles: ['ROLE_CLIENT', 'ROLE_ADMIN'] },
+    loadComponent: () => import('./membership/payment-history').then((m) => m.PaymentHistory)
+  },
+  {
     path: 'admin/usuarios',
-    canActivate: [authGuard, adminGuard],
+    canActivate: [authGuard, roleGuard, adminGuard],
+    data: { roles: ['ROLE_ADMIN'] },
     loadComponent: () => import('./admin/users/users-management').then((m) => m.UsersManagement)
   },
   {
@@ -24,7 +51,14 @@ export const routes: Routes = [
   },
   {
     path: 'admin/dashboard',
-    redirectTo: 'admin/usuarios',
+    canActivate: [authGuard, roleGuard, adminGuard],
+    data: { roles: ['ROLE_ADMIN'] },
+    loadComponent: () =>
+      import('./admin/dashboard/dashboard-metrics').then((m) => m.DashboardMetricsComponent)
+  },
+  {
+    path: 'admin/metricas',
+    redirectTo: 'admin/dashboard',
     pathMatch: 'full'
   },
   {

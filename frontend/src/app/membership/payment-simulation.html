@@ -1,0 +1,92 @@
+<header class="modal-header">
+  <div class="modal-header-text">
+    <h2 id="subscription-dialog-title" class="modal-title">Registrar pago</h2>
+    <p class="modal-subtitle">Elegí cómo vas a abonar tu plan para activarlo.</p>
+  </div>
+  <button type="button" class="modal-close-btn" (click)="postpone()" [disabled]="isSubmitting()" aria-label="Cerrar ventana">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  </button>
+</header>
+
+<div class="sim-body">
+  <div class="sim-summary">
+    <div class="sim-summary-text">
+      <span class="sim-plan-name">{{ plan().name }}</span>
+      <span class="sim-plan-meta">{{ durationLabel(plan().durationDays) }} de acceso</span>
+    </div>
+    <span class="sim-amount">{{ formatPrice(plan().price) }}</span>
+  </div>
+
+  <fieldset class="method-fieldset" [disabled]="isSubmitting()">
+    <legend class="form-label">Método de pago</legend>
+
+    <div class="method-grid" role="radiogroup" aria-label="Método de pago">
+      @for (option of options; track option.value) {
+        <label class="method-option" [class.selected]="method() === option.value">
+          <input
+            type="radio"
+            class="method-input"
+            name="payment-method"
+            [value]="option.value"
+            [checked]="method() === option.value"
+            (change)="select(option.value)"
+          />
+          <span class="method-icon" aria-hidden="true">
+            @if (option.value === 'EFECTIVO') {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="6" width="20" height="12" rx="2" />
+                <circle cx="12" cy="12" r="2.5" />
+                <path d="M6 12h.01M18 12h.01" />
+              </svg>
+            } @else {
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect x="2" y="5" width="20" height="14" rx="2" />
+                <line x1="2" y1="10" x2="22" y2="10" />
+              </svg>
+            }
+          </span>
+          <span class="method-text">
+            <span class="method-label">{{ option.label }}</span>
+            <span class="method-hint">{{ option.hint }}</span>
+          </span>
+        </label>
+      }
+    </div>
+  </fieldset>
+
+  <p class="sim-note">
+    Es una simulación: no se realiza ningún cobro real ni se te piden datos de tarjeta.
+  </p>
+
+  @if (errorMessage()) {
+    <div class="toast-banner error-banner" role="alert">
+      <div class="toast-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="8" x2="12" y2="12" />
+          <line x1="12" y1="16" x2="12.01" y2="16" />
+        </svg>
+      </div>
+      <div class="toast-content">{{ errorMessage() }}</div>
+    </div>
+  }
+</div>
+
+<footer class="modal-footer">
+  <button type="button" class="btn-ghost" (click)="postpone()" [disabled]="isSubmitting()">
+    Pagar después
+  </button>
+  <button type="button" class="btn-primary" (click)="confirm()" [disabled]="!method() || isSubmitting()">
+    @if (isSubmitting()) {
+      <span class="spinner-sm"></span>
+      <span>Registrando...</span>
+    } @else if (method()) {
+      <span>Pagar {{ formatPrice(plan().price) }} con {{ methodLabel(method()!).toLowerCase() }}</span>
+    } @else {
+      <span>Elegí un método</span>
+    }
+  </button>
+</footer>

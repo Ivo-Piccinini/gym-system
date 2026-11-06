@@ -1,6 +1,7 @@
 package com.utnGymGroup.gym_system.features.user;
 
 import com.utnGymGroup.gym_system.common.auth.credentials.CredentialsEntity;
+import com.utnGymGroup.gym_system.common.auth.dto.AuthResponse;
 import com.utnGymGroup.gym_system.common.auth.dto.NewAccountRequest;
 import com.utnGymGroup.gym_system.common.auth.credentials.CredentialsRepository;
 import com.utnGymGroup.gym_system.common.auth.jwt.JwtService;
@@ -31,6 +32,7 @@ public class UserService {
     private final CredentialsRepository credentialsRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     public List<UserDTO> findAllUsers(Boolean enabled, Roles role){
         if(role != null){
@@ -163,7 +165,7 @@ public class UserService {
     }
 
     @Transactional
-    public void changeUsername(String currentUsername, String newUsername){
+    public AuthResponse changeUsername(String currentUsername, String newUsername){
         CredentialsEntity credentials = credentialsRepository.findByUsername(currentUsername)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + currentUsername));
 
@@ -180,6 +182,8 @@ public class UserService {
 
         credentials.setUsername(newUsername);
         credentialsRepository.save(credentials);
+        String newToken = jwtService.generateToken(credentials);
+        return new AuthResponse(newToken, "Nombre de usuario cambiado con éxito.", false);
     }
 
     @Transactional

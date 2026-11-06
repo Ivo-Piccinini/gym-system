@@ -1,0 +1,48 @@
+.filters-bar {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 1rem 1.25rem;
+}
+
+.filter-discipline {
+  min-width: 220px;
+}
+
+.segmented-control {
+  display: inline-flex;
+  align-items: center;
+  max-width: 100%;
+  overflow-x: auto;
+  background-color: #101217;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.seg-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.78rem;
+  font-weight: 500;
+  font-family: var(--font-body);
+  padding: 0.38rem 0.7rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.seg-btn:hover {
+  color: var(--text-primary);
+}
+
+.seg-btn.active {
+  background-color: #1e222c;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.clear-btn {
+  height: 38px;
+}

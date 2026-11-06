@@ -3,9 +3,9 @@ package com.utnGymGroup.gym_system.features.payment;
 import com.utnGymGroup.gym_system.features.audit.AuditActions;
 import com.utnGymGroup.gym_system.features.audit.Auditable;
 import com.utnGymGroup.gym_system.features.payment.dtos.PaymentRequestDTO;
-import com.utnGymGroup.gym_system.features.payment.dtos.PaymentResponseDto; // 🎯 Importación del DTO de respuesta
-import com.utnGymGroup.gym_system.features.payment.mappers.PaymentRequestMapper; // 🎯 Importación del mapper de entrada
-import com.utnGymGroup.gym_system.features.payment.mappers.PaymentResponseMapper; // 🎯 Importación del mapper de salida
+import com.utnGymGroup.gym_system.features.payment.dtos.PaymentResponseDto;
+import com.utnGymGroup.gym_system.features.payment.mappers.PaymentRequestMapper;
+import com.utnGymGroup.gym_system.features.payment.mappers.PaymentResponseMapper;
 import com.utnGymGroup.gym_system.features.subscription.SubscriptionRepository;
 import com.utnGymGroup.gym_system.features.subscription.SubscriptionEntity;
 import com.utnGymGroup.gym_system.features.subscription.SubscriptionStatus;
@@ -41,7 +41,7 @@ public class PaymentService {
         payment.setPaymentDate(dto.getPaymentDate());
         payment.setMethod(dto.getMethod());
 
-        // Al realizar el pago, la suscripción pasa a estar activa
+       
         subscription.setStatus(SubscriptionStatus.ACTIVE);
         subscriptionRepository.save(subscription);
 

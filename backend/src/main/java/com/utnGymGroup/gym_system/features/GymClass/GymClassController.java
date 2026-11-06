@@ -8,12 +8,14 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 
@@ -26,14 +28,17 @@ public class GymClassController {
     private final GymClassService gymClassService;
 
     @GetMapping
-    @Operation(summary = "Listar todas las clases", description = "Retorna el listado completo de la grilla horaria de clases activas del gimnasio.")
+    @Operation(summary = "Listar todas las clases", description = "Retorna el listado completo de la grilla horaria de clases activas con el cálculo de cupos para la fecha especificada (o la fecha actual si no se indica).")
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Listado de clases obtenido correctamente."),
             @ApiResponse(responseCode = "401", description = "No autenticado.")
     })
     @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR', 'CLIENT')")
-    public ResponseEntity<List<GymClassDTO>> getAllGymClasses() {
-        return ResponseEntity.ok(gymClassService.getAllClasses());
+    public ResponseEntity<List<GymClassDTO>> getAllGymClasses(
+            @Parameter(description = "Fecha para calcular cupos disponibles (opcional, formato YYYY-MM-DD, por defecto fecha de hoy)", example = "2026-11-04")
+            @RequestParam(required = false)
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+        return ResponseEntity.ok(gymClassService.getAllClasses(date));
     }
 
     @GetMapping("/{externalId}")

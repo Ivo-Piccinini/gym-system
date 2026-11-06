@@ -1,6 +1,7 @@
 package com.utnGymGroup.gym_system.features.membership;
 
 import com.utnGymGroup.gym_system.common.interfaces.ICreate;
+import com.utnGymGroup.gym_system.common.interfaces.IUpdate;
 import com.utnGymGroup.gym_system.features.membership.dtos.MembershipRequestDTO;
 import com.utnGymGroup.gym_system.features.membership.dtos.MembershipResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
@@ -56,5 +57,18 @@ public class MembershipController {
     })
     public ResponseEntity<MembershipResponseDto> createMembership(@Validated(ICreate.class) @RequestBody MembershipRequestDTO dto) {
         return ResponseEntity.status(HttpStatus.CREATED).body(membershipService.createMembership(dto));
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    @Operation(summary = "Actualizar plan de membresía y precios", description = "Actualiza los datos y precios de un plan de membresía existente, auditando los cambios. Permitido únicamente para ADMIN.")
+    @ApiResponses(value = {
+            @ApiResponse(responseCode = "200", description = "Membresía actualizada exitosamente"),
+            @ApiResponse(responseCode = "400", description = "Datos de entrada inválidos o nombre duplicado"),
+            @ApiResponse(responseCode = "404", description = "No se encontró el plan de membresía con el ID especificado"),
+            @ApiResponse(responseCode = "403", description = "No tenés permisos para realizar esta acción")
+    })
+    public ResponseEntity<MembershipResponseDto> updateMembership(@PathVariable UUID id, @Validated(IUpdate.class) @RequestBody MembershipRequestDTO dto) {
+        return ResponseEntity.ok(membershipService.updateMembership(id, dto));
     }
 }

@@ -2,8 +2,10 @@ package com.utnGymGroup.gym_system.features.GymClass;
 
 import com.utnGymGroup.gym_system.features.enrollment.EnrollmentRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -23,9 +25,19 @@ public class GymClassService {
 
     @Transactional(readOnly = true)
     public List<GymClassDTO> getAllClasses() {
-        return gymClassRepository.findByActiveTrue().stream()
-                .map(gymClassMapper::convertToDto)
-                .collect(Collectors.toList());
+        return getAllClasses(LocalDate.now());
+    }
+
+    @Transactional(readOnly = true)
+    public List<GymClassDTO> getAllClasses(LocalDate date) {
+        LocalDate targetDate = (date != null) ? date : LocalDate.now();
+        return gymClassRepository.findByActiveTrue().stream().map(gymClass -> {
+            GymClassDTO dto = gymClassMapper.convertToDto(gymClass);
+            int enrolled = (int) enrollmentRepository.countByGymClassIdAndEnrollmentDate(gymClass.getId(), targetDate);
+            dto.setEnrolledCount(enrolled);
+            dto.setAvailableSpots(Math.max(0, gymClass.getCapacityMax() - enrolled));
+            return dto;
+        }).collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)

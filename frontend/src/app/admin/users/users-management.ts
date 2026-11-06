@@ -18,27 +18,22 @@ export class UsersManagement implements OnInit {
   private readonly adminUserService = inject(AdminUserService);
   protected readonly authService = inject(AuthService);
 
-  // Estados reactivos principales
   protected readonly users = signal<AdminUser[]>([]);
   protected readonly isLoading = signal<boolean>(true);
   protected readonly isSaving = signal<boolean>(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly successMessage = signal<string | null>(null);
 
-  // Filtros reactivos
   protected readonly searchTerm = signal<string>('');
   protected readonly selectedRole = signal<'ALL' | UserRole>('ALL');
   protected readonly selectedStatus = signal<'ALL' | 'ACTIVE' | 'INACTIVE'>('ALL');
 
-  // Estado del Modal de Usuario (Alta / Edición)
   protected readonly isUserModalOpen = signal<boolean>(false);
   protected readonly editingUser = signal<AdminUser | null>(null);
 
-  // Estado del Modal de Confirmación de Toggle de Estado
   protected readonly isConfirmModalOpen = signal<boolean>(false);
   protected readonly userToToggle = signal<AdminUser | null>(null);
 
-  // Formulario Reactivo
   protected readonly userForm = this.fb.group({
     firstName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
     lastName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
@@ -49,26 +44,22 @@ export class UsersManagement implements OnInit {
     role: ['ROLE_CLIENT' as UserRole, [Validators.required]]
   });
 
-  // Métricas computadas
   protected readonly totalCount = computed(() => this.users().length);
   protected readonly clientCount = computed(() => this.users().filter((u) => u.role === 'ROLE_CLIENT').length);
   protected readonly professorCount = computed(() => this.users().filter((u) => u.role === 'ROLE_PROFESSOR').length);
   protected readonly activeCount = computed(() => this.users().filter((u) => u.enabled).length);
   protected readonly inactiveCount = computed(() => this.users().filter((u) => !u.enabled).length);
 
-  // Usuarios filtrados dinámicamente
   protected readonly filteredUsers = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
     const roleFilter = this.selectedRole();
     const statusFilter = this.selectedStatus();
 
     return this.users().filter((user) => {
-      // Filtro de rol
       if (roleFilter !== 'ALL' && user.role !== roleFilter) {
         return false;
       }
 
-      // Filtro de estado
       if (statusFilter === 'ACTIVE' && !user.enabled) {
         return false;
       }
@@ -76,7 +67,6 @@ export class UsersManagement implements OnInit {
         return false;
       }
 
-      // Filtro de búsqueda por texto
       if (!term) {
         return true;
       }
@@ -119,7 +109,6 @@ export class UsersManagement implements OnInit {
     });
   }
 
-  // --- Manejo del Modal de Usuario ---
   protected openCreateModal(): void {
     this.editingUser.set(null);
     this.userForm.reset({
@@ -170,7 +159,6 @@ export class UsersManagement implements OnInit {
     const currentUser = this.editingUser();
 
     if (currentUser) {
-      // Modo Edición
       const updateReq: UpdateUserRequest = {
         publicId: currentUser.publicId,
         firstName: formVal.firstName!,
@@ -197,7 +185,6 @@ export class UsersManagement implements OnInit {
         }
       });
     } else {
-      // Modo Creación
       const createReq: CreateUserRequest = {
         firstName: formVal.firstName!,
         lastName: formVal.lastName!,
@@ -223,7 +210,6 @@ export class UsersManagement implements OnInit {
     }
   }
 
-  // --- Manejo del Toggle de Estado (Activar / Desactivar) ---
   protected promptToggleStatus(user: AdminUser): void {
     this.userToToggle.set(user);
     this.isConfirmModalOpen.set(true);
@@ -247,7 +233,6 @@ export class UsersManagement implements OnInit {
         this.cancelToggleStatus();
         const actionLabel = newStatus ? 'activada' : 'desactivada';
         this.showSuccess(`Cuenta de "${user.firstName} ${user.lastName}" ${actionLabel} correctamente.`);
-        // Actualización reactiva local inmediata
         this.users.update((current) =>
           current.map((u) => (u.publicId === user.publicId ? { ...u, enabled: newStatus } : u))
         );
@@ -262,7 +247,6 @@ export class UsersManagement implements OnInit {
     });
   }
 
-  // Filtros interactivos
   protected updateSearch(event: Event): void {
     const target = event.target as HTMLInputElement;
     this.searchTerm.set(target.value);

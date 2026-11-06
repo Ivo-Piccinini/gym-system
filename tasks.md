@@ -30,10 +30,10 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
   - Guard funcional `CanActivateFn` para proteger rutas por rol (`ROLE_ADMIN`, `ROLE_PROFESSOR`, `ROLE_CLIENT`).
   - Layout Shell con sidebar/navbar responsivo siguiendo el sistema de diseño (superficies Nivel 0 `bg-[#09090b]` a Nivel 3, cero emojis, iconografía SVG).
 - **Tareas de Desarrollo:**
-  - [ ] `GS-CORE-1`: Configurar `app.config.ts` y estructura de interceptores funcionales (`jwt.interceptor.ts`, `error.interceptor.ts`).
-  - [ ] `GS-CORE-2`: Implementar `auth.guard.ts` y `role.guard.ts` basados en `CanActivateFn` y señales reactivas.
-  - [ ] `GS-CORE-3`: Construir el componente Layout Shell (Navbar / Sidebar responsivo) con tokens del Design System en `src/app/shared/layout/`.
-  - [ ] `GS-CORE-4`: Configurar el enrutador principal en `app.routes.ts` con carga perezosa (*lazy loading*) de features.
+  - [x] `GS-CORE-1`: Configurar `app.config.ts` y estructura de interceptores funcionales (`jwt.interceptor.ts`, `error.interceptor.ts`).
+  - [x] `GS-CORE-2`: Implementar `auth.guard.ts` y `role.guard.ts` basados en `CanActivateFn` y señales reactivas.
+  - [x] `GS-CORE-3`: Construir el componente Layout Shell (Navbar / Sidebar responsivo) con tokens del Design System en `src/app/shared/layout/`.
+  - [x] `GS-CORE-4`: Configurar el enrutador principal en `app.routes.ts` con carga perezosa (*lazy loading*) de features.
 
 ### `[GS-INFRA-DB] Migración de Persistencia a PostgreSQL (Supabase)`
 - **Tipo:** Tarea Técnica de Infraestructura
@@ -114,8 +114,8 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
   - Formulario reactivo para cambio de clave enviado a `PATCH /api/users/change-password`.
   - Formulario reactivo para cambio de nombre de usuario enviado a `PATCH /api/users/change-username`.
 - **Tareas de Desarrollo:**
-  - [ ] `GS-AUTH-EXT-1`: Crear componente modal / vista de primer login (`change-credentials.ts`).
-  - [ ] `GS-AUTH-EXT-2`: Conectar endpoints de cambio de clave y username en `UserService`.
+  - [x] `GS-AUTH-EXT-1`: Crear componente modal / vista de primer login (`change-credentials.ts`).
+  - [x] `GS-AUTH-EXT-2`: Conectar endpoints de cambio de clave y username en `UserService`.
 
 ---
 
@@ -173,7 +173,7 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
 - **Descripción:**
   Como Cliente o Profesor, quiero consultar las clases disponibles con sus cupos libres en tiempo real y filtrarlas para planificar mis horarios.
 - **Criterios de Aceptación:**
-  - Listado de clases consumiendo `GET /api/activities/classes` calculando los cupos libres (`capacity_max` menos inscripciones por fecha).
+  - Listado de clases consumiendo `GET /api/gym-classes?date=YYYY-MM-DD` calculando los cupos libres (`capacity_max` menos inscripciones por fecha, `enrolledCount` y `availableSpots`).
   - Filtros interactivos por día de la semana y por disciplina.
 - **Subtareas Jira:**
   - [ ] `GS-28`: Crear `ClassService` y DTOs de agenda (`class.models.ts`).
@@ -269,16 +269,16 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
 
 ### `GS-46: Auditoría de Precios y Dashboard de Métricas (Chart.js)`
 - **Tipo:** Historia
-- **Estado:** Por hacer
+- **Estado:** Completada
 - **Descripción:**
   Como Administrador, quiero visualizar la bitácora de cambios de precios auditados por el backend y gráficos de asistencia/cobros para monitorear el desempeño del gimnasio.
 - **Criterios de Aceptación:**
   - Tabla de consulta de logs de auditoría generados por el aspecto AOP (`GET /api/audit/logs`).
   - Panel de métricas interactivo utilizando `Chart.js` (`ng2-charts`) para representar cobros y aforo de clases.
 - **Subtareas Jira:**
-  - [ ] `GS-47`: Instalar y configurar `chart.js` y `ng2-charts` en Angular.
-  - [ ] `GS-48`: Crear componente Dashboard con gráficos estadísticos de ocupación y recaudación.
-  - [ ] `GS-49`: Implementar tabla de visor forense de auditoría AOP con detalles JSON.
+  - [x] `GS-47`: Instalar y configurar `chart.js` y `ng2-charts` en Angular.
+  - [x] `GS-48`: Crear componente Dashboard con gráficos estadísticos de ocupación y recaudación.
+  - [x] `GS-49`: Implementar tabla de visor forense de auditoría AOP con detalles JSON.
 
 ---
 

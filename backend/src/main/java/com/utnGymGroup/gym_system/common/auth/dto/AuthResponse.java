@@ -8,7 +8,12 @@ public record AuthResponse(
         String token,
         
         @Schema(description = "Mensaje aclaratorio del estado de autenticación", example = "Autenticación exitosa")
-        String message
-) {
-}
+        String message,
 
+        @Schema(description = "Indica si el usuario debe actualizar obligatoriamente sus credenciales temporales")
+        Boolean requiresPasswordChange
+) {
+    public AuthResponse(String token, String message) {
+        this(token, message, false);
+    }
+}

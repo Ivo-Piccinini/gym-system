@@ -37,7 +37,6 @@ public class AuthService {
         String message = isFirstLogin
                 ? "Por seguridad, debes cambiar tu nombre de usuario y contraseña en tu primer ingreso."
                 : "Inicio de sesión exitoso.";
-        // 5. Devolver el DTO final armado
-        return new AuthResponse(token, message);
+        return new AuthResponse(token, message, isFirstLogin);
     }
 }

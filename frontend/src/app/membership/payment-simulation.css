@@ -1,0 +1,169 @@
+:host {
+  display: flex;
+  flex-direction: column;
+}
+
+.sim-body {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem 1.4rem;
+}
+
+.sim-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.95rem 1rem;
+  background-color: #0c0d11;
+  border: 1px solid var(--border-glass);
+  border-radius: 8px;
+}
+
+.sim-summary-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.sim-plan-name {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.sim-plan-meta {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+}
+
+.sim-amount {
+  font-family: var(--font-display);
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--accent-amber-light);
+  font-variant-numeric: tabular-nums;
+}
+
+/* --- selector de método --- */
+.method-fieldset {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  border: none;
+  min-width: 0;
+}
+
+.method-fieldset legend {
+  padding: 0;
+  margin-bottom: 0.5rem;
+}
+
+.method-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.method-option {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.85rem 0.95rem;
+  background-color: #0c0d11;
+  border: 1px solid #242833;
+  border-radius: 8px;
+  cursor: pointer;
+  color: var(--text-body);
+}
+
+.method-option:hover {
+  border-color: #2e3341;
+  background-color: #11131a;
+}
+
+.method-option.selected {
+  border-color: var(--accent-amber);
+  background-color: var(--accent-amber-bg);
+}
+
+.method-option:focus-within {
+  border-color: var(--accent-amber-light);
+}
+
+/* El radio nativo queda accesible (teclado y lector) pero oculto visualmente */
+.method-input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+  pointer-events: none;
+}
+
+.method-icon {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  background-color: #161820;
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+}
+
+.method-option.selected .method-icon {
+  color: var(--accent-amber-light);
+  border-color: var(--accent-amber-border);
+}
+
+.method-icon svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.method-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.method-label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.method-hint {
+  font-size: 0.76rem;
+  color: var(--text-muted);
+}
+
+.method-fieldset:disabled .method-option {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.sim-note {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.45;
+}
+
+@media (max-width: 480px) {
+  .method-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sim-summary {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}

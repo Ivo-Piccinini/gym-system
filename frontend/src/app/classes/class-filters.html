@@ -1,0 +1,46 @@
+<div class="filters-bar">
+  <div class="form-group filter-discipline">
+    <label for="discipline-filter" class="form-label">Disciplina</label>
+    <select
+      id="discipline-filter"
+      class="form-select"
+      (change)="onDisciplineChange($event)"
+    >
+      <option value="" [selected]="!discipline()">Todas las disciplinas</option>
+      @for (name of disciplines(); track name) {
+        <option [value]="name" [selected]="name === discipline()">{{ name }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="form-group">
+    <span class="form-label">Día de la semana</span>
+    <div class="segmented-control" role="group" aria-label="Filtro por día">
+      <button
+        type="button"
+        class="seg-btn"
+        [class.active]="!day()"
+        (click)="setDay('')"
+      >
+        Todos
+      </button>
+      @for (d of days; track d.value) {
+        <button
+          type="button"
+          class="seg-btn"
+          [class.active]="day() === d.value"
+          [attr.title]="d.label"
+          (click)="setDay(d.value)"
+        >
+          {{ d.short }}
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (hasActiveFilters()) {
+    <button type="button" class="btn-ghost clear-btn" (click)="clear()">
+      Limpiar filtros
+    </button>
+  }
+</div>

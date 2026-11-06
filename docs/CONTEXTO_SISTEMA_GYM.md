@@ -169,6 +169,8 @@ Todos los endpoints base están prefijados bajo la ruta global `/api/v1`.
 | `POST` | `/auth/register` | Público | Registro autónomo de clientes. Asigna automáticamente `ROLE_CLIENT`. |
 | `GET` | `/users/me` | Autenticado | Obtiene los detalles de cuenta y perfil del usuario logueado. |
 | `PATCH` | `/users/me` | Autenticado | Modificación parcial de datos personales en `ProfileEntity`. |
+| `PATCH` | `/users/change-password` | Autenticado | Actualización segura de contraseña para usuario logueado. |
+| `PATCH` | `/users/change-username` | Autenticado | Personalización obligatoria de username para usuarios con credenciales temporales. |
 | `POST` | `/admin/users/staff` | `ADMIN` | Alta manual de usuarios internos con roles `PROFESSOR` o `ADMIN`. |
 | `GET` | `/admin/profiles/{publicId}`| `ADMIN` | Obtiene el perfil detallado de cualquier usuario mediante su UUID. |
 
@@ -176,7 +178,10 @@ Todos los endpoints base están prefijados bajo la ruta global `/api/v1`.
 | Método | Endpoint | Acceso | Descripción |
 | :--- | :--- | :--- | :--- |
 | `GET` | `/membership/plans` | Público | Lista todos los planes comerciales del gimnasio. |
+| `POST` | `/memberships` | `ADMIN` | Registra un nuevo plan comercial de membresía. |
+| `PUT` | `/memberships/{id}` | `ADMIN` | Modifica un plan existente y audita cambios de precio con AOP (`UPDATE_PLAN`). |
 | `POST` | `/membership/subscriptions`| `CLIENT` | Contrata/compra un plan utilizando el `publicId` del plan. |
+| `GET` | `/payments` | `ADMIN` | Historial global de cobros y recaudación del gimnasio. |
 | `POST` | `/membership/payments` | `CLIENT` / `ADMIN` | Registra la transacción de cobro vinculada a la suscripción. |
 | `GET` | `/membership/my-status` | `CLIENT` | Retorna los días restantes y estado de la suscripción actual. |
 
@@ -184,7 +189,8 @@ Todos los endpoints base están prefijados bajo la ruta global `/api/v1`.
 | Método | Endpoint | Acceso | Descripción |
 | :--- | :--- | :--- | :--- |
 | `GET` | `/activities` | Público | Lista el catálogo de disciplinas/actividades del complejo. |
-| `GET` | `/activities/classes` | Público | Retorna la grilla horaria/agenda con cupos dinámicos en tiempo real. |
+| `GET` | `/gym-classes?date=YYYY-MM-DD` | Autenticado (`ADMIN`, `PROFESSOR`, `CLIENT`) | Retorna la grilla horaria con cálculo de cupos (`enrolledCount`, `availableSpots`) para la fecha indicada (por defecto hoy). |
+| `GET` | `/gym-classes/{externalId}` | Autenticado | Detalle de una clase programada por UUID. |
 | `POST` | `/activities/enrollments` | `CLIENT` | Inscribe al cliente en una clase (Aplica validación de cupo y pago). |
 | `DELETE`| `/activities/enrollments/{id}`| `CLIENT` | Cancela la asistencia liberando el cupo inmediatamente. |
 
@@ -194,6 +200,11 @@ Todos los endpoints base están prefijados bajo la ruta global `/api/v1`.
 | `GET` | `/exercises` | Autenticado | Lista el catálogo de ejercicios maestros disponibles. |
 | `POST` | `/routines` | `PROFESSOR` | Crea una nueva rutina estructurada asignándola a un cliente. |
 | `GET` | `/routines/my-routine` | `CLIENT` | Retorna la rutina actual vigente del cliente logueado. |
+
+### Módulo Admin & Auditoría Forense (AOP)
+| Método | Endpoint | Acceso | Descripción |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/audit/logs` | `ADMIN` | Consulta la bitácora cronológica descendente de eventos auditados por AOP (`audit_logs`). |
 
 ---
 

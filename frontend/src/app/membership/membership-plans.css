@@ -1,0 +1,338 @@
+.membership-container {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--bg-base);
+  color: var(--text-body);
+  font-family: var(--font-body);
+}
+
+.membership-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.85rem 2rem;
+  background-color: #090a0e;
+  border-bottom: 1px solid var(--border-subtle);
+  position: sticky;
+  top: 0;
+  z-index: 20;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.brand-logo {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background-color: #12141c;
+  border: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-primary);
+}
+
+.brand-logo svg {
+  width: 20px;
+  height: 20px;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+}
+
+.brand-title {
+  font-family: var(--font-display);
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.01em;
+}
+
+.brand-subtitle {
+  font-size: 0.7rem;
+  color: var(--accent-amber);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.membership-main {
+  flex: 1;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 2.25rem 1.5rem 4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.membership-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+
+.membership-subtitle {
+  margin-top: 0.25rem;
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+/* --- aviso de membresía activa (bloqueo visual) --- */
+.lock-notice {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 1rem 1.15rem;
+  background-color: var(--accent-amber-bg);
+  border: 1px solid var(--accent-amber-border);
+  border-radius: 8px;
+}
+
+.lock-icon {
+  color: var(--accent-amber-light);
+  flex-shrink: 0;
+  margin-top: 0.1rem;
+}
+
+.lock-icon svg {
+  width: 18px;
+  height: 18px;
+  display: block;
+}
+
+.lock-title {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.lock-text {
+  margin-top: 0.2rem;
+  font-size: 0.84rem;
+  line-height: 1.45;
+  color: var(--text-body);
+}
+
+.lock-text strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* --- estados --- */
+.state-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 3.5rem 2rem;
+  text-align: center;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+}
+
+.state-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.state-text {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.error-state .state-title {
+  color: var(--accent-rose-text);
+}
+
+/* --- tarjetas de planes --- */
+.plans-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.plan-card {
+  display: flex;
+  flex-direction: column;
+  gap: 1.15rem;
+  padding: 1.5rem;
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 8px;
+}
+
+.plan-card:hover:not(.locked) {
+  border-color: #2e3341;
+}
+
+.plan-card.best {
+  border-color: var(--accent-amber-border);
+}
+
+.plan-card.current {
+  border-color: var(--accent-emerald-border);
+}
+
+.plan-card.locked {
+  opacity: 0.55;
+}
+
+.plan-top {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+/* Reserva el alto del badge para que todas las tarjetas alineen aunque no lo tengan */
+.plan-badges {
+  min-height: 1.55rem;
+}
+
+.plan-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+}
+
+.badge-best {
+  background-color: var(--accent-amber-bg);
+  border-color: var(--accent-amber-border);
+  color: var(--accent-amber-light);
+}
+
+.badge-current {
+  background-color: var(--accent-emerald-bg);
+  border-color: var(--accent-emerald-border);
+  color: var(--accent-emerald-text);
+}
+
+.plan-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.plan-price {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+}
+
+.price-amount {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.price-period {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.plan-specs {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding-top: 0.35rem;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.spec-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid #161822;
+}
+
+.spec-row:last-child {
+  border-bottom: none;
+}
+
+.spec-term {
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.spec-value {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-primary);
+  font-variant-numeric: tabular-nums;
+}
+
+.plan-action {
+  width: 100%;
+  padding: 0.65rem 1.15rem;
+}
+
+.plan-action svg {
+  width: 15px;
+  height: 15px;
+}
+
+.lock-notice .lock-action {
+  margin-left: auto;
+  flex-shrink: 0;
+  align-self: center;
+}
+
+.badge-pending {
+  background-color: var(--accent-amber-bg);
+  border-color: var(--accent-amber-border);
+  color: var(--accent-amber-light);
+}
+
+.plan-card.pending {
+  border-color: var(--accent-amber-border);
+}
+
+@media (max-width: 640px) {
+  .lock-notice {
+    flex-wrap: wrap;
+  }
+
+  .lock-notice .lock-action {
+    margin-left: 0;
+    width: 100%;
+  }
+
+  .membership-navbar {
+    padding: 0.75rem 1rem;
+  }
+
+  .membership-main {
+    padding: 1.5rem 1rem 3rem;
+  }
+}
