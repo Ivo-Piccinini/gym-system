@@ -1,4 +1,4 @@
-﻿markdown_content = """# Contexto Consolidado del Proyecto: Sistema Gym (Backend Spring Boot)
+markdown_content = """# Contexto Consolidado del Proyecto: Sistema Gym (Backend Spring Boot)
 
 Este documento sirve como la **Fuente Única de Verdad (Single Source of Truth)** para el desarrollo, mantenimiento e integraciones avanzadas del backend del **Sistema Gym**. Consolida todos los requisitos funcionales, el diseño de la base de datos relacional (DER), las especificaciones de la API (OpenAPI), los estándares de validación de DTOs y la arquitectura interna bajo las directrices académicas de la UTN.
 
@@ -178,7 +178,10 @@ Todos los endpoints base están prefijados bajo la ruta global `/api/v1`.
 | Método | Endpoint | Acceso | Descripción |
 | :--- | :--- | :--- | :--- |
 | `GET` | `/membership/plans` | Público | Lista todos los planes comerciales del gimnasio. |
+| `POST` | `/memberships` | `ADMIN` | Registra un nuevo plan comercial de membresía. |
+| `PUT` | `/memberships/{id}` | `ADMIN` | Modifica un plan existente y audita cambios de precio con AOP (`UPDATE_PLAN`). |
 | `POST` | `/membership/subscriptions`| `CLIENT` | Contrata/compra un plan utilizando el `publicId` del plan. |
+| `GET` | `/payments` | `ADMIN` | Historial global de cobros y recaudación del gimnasio. |
 | `POST` | `/membership/payments` | `CLIENT` / `ADMIN` | Registra la transacción de cobro vinculada a la suscripción. |
 | `GET` | `/membership/my-status` | `CLIENT` | Retorna los días restantes y estado de la suscripción actual. |
 
@@ -197,6 +200,11 @@ Todos los endpoints base están prefijados bajo la ruta global `/api/v1`.
 | `GET` | `/exercises` | Autenticado | Lista el catálogo de ejercicios maestros disponibles. |
 | `POST` | `/routines` | `PROFESSOR` | Crea una nueva rutina estructurada asignándola a un cliente. |
 | `GET` | `/routines/my-routine` | `CLIENT` | Retorna la rutina actual vigente del cliente logueado. |
+
+### Módulo Admin & Auditoría Forense (AOP)
+| Método | Endpoint | Acceso | Descripción |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/audit/logs` | `ADMIN` | Consulta la bitácora cronológica descendente de eventos auditados por AOP (`audit_logs`). |
 
 ---
 

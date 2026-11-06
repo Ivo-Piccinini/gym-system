@@ -46,6 +46,19 @@ public class MembershipService {
         return responseMapper.convertToDto(membershipRepository.save(entity));
     }
 
+    @Auditable(AuditActions.UPDATE_PLAN)
+    @Transactional
+    public MembershipResponseDto updateMembership(UUID id, MembershipRequestDTO dto) {
+        MembershipEntity entity = membershipRepository.findByPublicId(id)
+                .orElseThrow(() -> new MembershipNotFoundException("No se encontró el plan de membresía con ID: " + id));
 
+        if (!entity.getName().equalsIgnoreCase(dto.getName()) && membershipRepository.existsByName(dto.getName())) {
+            throw new MembershipAlreadyExistsException("Ya existe un plan con el nombre: " + dto.getName());
+        }
 
+        entity.setName(dto.getName());
+        entity.setPrice(dto.getPrice());
+        entity.setDurationDays(dto.getDurationDays());
+        return responseMapper.convertToDto(membershipRepository.save(entity));
+    }
 }

@@ -51,7 +51,14 @@ export const routes: Routes = [
   },
   {
     path: 'admin/dashboard',
-    redirectTo: 'admin/usuarios',
+    canActivate: [authGuard, roleGuard, adminGuard],
+    data: { roles: ['ROLE_ADMIN'] },
+    loadComponent: () =>
+      import('./admin/dashboard/dashboard-metrics').then((m) => m.DashboardMetricsComponent)
+  },
+  {
+    path: 'admin/metricas',
+    redirectTo: 'admin/dashboard',
     pathMatch: 'full'
   },
   {

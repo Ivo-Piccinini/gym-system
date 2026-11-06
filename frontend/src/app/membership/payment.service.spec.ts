@@ -66,4 +66,16 @@ describe('PaymentService', () => {
 
     expect(result).toEqual([mockPayment]);
   });
+
+  it('getAllPayments hace GET a /payments (ROLE_ADMIN)', () => {
+    let result: Payment[] | undefined;
+
+    service.getAllPayments().subscribe((p) => (result = p));
+
+    const req = httpTesting.expectOne(`${environment.apiUrl}/payments`);
+    expect(req.request.method).toBe('GET');
+    req.flush([mockPayment]);
+
+    expect(result).toEqual([mockPayment]);
+  });
 });

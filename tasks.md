@@ -1,4 +1,4 @@
-﻿# Plan Maestro de Tareas — Gym System (tasks.md)
+# Plan Maestro de Tareas — Gym System (tasks.md)
 
 Este documento consolida **todas las Historias de Usuario y Subtareas existentes en el tablero de Jira**, integrando además las **tareas arquitectónicas y de negocio complementarias** necesarias para que el Frontend (Angular) y el Backend (Spring Boot) encastren al 100% y se logre la finalización total del proyecto.
 
@@ -269,16 +269,16 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
 
 ### `GS-46: Auditoría de Precios y Dashboard de Métricas (Chart.js)`
 - **Tipo:** Historia
-- **Estado:** Por hacer
+- **Estado:** Completada
 - **Descripción:**
   Como Administrador, quiero visualizar la bitácora de cambios de precios auditados por el backend y gráficos de asistencia/cobros para monitorear el desempeño del gimnasio.
 - **Criterios de Aceptación:**
   - Tabla de consulta de logs de auditoría generados por el aspecto AOP (`GET /api/audit/logs`).
   - Panel de métricas interactivo utilizando `Chart.js` (`ng2-charts`) para representar cobros y aforo de clases.
 - **Subtareas Jira:**
-  - [ ] `GS-47`: Instalar y configurar `chart.js` y `ng2-charts` en Angular.
-  - [ ] `GS-48`: Crear componente Dashboard con gráficos estadísticos de ocupación y recaudación.
-  - [ ] `GS-49`: Implementar tabla de visor forense de auditoría AOP con detalles JSON.
+  - [x] `GS-47`: Instalar y configurar `chart.js` y `ng2-charts` en Angular.
+  - [x] `GS-48`: Crear componente Dashboard con gráficos estadísticos de ocupación y recaudación.
+  - [x] `GS-49`: Implementar tabla de visor forense de auditoría AOP con detalles JSON.
 
 ---
 

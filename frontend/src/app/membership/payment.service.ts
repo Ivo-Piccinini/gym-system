@@ -25,4 +25,9 @@ export class PaymentService {
   getMyPayments(): Observable<Payment[]> {
     return this.http.get<Payment[]>(`${this.baseUrl}/my-payments`);
   }
+
+  /** Historial global de pagos (ROLE_ADMIN). */
+  getAllPayments(): Observable<Payment[]> {
+    return this.http.get<Payment[]>(this.baseUrl);
+  }
 }
