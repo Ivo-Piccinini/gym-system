@@ -387,3 +387,68 @@ button, input, select, textarea {
   color: var(--accent-rose-text);
   font-weight: 500;
 }
+
+/* --- ADMIN / PROFILE NAVBAR COMPARTIDO --- */
+.admin-navbar, .profile-navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.95rem 2rem;
+  background-color: #090a0e;
+  border-bottom: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  position: sticky;
+  top: 0;
+  z-index: 30;
+}
+
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+.brand-logo {
+  width: 36px;
+  height: 36px;
+  background-color: #12141c;
+  border: 1px solid var(--border-subtle, rgba(255, 255, 255, 0.08));
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.brand-logo svg {
+  width: 20px;
+  height: 20px;
+}
+
+.brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+}
+
+.brand-title {
+  font-family: var(--font-display, inherit);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #ffffff;
+  letter-spacing: -0.01em;
+  line-height: 1.15;
+}
+
+.brand-subtitle {
+  font-size: 0.68rem;
+  color: #fbbf24;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.navbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}

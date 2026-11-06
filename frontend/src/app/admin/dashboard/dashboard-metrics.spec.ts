@@ -166,9 +166,10 @@ describe('DashboardMetricsComponent', () => {
     });
   });
 
-  it('maneja error cuando falla la carga de datos', () => {
+  it('maneja error de forma resiliente cuando falla una petición', () => {
     paymentServiceMock.getAllPayments.mockReturnValue(throwError(() => new Error('Error de conexión')));
     component.loadAllData();
-    expect((component as any).errorMessage()).toContain('Ocurrió un error al cargar las métricas');
+    expect((component as any).isLoading()).toBe(false);
+    expect((component as any).payments()).toEqual([]);
   });
 });
