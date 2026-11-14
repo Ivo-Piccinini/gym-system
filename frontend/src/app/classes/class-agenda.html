@@ -24,6 +24,22 @@
       </div>
     </section>
 
+    @if (authService.isAdmin()) {
+      <div class="admin-mode-banner" role="status">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="16" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12.01" y2="8" />
+        </svg>
+        <div class="banner-content">
+          <strong class="banner-title">Modo Administrador (Vista de solo lectura)</strong>
+          <span class="banner-text">
+            Como administrador podés consultar la grilla y ocupación de clases. La reserva de cupos está restringida a socios con membresía activa.
+          </span>
+        </div>
+      </div>
+    }
+
     <section class="filters-section">
       <app-class-filters
         [disciplines]="disciplines()"
@@ -95,7 +111,15 @@
                 }
                 <span class="class-spots">{{ spotsLabel(c) }}</span>
 
-                @if (authService.isClient()) {
+                @if (authService.isAdmin()) {
+                  <div class="admin-view-tag" title="Los administradores no pueden inscribirse a clases">
+                    <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+                    </svg>
+                    <span>Solo lectura (Admin)</span>
+                  </div>
+                } @else if (authService.isClient()) {
                   @if (enrollmentOf(c)) {
                     <button
                       type="button"

@@ -190,6 +190,14 @@ export class ClassAgenda {
 
   // --- acciones: inscripción (GS-32) ---
   protected enroll(c: GymClass): void {
+    if (this.authService.isAdmin() || !this.authService.isClient()) {
+      this.showFeedback({
+        kind: 'warning',
+        title: 'Acción no permitida',
+        message: 'Los administradores no pueden inscribirse a clases. Esta acción es exclusiva para socios.'
+      });
+      return;
+    }
     if (this.pendingClassId() !== null) {
       return;
     }
@@ -220,6 +228,9 @@ export class ClassAgenda {
   }
 
   protected cancel(c: GymClass): void {
+    if (this.authService.isAdmin() || !this.authService.isClient()) {
+      return;
+    }
     const enrollment = this.enrollmentOf(c);
     if (!enrollment || this.pendingClassId() !== null) {
       return;

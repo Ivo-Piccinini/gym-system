@@ -16,6 +16,8 @@ import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -36,6 +38,7 @@ public class PaymentService {
     @Auditable(AuditActions.PROCESS_PAYMENT)
     @Transactional
     public PaymentResponseDto createPayment(PaymentRequestDTO dto) {
+        assertNotAdminUser();
         SubscriptionEntity subscription = subscriptionRepository.findByPublicId(dto.getSubscriptionId())
                 .orElseThrow(() -> new SubscriptionNotFoundException("No se encontró la suscripción con ID: " + dto.getSubscriptionId()));
 
@@ -128,6 +131,7 @@ public class PaymentService {
     }
 
     public List<PaymentResponseDto> getMyPayments() {
+        assertNotAdminUser();
         UserEntity user = userService.getAuthenticatedUserEntity();
         return paymentRepository.findBySubscriptionUser(user)
                 .stream()
@@ -151,5 +155,16 @@ public class PaymentService {
         } catch (Exception ignored) {
         }
         return "admin";
+    }
+
+    private void assertNotAdminUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getAuthorities() != null) {
+            boolean isAdmin = auth.getAuthorities().stream()
+                    .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+            if (isAdmin) {
+                throw new IllegalStateException("Los administradores no pueden registrar pagos de membresías personales.");
+            }
+        }
     }
 }

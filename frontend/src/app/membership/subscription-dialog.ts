@@ -73,6 +73,10 @@ export class SubscriptionDialog implements OnInit {
 
   // --- paso 1: suscripción ---
   protected confirm(): void {
+    if (this.authService.isAdmin() || !this.authService.isClient()) {
+      this.errorMessage.set('Los administradores no pueden contratar membresías personales.');
+      return;
+    }
     if (this.isSubmitting()) {
       return;
     }
@@ -98,6 +102,10 @@ export class SubscriptionDialog implements OnInit {
 
   // --- paso 2: pago ---
   protected pay(method: PaymentMethod): void {
+    if (this.authService.isAdmin() || !this.authService.isClient()) {
+      this.paymentError.set('Los administradores no pueden registrar pagos de membresías personales.');
+      return;
+    }
     const subscription = this.result();
     if (!subscription || this.isPaying()) {
       return;

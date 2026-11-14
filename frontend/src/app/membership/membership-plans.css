@@ -93,6 +93,51 @@
 }
 
 /* --- aviso de membresía activa (bloqueo visual) --- */
+.admin-mode-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  background: rgba(245, 158, 11, 0.08);
+  border: 1px solid rgba(245, 158, 11, 0.25);
+  border-radius: 8px;
+  padding: 0.85rem 1.1rem;
+  margin-bottom: 1.25rem;
+  color: #fbbf24;
+}
+
+.admin-mode-banner svg {
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+  color: #f59e0b;
+}
+
+.admin-mode-banner .banner-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.admin-mode-banner .banner-title {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #fbbf24;
+}
+
+.admin-mode-banner .banner-text {
+  font-size: 0.78rem;
+  color: #d4d4d8;
+  line-height: 1.4;
+}
+
+.admin-banner-link {
+  color: #fbbf24;
+  text-decoration: underline;
+  font-weight: 600;
+}
+.admin-banner-link:hover {
+  color: #f59e0b;
+}
+
 .lock-notice {
   display: flex;
   align-items: flex-start;

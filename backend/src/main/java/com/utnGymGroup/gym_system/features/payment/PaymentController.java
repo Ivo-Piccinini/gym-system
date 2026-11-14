@@ -37,7 +37,7 @@ public class PaymentController {
     }
 
     @GetMapping("/my-payments")
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasRole('CLIENT') and !hasRole('ADMIN')")
     @Operation(summary = "Obtener pagos del cliente autenticado", description = "Devuelve el historial de pagos pertenecientes al cliente que realiza la petición. Permitido para CLIENT.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Historial del cliente obtenido correctamente"),
@@ -48,7 +48,7 @@ public class PaymentController {
     }
 
     @PostMapping
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasRole('CLIENT') and !hasRole('ADMIN')")
     @Operation(summary = "Registrar un nuevo pago", description = "Registra un pago asociado a una suscripción del cliente. Permitido para CLIENT.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Pago registrado exitosamente"),

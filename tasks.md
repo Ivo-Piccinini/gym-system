@@ -222,6 +222,24 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
   - [ ] `GS-CLASS-ADMIN-1`: Crear componente de administración de clases y actividades (`class-admin.ts`).
   - [ ] `GS-CLASS-ADMIN-2`: Implementar modal con la lista de socios inscriptos por clase.
 
+### `[GS-RESTRICT-ADMIN-OPERATIONS] Restricción de Operaciones de Socio (Inscripción a Clases y Contratación de Planes) para Administradores`
+- **Tipo:** Historia / Regla de Negocio
+- **Estado:** Completada
+- **Descripción:**
+  Como Administrador del gimnasio, quiero que el sistema restrinja mi cuenta para que no pueda inscribirme a clases ni contratar planes de membresía como usuario, manteniendo mi rol estrictamente en gestión y consulta comercial.
+- **Criterios de Aceptación:**
+  - Control de seguridad backend en `EnrollmentController`, `SubscriptionController` y `PaymentController`: `@PreAuthorize("hasRole('CLIENT') and !hasRole('ADMIN')")`.
+  - Validación de regla de negocio en `EnrollmentService`, `SubscriptionService` y `PaymentService`: denegar con `IllegalStateException` descriptiva si el usuario posee rol `ROLE_ADMIN`.
+  - Frontend `ClassAgenda`: banner informativo de *Modo Administrador (Vista de solo lectura)*, sustitución de botones de inscripción por etiqueta de solo lectura y bloqueo defensivo en TypeScript.
+  - Frontend `MembershipPlans`: banner informativo de *Modo Administrador (Catálogo comercial)*, botones de contratación deshabilitados con etiqueta `Solo para socios (Admin)`, bloqueo defensivo de apertura de diálogo y en `SubscriptionDialog`.
+  - Suites de tests unitarios completas en backend (`EnrollmentServiceTest`, `PaymentServiceTest`) y frontend (`class-agenda.spec.ts`, `membership-plans.spec.ts`).
+- **Tareas de Desarrollo:**
+  - [x] `GS-RESTRICT-ADMIN-1`: Reforzar autorización en `EnrollmentController`, `SubscriptionController`, `PaymentController` y reglas en servicios.
+  - [x] `GS-RESTRICT-ADMIN-2`: Crear suite de pruebas JUnit 5 `EnrollmentServiceTest` y ampliar `PaymentServiceTest`.
+  - [x] `GS-RESTRICT-ADMIN-3`: Integrar banner y etiqueta de solo lectura en `ClassAgenda` e implementar guard defensivo en frontend.
+  - [x] `GS-RESTRICT-ADMIN-4`: Integrar banner de catálogo comercial y deshabilitación en `MembershipPlans` y `SubscriptionDialog`.
+  - [x] `GS-RESTRICT-ADMIN-5`: Crear suite de pruebas unitarias Vitest `class-agenda.spec.ts` y `membership-plans.spec.ts`.
+
 ---
 
 ## Épica 4: Gestión de Rutinas y Seguimiento

@@ -217,4 +217,23 @@ class PaymentServiceTest {
         verify(subscriptionRepository).save(subscription);
         verify(paymentRepository).save(payment);
     }
+
+    @Test
+    @DisplayName("Debe rechazar la creación de pagos si el usuario autenticado posee rol ROLE_ADMIN")
+    void createPayment_throwsIllegalStateException_whenUserIsAdmin() {
+        var auth = new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(
+                "admin", null, java.util.List.of(new org.springframework.security.core.authority.SimpleGrantedAuthority("ROLE_ADMIN"))
+        );
+        org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(auth);
+        try {
+            PaymentRequestDTO dto = new PaymentRequestDTO();
+            dto.setSubscriptionId(subscriptionId);
+            IllegalStateException ex = assertThrows(IllegalStateException.class, () ->
+                    paymentService.createPayment(dto)
+            );
+            assertTrue(ex.getMessage().contains("Los administradores no pueden registrar pagos"));
+        } finally {
+            org.springframework.security.core.context.SecurityContextHolder.clearContext();
+        }
+    }
 }

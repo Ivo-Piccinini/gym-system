@@ -9,6 +9,22 @@
       </p>
     </section>
 
+    @if (authService.isAdmin()) {
+      <div class="admin-mode-banner" role="status">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="16" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12.01" y2="8" />
+        </svg>
+        <div class="banner-content">
+          <strong class="banner-title">Modo Administrador (Catálogo comercial de membresías)</strong>
+          <span class="banner-text">
+            Como administrador podés consultar la oferta de planes vigentes. La contratación de membresías está restringida exclusivamente a los socios. Para editar o crear planes, accedé a <a routerLink="/admin/planes" class="admin-banner-link">Gestión de Planes</a>.
+          </span>
+        </div>
+      </div>
+    }
+
     @if (successMessage()) {
       <div class="toast-banner success-banner" role="status">
         <div class="toast-icon">
@@ -160,9 +176,9 @@
             <button
               type="button"
               class="plan-action"
-              [class.btn-primary]="card.isPending || !isBlocked()"
-              [class.btn-secondary]="!card.isPending && isBlocked()"
-              [disabled]="card.isPending ? !pendingPlan() : !canSubscribe()"
+              [class.btn-primary]="!authService.isAdmin() && (card.isPending || !isBlocked())"
+              [class.btn-secondary]="authService.isAdmin() || (!card.isPending && isBlocked())"
+              [disabled]="authService.isAdmin() || (card.isPending ? !pendingPlan() : !canSubscribe())"
               (click)="onAction(card)"
             >
               @if (isLocked(card)) {

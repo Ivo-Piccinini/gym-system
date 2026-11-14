@@ -98,7 +98,7 @@ export class MembershipPlans implements OnInit {
 
   /** Mientras se verifica no se habilita contratar; si la verificación falla, el 409 del back protege igual. */
   protected readonly canSubscribe = computed(
-    () => !this.isCheckingSubscriptions() && !this.isBlocked()
+    () => !this.authService.isAdmin() && this.authService.isClient() && !this.isCheckingSubscriptions() && !this.isBlocked()
   );
 
   protected readonly cards = computed<PlanCard[]>(() => {
@@ -156,6 +156,10 @@ export class MembershipPlans implements OnInit {
   }
 
   private fetchSubscriptions(): void {
+    if (this.authService.isAdmin() || !this.authService.isClient()) {
+      this.isCheckingSubscriptions.set(false);
+      return;
+    }
     this.isCheckingSubscriptions.set(true);
 
     forkJoin({
@@ -178,7 +182,7 @@ export class MembershipPlans implements OnInit {
 
   // --- acciones ---
   protected openDialog(plan: MembershipPlan): void {
-    if (!this.canSubscribe()) {
+    if (this.authService.isAdmin() || !this.authService.isClient() || !this.canSubscribe()) {
       return;
     }
     this.successMessage.set(null);
@@ -188,6 +192,9 @@ export class MembershipPlans implements OnInit {
 
   /** Reabre el modal directo en el paso de pago de la suscripción PENDING. */
   protected openPendingPayment(): void {
+    if (this.authService.isAdmin() || !this.authService.isClient()) {
+      return;
+    }
     const pending = this.pendingSubscription();
     const plan = this.pendingPlan();
     if (!pending || !plan) {
@@ -199,6 +206,9 @@ export class MembershipPlans implements OnInit {
   }
 
   protected onAction(card: PlanCard): void {
+    if (this.authService.isAdmin() || !this.authService.isClient()) {
+      return;
+    }
     if (card.isPendingCash) {
       return;
     }
@@ -236,10 +246,16 @@ export class MembershipPlans implements OnInit {
 
   /** Tarjeta bloqueada: hay algo vigente o pendiente y esta no es esa tarjeta. */
   protected isLocked(card: PlanCard): boolean {
+    if (this.authService.isAdmin()) {
+      return true;
+    }
     return (this.isBlocked() && !card.isCurrent && !card.isPending) || card.isPendingCash;
   }
 
   protected buttonLabel(card: PlanCard): string {
+    if (this.authService.isAdmin()) {
+      return 'Solo para socios (Admin)';
+    }
     if (card.isPendingCash) {
       return 'Pendiente de aprobación';
     }

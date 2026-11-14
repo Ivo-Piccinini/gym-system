@@ -33,6 +33,7 @@ El sistema soporta tres roles principales de usuarios con permisos jerárquicos:
 * **RF27:** El sistema debe permitir al **Cliente** visualizar su historial de suscripciones y el estado actual de la misma.
 * **RF30:** El sistema debe permitir al **Cliente** solicitar la cancelación de su suscripción activa.
 * **RF-Sec:** Bloqueo automatizado de accesos o inscripciones si el cliente posee una suscripción con estado `EXPIRED`, `PENDING` o `CANCELED`.
+* **RF-Bus (Exclusividad Socio en Membresías):** La contratación de planes de membresía (`POST /api/subscriptions/{planId}`) y el registro de pagos personales (`POST /api/payments`) están reservados estrictamente a usuarios con rol `ROLE_CLIENT`. Los usuarios con rol `ROLE_ADMIN` tienen prohibida la contratación de membresías para su propia cuenta, pudiendo acceder únicamente a la gestión de planes (`/admin/planes`) o consulta de catálogo en modo solo lectura.
 
 ### Módulo Activities & Classes (Cupos y Agenda)
 * **RF10:** El sistema debe permitir a profesores y clientes realizar búsquedas y filtrados avanzados sobre las clases programadas.
@@ -40,9 +41,10 @@ El sistema soporta tres roles principales de usuarios con permisos jerárquicos:
 * **RF14/15/16:** El sistema debe permitir al **Profesor** realizar el ABM, listado y filtrado de las **Actividades** matrices (ej. Yoga, CrossFit, Spinning).
 * **RF24/25:** El sistema debe permitir al **Cliente** listar de forma transparente las actividades y clases disponibles en la agenda semanal.
 * **RF28/29:** El sistema debe permitir al **Cliente** inscribirse en clases disponibles y visualizar su agenda de asistencias.
-* **RF-Bus (Validación Crítica):** La inscripción de un cliente a una clase está estrictamente condicionada a:
-    1. Que posea una suscripción `ACTIVE` vigente.
-    2. Que la clase seleccionada no haya superado su capacidad máxima (`capacity_max`).
+* **RF-Bus (Validación Crítica):** La inscripción a una clase está estrictamente condicionada a:
+    1. Que el usuario sea exclusivamente socio (`ROLE_CLIENT`); los usuarios con rol `ROLE_ADMIN` tienen estrictamente prohibida la inscripción como alumnos o la reserva de cupos.
+    2. Que posea una suscripción `ACTIVE` vigente.
+    3. Que la clase seleccionada no haya superado su capacidad máxima (`capacity_max`).
 
 ### Módulo Workout (Rutinas y Ejercicios)
 * **RF17/18/19:** El sistema debe permitir al **Profesor** realizar el ABM, listado y filtrado de las **Rutinas** de entrenamiento creadas para los clientes.
