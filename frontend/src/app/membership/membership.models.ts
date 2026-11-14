@@ -15,7 +15,6 @@ export const SUBSCRIPTION_STATUS_LABELS: Record<SubscriptionStatus, string> = {
   CANCELED: 'Cancelada'
 };
 
-
 export interface Subscription {
   id: number;
   publicId: string;
@@ -33,13 +32,29 @@ export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
   TARJETA: 'Tarjeta'
 };
 
+export type PaymentStatus = 'PENDING' | 'APPROVED' | 'REJECTED';
+
+export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
+  PENDING: 'Pendiente de cobro',
+  APPROVED: 'Validado / Aprobado',
+  REJECTED: 'Rechazado'
+};
+
 export interface Payment {
   id: number;
   publicId: string | null;
   subscriptionId: number; // id numérico de la suscripción (Subscription.id), no el UUID
+  subscriptionPublicId?: string;
   amount: number;
   paymentDate: string; // "YYYY-MM-DD"
   method: PaymentMethod;
+  status?: PaymentStatus;
+  clientName?: string;
+  clientEmail?: string;
+  clientDni?: string;
+  planName?: string;
+  validatedBy?: string;
+  validationDate?: string;
 }
 
 /** Body de POST /api/payments. */

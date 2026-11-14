@@ -6,7 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -21,10 +23,10 @@ public class PaymentEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(name = "public_id", unique = true)
     private UUID publicId;
 
-    
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "subscription_id", nullable = false)
     private SubscriptionEntity subscription;
 
@@ -37,11 +39,29 @@ public class PaymentEntity {
     @Column(name = "method")
     private PaymentMethods method;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private PaymentStatus status;
+
+    @Column(name = "validated_by")
+    private String validatedBy;
+
+    @Column(name = "validation_date")
+    private LocalDateTime validationDate;
+
     @PrePersist
     void onCreate() {
         if (this.publicId == null) {
             this.publicId = UUID.randomUUID();
         }
+        if (this.status == null) {
+            if (this.method == PaymentMethods.TARJETA) {
+                this.status = PaymentStatus.APPROVED;
+                this.validatedBy = "SISTEMA";
+                this.validationDate = LocalDateTime.now();
+            } else {
+                this.status = PaymentStatus.PENDING;
+            }
+        }
     }
-
 }

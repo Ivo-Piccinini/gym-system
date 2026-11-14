@@ -101,6 +101,9 @@ A continuación se detalla la estructura relacional de la Base de Datos distribu
     * `amount`: `DOUBLE`
     * `payment_date`: `TIMESTAMP`
     * `method`: `VARCHAR(30)` (Valores: `EFECTIVO`, `TARJETA`)
+    * `status`: `VARCHAR(30)` (Valores: `PENDING`, `APPROVED`, `REJECTED`)
+    * `validated_by`: `VARCHAR(100)` (Username del administrador que validó el cobro físico)
+    * `validation_date`: `TIMESTAMP` (Fecha y hora de recepción/aprobación)
 
 #### Módulo Activities & Classes
 7.  **`activities`**
@@ -183,6 +186,8 @@ Todos los endpoints base están prefijados bajo la ruta global `/api/v1`.
 | `POST` | `/membership/subscriptions`| `CLIENT` | Contrata/compra un plan utilizando el `publicId` del plan. |
 | `GET` | `/payments` | `ADMIN` | Historial global de cobros y recaudación del gimnasio. |
 | `POST` | `/membership/payments` | `CLIENT` / `ADMIN` | Registra la transacción de cobro vinculada a la suscripción. |
+| `PATCH` | `/payments/{publicId}/validate` | `ADMIN` | Valida y aprueba el cobro en efectivo recibido en recepción, activando la suscripción con auditoría AOP. |
+| `PATCH` | `/payments/{publicId}/reject` | `ADMIN` | Rechaza el cobro en efectivo y cancela la suscripción pendiente asociada. |
 | `GET` | `/membership/my-status` | `CLIENT` | Retorna los días restantes y estado de la suscripción actual. |
 
 ### Módulo Activities & Classes

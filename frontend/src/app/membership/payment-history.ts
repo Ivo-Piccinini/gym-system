@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { CommonModule } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { RouterLink } from '@angular/router';
 import { catchError, forkJoin, of } from 'rxjs';
@@ -23,13 +24,15 @@ interface PaymentRow {
   planName: string;
   method: PaymentMethod;
   methodLabel: string;
+  statusLabel: string;
+  statusClass: string;
   amountLabel: string;
 }
 
 @Component({
   selector: 'app-payment-history',
   standalone: true,
-  imports: [RouterLink, NavbarComponent],
+  imports: [RouterLink, CommonModule, NavbarComponent],
   templateUrl: './payment-history.html',
   styleUrls: ['./payment-history.css']
 })
@@ -108,6 +111,20 @@ export class PaymentHistory implements OnInit {
       const subscription = subscriptions.find((s) => s.id === payment.subscriptionId);
       const plan = subscription ? plans.find((p) => p.id === subscription.planId) : undefined;
 
+      const status = payment.status ?? (payment.method === 'TARJETA' ? 'APPROVED' : 'PENDING');
+      const statusLabel =
+        status === 'APPROVED'
+          ? 'Aprobado'
+          : status === 'REJECTED'
+            ? 'Rechazado'
+            : 'Pendiente de aprobación';
+      const statusClass =
+        status === 'APPROVED'
+          ? 'status-approved'
+          : status === 'REJECTED'
+            ? 'status-rejected'
+            : 'status-pending';
+
       return {
         key: payment.publicId ?? String(payment.id),
         receipt: this.receiptNumber(payment),
@@ -115,6 +132,8 @@ export class PaymentHistory implements OnInit {
         planName: plan?.name ?? `Suscripción #${payment.subscriptionId}`,
         method: payment.method,
         methodLabel: PAYMENT_METHOD_LABELS[payment.method] ?? payment.method,
+        statusLabel,
+        statusClass,
         amountLabel: formatPrice(payment.amount)
       };
     });

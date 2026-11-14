@@ -204,6 +204,32 @@
   border: 1px solid var(--border-subtle);
 }
 
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  border: 1px solid transparent;
+}
+.status-chip.status-approved {
+  background-color: var(--accent-emerald-bg);
+  border-color: var(--accent-emerald-border);
+  color: var(--accent-emerald-text);
+}
+.status-chip.status-pending {
+  background-color: var(--accent-amber-bg);
+  border-color: var(--accent-amber-border);
+  color: var(--accent-amber-light);
+}
+.status-chip.status-rejected {
+  background-color: var(--accent-rose-bg);
+  border-color: var(--accent-rose-border);
+  color: var(--accent-rose-text);
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

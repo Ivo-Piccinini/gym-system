@@ -16,7 +16,8 @@ describe('PaymentService', () => {
     subscriptionId: 7,
     amount: 25000,
     paymentDate: '2026-11-03',
-    method: 'TARJETA'
+    method: 'TARJETA',
+    status: 'APPROVED'
   };
 
   beforeEach(() => {
@@ -77,5 +78,29 @@ describe('PaymentService', () => {
     req.flush([mockPayment]);
 
     expect(result).toEqual([mockPayment]);
+  });
+
+  it('validateCashPayment hace PATCH a /payments/{publicId}/validate', () => {
+    let result: Payment | undefined;
+
+    service.validateCashPayment('pay-uuid-1').subscribe((p) => (result = p));
+
+    const req = httpTesting.expectOne(`${environment.apiUrl}/payments/pay-uuid-1/validate`);
+    expect(req.request.method).toBe('PATCH');
+    req.flush({ ...mockPayment, method: 'EFECTIVO', status: 'APPROVED' });
+
+    expect(result?.status).toBe('APPROVED');
+  });
+
+  it('rejectCashPayment hace PATCH a /payments/{publicId}/reject', () => {
+    let result: Payment | undefined;
+
+    service.rejectCashPayment('pay-uuid-1').subscribe((p) => (result = p));
+
+    const req = httpTesting.expectOne(`${environment.apiUrl}/payments/pay-uuid-1/reject`);
+    expect(req.request.method).toBe('PATCH');
+    req.flush({ ...mockPayment, method: 'EFECTIVO', status: 'REJECTED' });
+
+    expect(result?.status).toBe('REJECTED');
   });
 });

@@ -105,6 +105,7 @@
   color: var(--accent-emerald-text);
 }
 
+.icon-pending,
 .icon-warning {
   background-color: var(--accent-amber-bg);
   border: 1px solid var(--accent-amber-border);

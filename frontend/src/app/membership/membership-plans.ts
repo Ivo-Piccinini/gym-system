@@ -1,4 +1,5 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { forkJoin, of, catchError } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { MembershipPlan, Payment, Subscription } from './membership.models';
 import {
@@ -11,6 +12,7 @@ import {
   pricePerMonth
 } from './membership.utils';
 import { MembershipPlanService } from './membership-plan.service';
+import { PaymentService } from './payment.service';
 import { SubscriptionDialog } from './subscription-dialog';
 import { SubscriptionService } from './subscription.service';
 import { NavbarComponent } from '../shared/navbar/navbar';
@@ -24,6 +26,7 @@ interface PlanCard {
   isBestValue: boolean;
   isCurrent: boolean;
   isPending: boolean;
+  isPendingCash: boolean;
 }
 
 @Component({
@@ -36,6 +39,7 @@ interface PlanCard {
 export class MembershipPlans implements OnInit {
   private readonly planService = inject(MembershipPlanService);
   private readonly subscriptionService = inject(SubscriptionService);
+  private readonly paymentService = inject(PaymentService);
   protected readonly authService = inject(AuthService);
 
   // --- estado ---
@@ -44,6 +48,7 @@ export class MembershipPlans implements OnInit {
   protected readonly errorMessage = signal<string | null>(null);
 
   protected readonly subscriptions = signal<Subscription[]>([]);
+  protected readonly payments = signal<Payment[]>([]);
   protected readonly isCheckingSubscriptions = signal<boolean>(true);
 
   protected readonly selectedPlan = signal<MembershipPlan | null>(null);
@@ -72,6 +77,20 @@ export class MembershipPlans implements OnInit {
     return pending ? (this.plans().find((p) => p.id === pending.planId) ?? null) : null;
   });
 
+  /** Pago en efectivo registrado que aguarda validación del admin en recepción. */
+  protected readonly pendingCashPayment = computed(() => {
+    const pendingSub = this.pendingSubscription();
+    if (!pendingSub) return null;
+    return (
+      this.payments().find(
+        (p) =>
+          (p.subscriptionId === pendingSub.id || (!!p.subscriptionPublicId && p.subscriptionPublicId === pendingSub.publicId)) &&
+          p.method === 'EFECTIVO' &&
+          p.status === 'PENDING'
+      ) ?? null
+    );
+  });
+
   /** Hay una membresía vigente o un pago pendiente: no se puede contratar otro plan. */
   protected readonly isBlocked = computed(
     () => !!this.activeSubscription() || !!this.pendingSubscription()
@@ -87,6 +106,7 @@ export class MembershipPlans implements OnInit {
     const bestValueId = this.bestValuePlanId(plans);
     const currentId = this.activePlan()?.id;
     const pendingId = this.pendingPlan()?.id;
+    const hasPendingCash = !!this.pendingCashPayment();
 
     return plans.map((plan) => ({
       plan,
@@ -96,7 +116,8 @@ export class MembershipPlans implements OnInit {
       perMonthLabel: formatPrice(pricePerMonth(plan)),
       isBestValue: plan.id === bestValueId,
       isCurrent: plan.id === currentId,
-      isPending: plan.id === pendingId && plan.id !== currentId
+      isPending: plan.id === pendingId && plan.id !== currentId && !hasPendingCash,
+      isPendingCash: plan.id === pendingId && plan.id !== currentId && hasPendingCash
     }));
   });
 
@@ -137,9 +158,13 @@ export class MembershipPlans implements OnInit {
   private fetchSubscriptions(): void {
     this.isCheckingSubscriptions.set(true);
 
-    this.subscriptionService.getMySubscriptions().subscribe({
-      next: (subscriptions) => {
+    forkJoin({
+      subscriptions: this.subscriptionService.getMySubscriptions().pipe(catchError(() => of([]))),
+      payments: this.paymentService.getMyPayments().pipe(catchError(() => of([])))
+    }).subscribe({
+      next: ({ subscriptions, payments }) => {
         this.subscriptions.set(subscriptions);
+        this.payments.set(payments);
         this.isCheckingSubscriptions.set(false);
       },
       error: (err) => {
@@ -147,7 +172,6 @@ export class MembershipPlans implements OnInit {
         if (err.status === 401) {
           this.authService.logout();
         }
-        // Cualquier otro error no bloquea la pantalla: si ya tiene membresía activa, el back responde 409 al contratar.
       }
     });
   }
@@ -175,6 +199,9 @@ export class MembershipPlans implements OnInit {
   }
 
   protected onAction(card: PlanCard): void {
+    if (card.isPendingCash) {
+      return;
+    }
     if (card.isPending) {
       this.openPendingPayment();
     } else {
@@ -184,9 +211,15 @@ export class MembershipPlans implements OnInit {
 
   protected onPaid(payment: Payment): void {
     const plan = this.selectedPlan();
-    this.successMessage.set(
-      `Registramos tu pago de ${formatPrice(payment.amount)}${plan ? ` y tu plan ${plan.name} ya está activo` : ''}.`
-    );
+    if (payment.method === 'EFECTIVO') {
+      this.successMessage.set(
+        `Registramos tu solicitud de pago en efectivo de ${formatPrice(payment.amount)}. Por favor, acércate a recepción para abonar tu cuota física.`
+      );
+    } else {
+      this.successMessage.set(
+        `Registramos tu pago de ${formatPrice(payment.amount)}${plan ? ` y tu plan ${plan.name} ya está activo` : ''}.`
+      );
+    }
   }
 
   protected onDialogClosed(needsRefresh: boolean): void {
@@ -203,10 +236,13 @@ export class MembershipPlans implements OnInit {
 
   /** Tarjeta bloqueada: hay algo vigente o pendiente y esta no es esa tarjeta. */
   protected isLocked(card: PlanCard): boolean {
-    return this.isBlocked() && !card.isCurrent && !card.isPending;
+    return (this.isBlocked() && !card.isCurrent && !card.isPending) || card.isPendingCash;
   }
 
   protected buttonLabel(card: PlanCard): string {
+    if (card.isPendingCash) {
+      return 'Pendiente de aprobación';
+    }
     if (card.isPending) {
       return 'Completar pago';
     }

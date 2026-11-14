@@ -50,28 +50,50 @@
     }
 
     @if (pendingSubscription(); as pending) {
-      <div class="lock-notice" role="status">
-        <div class="lock-icon">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10" />
-            <polyline points="12 6 12 12 16 14" />
-          </svg>
+      @if (pendingCashPayment(); as cash) {
+        <div class="lock-notice" role="status">
+          <div class="lock-icon">
+            <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          </div>
+          <div>
+            <p class="lock-title">Suscripción pendiente de aprobación</p>
+            <p class="lock-text">
+              @if (pendingPlan(); as plan) {
+                Tu suscripción al plan <strong>{{ plan.name }}</strong> está en <strong>estado pendiente de aprobación</strong>.
+              } @else {
+                Tu suscripción está en <strong>estado pendiente de aprobación</strong>.
+              }
+              Por favor, acércate a recepción para abonar tu cuota en efectivo. Una vez que el administrador apruebe el pago, tu membresía entrará en vigencia.
+            </p>
+          </div>
         </div>
-        <div>
-          <p class="lock-title">Tenés un pago pendiente</p>
-          <p class="lock-text">
-            @if (pendingPlan(); as plan) {
-              Tu suscripción al plan <strong>{{ plan.name }}</strong> todavía no está activa.
-            } @else {
-              Tu suscripción todavía no está activa.
-            }
-            Registrá el pago para habilitar tu acceso al gimnasio.
-          </p>
+      } @else {
+        <div class="lock-notice" role="status">
+          <div class="lock-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+          </div>
+          <div>
+            <p class="lock-title">Tenés un pago pendiente</p>
+            <p class="lock-text">
+              @if (pendingPlan(); as plan) {
+                Tu suscripción al plan <strong>{{ plan.name }}</strong> todavía no está activa.
+              } @else {
+                Tu suscripción todavía no está activa.
+              }
+              Registrá el pago para habilitar tu acceso al gimnasio.
+            </p>
+          </div>
+          <button type="button" class="btn-primary lock-action" [disabled]="!pendingPlan()" (click)="openPendingPayment()">
+            Completar pago
+          </button>
         </div>
-        <button type="button" class="btn-primary lock-action" [disabled]="!pendingPlan()" (click)="openPendingPayment()">
-          Completar pago
-        </button>
-      </div>
+      }
     }
 
     @if (isLoading()) {
@@ -97,13 +119,15 @@
             class="plan-card"
             [class.best]="card.isBestValue"
             [class.current]="card.isCurrent"
-            [class.pending]="card.isPending"
+            [class.pending]="card.isPending || card.isPendingCash"
             [class.locked]="isLocked(card)"
           >
             <div class="plan-top">
               <div class="plan-badges">
                 @if (card.isCurrent) {
                   <span class="plan-badge badge-current">Tu plan actual</span>
+                } @else if (card.isPendingCash) {
+                  <span class="plan-badge badge-pending">Pendiente de aprobación</span>
                 } @else if (card.isPending) {
                   <span class="plan-badge badge-pending">Pago pendiente</span>
                 } @else if (card.isBestValue) {

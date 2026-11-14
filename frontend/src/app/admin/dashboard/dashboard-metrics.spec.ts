@@ -16,8 +16,31 @@ describe('DashboardMetricsComponent', () => {
   let fixture: ComponentFixture<DashboardMetricsComponent>;
 
   const mockPayments: Payment[] = [
-    { id: 1, publicId: 'p1', subscriptionId: 1, amount: 20000, paymentDate: '2026-11-01', method: 'EFECTIVO' },
-    { id: 2, publicId: 'p2', subscriptionId: 2, amount: 25000, paymentDate: '2026-11-02', method: 'TARJETA' }
+    {
+      id: 1,
+      publicId: 'p1',
+      subscriptionId: 1,
+      amount: 20000,
+      paymentDate: '2026-11-01',
+      method: 'EFECTIVO',
+      status: 'PENDING',
+      clientName: 'Juan Perez',
+      clientEmail: 'juan@gym.com',
+      clientDni: '12345678',
+      planName: 'Pase Libre'
+    },
+    {
+      id: 2,
+      publicId: 'p2',
+      subscriptionId: 2,
+      amount: 25000,
+      paymentDate: '2026-11-02',
+      method: 'TARJETA',
+      status: 'APPROVED',
+      clientName: 'Maria Lopez',
+      clientEmail: 'maria@gym.com',
+      planName: 'Musculación'
+    }
   ];
 
   const mockClasses: GymClass[] = [
@@ -69,14 +92,32 @@ describe('DashboardMetricsComponent', () => {
     }
   ];
 
-  let paymentServiceMock: { getAllPayments: ReturnType<typeof vi.fn> };
+  let paymentServiceMock: {
+    getAllPayments: ReturnType<typeof vi.fn>;
+    validateCashPayment: ReturnType<typeof vi.fn>;
+    rejectCashPayment: ReturnType<typeof vi.fn>;
+  };
   let classServiceMock: { getClasses: ReturnType<typeof vi.fn> };
   let auditServiceMock: { getAuditLogs: ReturnType<typeof vi.fn> };
   let authServiceMock: { isAdmin: ReturnType<typeof vi.fn>; username: ReturnType<typeof vi.fn> };
 
   beforeEach(async () => {
     paymentServiceMock = {
-      getAllPayments: vi.fn().mockReturnValue(of(mockPayments))
+      getAllPayments: vi.fn().mockReturnValue(of(mockPayments)),
+      validateCashPayment: vi.fn().mockReturnValue(
+        of({
+          ...mockPayments[0],
+          status: 'APPROVED',
+          validatedBy: 'admin',
+          validationDate: '2026-11-14T19:00:00'
+        })
+      ),
+      rejectCashPayment: vi.fn().mockReturnValue(
+        of({
+          ...mockPayments[0],
+          status: 'REJECTED'
+        })
+      )
     };
     classServiceMock = {
       getClasses: vi.fn().mockReturnValue(of(mockClasses))
@@ -171,5 +212,52 @@ describe('DashboardMetricsComponent', () => {
     component.loadAllData();
     expect((component as any).isLoading()).toBe(false);
     expect((component as any).payments()).toEqual([]);
+  });
+
+  it('calcula cobros en efectivo pendientes y permite filtrarlos', () => {
+    expect((component as any).cashPayments().length).toBe(1);
+    expect((component as any).pendingCashCount()).toBe(1);
+
+    // Por defecto el filtro es PENDING
+    expect((component as any).filteredCashPayments().length).toBe(1);
+
+    component.setCashFilter('APPROVED');
+    expect((component as any).filteredCashPayments().length).toBe(0);
+
+    component.setCashFilter('ALL');
+    expect((component as any).filteredCashPayments().length).toBe(1);
+  });
+
+  it('valida un cobro en efectivo y actualiza el estado a APPROVED', () => {
+    const cashPayment = mockPayments[0];
+    component.validateCash(cashPayment);
+
+    expect(paymentServiceMock.validateCashPayment).toHaveBeenCalledWith('p1');
+    const updated = (component as any).payments().find((p: Payment) => p.publicId === 'p1');
+    expect(updated?.status).toBe('APPROVED');
+    expect(updated?.validatedBy).toBe('admin');
+    expect((component as any).pendingCashCount()).toBe(0);
+    expect((component as any).toast()?.type).toBe('success');
+  });
+
+  it('rechaza un cobro en efectivo tras confirmar y actualiza el estado a REJECTED', () => {
+    const cashPayment = mockPayments[0];
+    component.rejectCash(cashPayment);
+
+    expect(paymentServiceMock.rejectCashPayment).toHaveBeenCalledWith('p1');
+    const updated = (component as any).payments().find((p: Payment) => p.publicId === 'p1');
+    expect(updated?.status).toBe('REJECTED');
+    expect((component as any).toast()?.type).toBe('success');
+  });
+
+  it('abre y cierra el modal de rechazo de cobro', () => {
+    expect((component as any).isRejectModalOpen()).toBe(false);
+    component.openRejectModal(mockPayments[0]);
+    expect((component as any).isRejectModalOpen()).toBe(true);
+    expect((component as any).paymentToReject()).toEqual(mockPayments[0]);
+
+    component.closeRejectModal();
+    expect((component as any).isRejectModalOpen()).toBe(false);
+    expect((component as any).paymentToReject()).toBeNull();
   });
 });

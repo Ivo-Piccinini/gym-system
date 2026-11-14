@@ -150,6 +150,23 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
   - [ ] `GS-25`: Crear tabla de historial de pagos del cliente.
   - [ ] `GS-26`: Conectar la vista de pagos con `MembershipService`.
 
+### `[GS-CASH-VALIDATION] Validación de Pagos en Efectivo desde Panel Admin`
+- **Tipo:** Historia
+- **Estado:** Completada
+- **Descripción:**
+  Como Administrador, quiero validar o rechazar los cobros en efectivo registrados por los socios desde mi panel de control para confirmar la recepción física del dinero y activar automáticamente su suscripción.
+- **Criterios de Aceptación:**
+  - Pagos con método `EFECTIVO` quedan en estado `PENDING` hasta su validación en recepción física.
+  - Endpoint `PATCH /api/payments/{publicId}/validate` para que el Administrador apruebe el cobro, activando la suscripción con fechas vigentes y registrando auditoría AOP.
+  - Endpoint `PATCH /api/payments/{publicId}/reject` para rechazar el cobro y cancelar la suscripción pendiente.
+  - Sección interactiva en el panel de métricas y auditoría con filtro de pagos en efectivo (`PENDING`, `APPROVED`, `REJECTED`), búsqueda por socio y acciones de validación directa con confirmación y feedback toast.
+- **Subtareas:**
+  - [x] `GS-CASH-1`: Crear enum `PaymentStatus`, actualizar `PaymentEntity` con auditoría de recepción y hooks JPA de estado inicial.
+  - [x] `GS-CASH-2`: Implementar endpoints `PATCH /api/payments/{publicId}/validate` y `PATCH /api/payments/{publicId}/reject` en `PaymentService` y `PaymentController` con pruebas unitarias JUnit 5.
+  - [x] `GS-CASH-3`: Extender modelo y `PaymentService` en frontend Angular para interactuar con las rutas de validación y rechazo.
+  - [x] `GS-CASH-4`: Incorporar sección de validación de cobros en efectivo en `DashboardMetricsComponent` con tabla, contador de pendientes y acciones reactivas.
+  - [x] `GS-CASH-5`: Ajustar pantalla de éxito de suscripción (`SubscriptionDialog`) para notificar al socio que su pago en efectivo debe abonarse en recepción.
+
 ### `[GS-MEMB-ADMIN] Administración y Actualización de Planes Comerciales (Admin)`
 - **Tipo:** Historia Complementaria
 - **Descripción:**

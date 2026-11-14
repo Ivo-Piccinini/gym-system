@@ -86,39 +86,67 @@
       }
 
       @case ('success') {
-        <div class="dialog-state">
-          <div class="state-icon icon-success">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-              <polyline points="22 4 12 14.01 9 11.01" />
-            </svg>
-          </div>
-          <h2 id="subscription-dialog-title" class="state-title">¡Pago registrado!</h2>
-          <p class="state-desc">Tu plan <strong>{{ plan().name }}</strong> ya está activo.</p>
+        @if (payment(); as receipt) {
+          @if (receipt.method === 'EFECTIVO') {
+            <div class="dialog-state">
+              <div class="state-icon icon-pending">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <polyline points="12 6 12 12 16 14" />
+                </svg>
+              </div>
+              <h2 id="subscription-dialog-title" class="state-title">¡Solicitud registrada!</h2>
+              <p class="state-desc">Tu plan <strong>{{ plan().name }}</strong> está en <strong>estado pendiente de aprobación</strong>. Por favor, acércate a recepción para abonar tu cuota en efectivo; una vez que el administrador apruebe el pago, tu membresía entrará en vigencia.</p>
 
-          @if (payment(); as receipt) {
-            <dl class="summary-list state-summary">
-              <div class="summary-row">
-                <dt class="summary-term">Monto</dt>
-                <dd class="summary-value">{{ formatPrice(receipt.amount) }}</dd>
-              </div>
-              <div class="summary-row">
-                <dt class="summary-term">Método</dt>
-                <dd class="summary-value">{{ methodLabel(receipt) }}</dd>
-              </div>
-              @if (result(); as sub) {
+              <dl class="summary-list state-summary">
                 <div class="summary-row">
-                  <dt class="summary-term">Vigente hasta</dt>
-                  <dd class="summary-value summary-highlight">{{ formatDate(sub.endDate) }}</dd>
+                  <dt class="summary-term">Monto a abonar</dt>
+                  <dd class="summary-value">{{ formatPrice(receipt.amount) }}</dd>
                 </div>
-              }
-              <div class="summary-row">
-                <dt class="summary-term">Estado</dt>
-                <dd class="summary-value">{{ activeLabel }}</dd>
+                <div class="summary-row">
+                  <dt class="summary-term">Método</dt>
+                  <dd class="summary-value">{{ methodLabel(receipt) }}</dd>
+                </div>
+                <div class="summary-row">
+                  <dt class="summary-term">Estado</dt>
+                  <dd class="summary-value summary-highlight">Pendiente de aprobación</dd>
+                </div>
+              </dl>
+            </div>
+          } @else {
+            <div class="dialog-state">
+              <div class="state-icon icon-success">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                  <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
               </div>
-            </dl>
+              <h2 id="subscription-dialog-title" class="state-title">¡Pago registrado!</h2>
+              <p class="state-desc">Tu plan <strong>{{ plan().name }}</strong> ya está activo.</p>
+
+              <dl class="summary-list state-summary">
+                <div class="summary-row">
+                  <dt class="summary-term">Monto</dt>
+                  <dd class="summary-value">{{ formatPrice(receipt.amount) }}</dd>
+                </div>
+                <div class="summary-row">
+                  <dt class="summary-term">Método</dt>
+                  <dd class="summary-value">{{ methodLabel(receipt) }}</dd>
+                </div>
+                @if (result(); as sub) {
+                  <div class="summary-row">
+                    <dt class="summary-term">Vigente hasta</dt>
+                    <dd class="summary-value summary-highlight">{{ formatDate(sub.endDate) }}</dd>
+                  </div>
+                }
+                <div class="summary-row">
+                  <dt class="summary-term">Estado</dt>
+                  <dd class="summary-value">{{ activeLabel }}</dd>
+                </div>
+              </dl>
+            </div>
           }
-        </div>
+        }
 
         <footer class="modal-footer state-footer">
           <button type="button" class="btn-primary" (click)="close()">Listo</button>

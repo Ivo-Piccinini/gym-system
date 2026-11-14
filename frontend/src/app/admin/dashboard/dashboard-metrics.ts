@@ -8,12 +8,13 @@ import { PaymentService } from '../../membership/payment.service';
 import { ClassService } from '../../classes/class.service';
 import { AuditService } from '../audit/audit.service';
 import { AuthService } from '../../auth/auth.service';
-import { Payment } from '../../membership/membership.models';
+import { Payment, PaymentStatus, PAYMENT_STATUS_LABELS } from '../../membership/membership.models';
 import { GymClass } from '../../classes/classes.models';
 import { AuditLog } from '../audit/audit.models';
 import { NavbarComponent } from '../../shared/navbar/navbar';
 
 export type AuditCategoryFilter = 'ALL' | 'PRICE_CHANGES' | 'PAYMENTS' | 'USERS' | 'CLASSES';
+export type CashPaymentFilter = 'ALL' | 'PENDING' | 'APPROVED' | 'REJECTED';
 
 @Component({
   selector: 'app-dashboard-metrics',
@@ -40,6 +41,50 @@ export class DashboardMetricsComponent implements OnInit {
   protected readonly auditSearchTerm = signal<string>('');
   protected readonly selectedCategory = signal<AuditCategoryFilter>('ALL');
 
+  // Validación de Cobros en Efectivo (GS-50)
+  protected readonly selectedCashFilter = signal<CashPaymentFilter>('PENDING');
+  protected readonly cashSearchTerm = signal<string>('');
+  protected readonly actionLoadingId = signal<string | null>(null);
+  protected readonly toast = signal<{ type: 'success' | 'error'; message: string } | null>(null);
+
+  // Modal de Rechazo de Cobro
+  protected readonly paymentToReject = signal<Payment | null>(null);
+  protected readonly isRejectModalOpen = signal<boolean>(false);
+
+  protected readonly cashPayments = computed(() => {
+    return this.payments().filter((p) => p.method === 'EFECTIVO');
+  });
+
+  protected readonly pendingCashCount = computed(() => {
+    return this.cashPayments().filter((p) => p.status === 'PENDING').length;
+  });
+
+  protected readonly filteredCashPayments = computed(() => {
+    const filter = this.selectedCashFilter();
+    const term = this.cashSearchTerm().trim().toLowerCase();
+
+    return this.cashPayments().filter((p) => {
+      if (filter !== 'ALL' && p.status !== filter) {
+        return false;
+      }
+      if (!term) return true;
+
+      const clientName = (p.clientName || '').toLowerCase();
+      const clientEmail = (p.clientEmail || '').toLowerCase();
+      const clientDni = (p.clientDni || '').toLowerCase();
+      const planName = (p.planName || '').toLowerCase();
+      const publicId = (p.publicId || '').toLowerCase();
+
+      return (
+        clientName.includes(term) ||
+        clientEmail.includes(term) ||
+        clientDni.includes(term) ||
+        planName.includes(term) ||
+        publicId.includes(term)
+      );
+    });
+  });
+
   // Modal de Inspección Forense
   protected readonly selectedLogForModal = signal<AuditLog | null>(null);
   protected readonly isModalOpen = signal<boolean>(false);
@@ -60,7 +105,9 @@ export class DashboardMetricsComponent implements OnInit {
 
   // --- CÁLCULO DE KPIS Y RESÚMENES ---
   protected readonly totalRevenue = computed(() => {
-    return this.payments().reduce((sum, p) => sum + (p.amount || 0), 0);
+    return this.payments()
+      .filter((p) => p.status !== 'REJECTED')
+      .reduce((sum, p) => sum + (p.amount || 0), 0);
   });
 
   protected readonly totalPaymentsCount = computed(() => this.payments().length);
@@ -84,7 +131,9 @@ export class DashboardMetricsComponent implements OnInit {
 
   // 1. Gráfico de Cobros y Recaudación (Líneas / Barras interactivo)
   protected readonly revenueChartData = computed<ChartData<'line' | 'bar'>>(() => {
-    const pays = [...this.payments()].sort((a, b) => (a.paymentDate > b.paymentDate ? 1 : -1));
+    const pays = [...this.payments()]
+      .filter((p) => p.status !== 'REJECTED')
+      .sort((a, b) => (a.paymentDate > b.paymentDate ? 1 : -1));
     const grouped = new Map<string, number>();
 
     for (const p of pays) {
@@ -473,5 +522,104 @@ export class DashboardMetricsComponent implements OnInit {
     if (['USER_REGISTRATION', 'TOGGLE_USER_STATUS'].includes(action)) return 'badge-purple';
     if (['ENROLL_IN_CLASS', 'CANCEL_ENROLLMENT'].includes(action)) return 'badge-cyan';
     return 'badge-zinc';
+  }
+
+  // --- MÉTODOS DE VALIDACIÓN DE COBROS EN EFECTIVO (GS-50) ---
+  setCashFilter(filter: CashPaymentFilter): void {
+    this.selectedCashFilter.set(filter);
+  }
+
+  validateCash(payment: Payment): void {
+    if (!payment.publicId || this.actionLoadingId()) return;
+
+    this.actionLoadingId.set(payment.publicId);
+    this.paymentService.validateCashPayment(payment.publicId).subscribe({
+      next: (updatedPayment) => {
+        this.actionLoadingId.set(null);
+        this.payments.update((list) =>
+          list.map((p) =>
+            p.publicId === payment.publicId
+              ? {
+                  ...p,
+                  ...updatedPayment,
+                  status: 'APPROVED' as PaymentStatus,
+                  validatedBy: updatedPayment.validatedBy || this.authService.username() || 'admin',
+                  validationDate: updatedPayment.validationDate || new Date().toISOString()
+                }
+              : p
+          )
+        );
+        this.showToast('success', `Cobro de $${payment.amount.toLocaleString('es-AR')} validado. Membresía activada exitosamente.`);
+      },
+      error: (err) => {
+        this.actionLoadingId.set(null);
+        const msg = err?.error?.message || 'Error al validar el pago en efectivo.';
+        this.showToast('error', msg);
+      }
+    });
+  }
+
+  openRejectModal(payment: Payment): void {
+    this.paymentToReject.set(payment);
+    this.isRejectModalOpen.set(true);
+  }
+
+  closeRejectModal(): void {
+    this.isRejectModalOpen.set(false);
+    this.paymentToReject.set(null);
+  }
+
+  confirmRejectCash(): void {
+    const payment = this.paymentToReject();
+    if (!payment || !payment.publicId || this.actionLoadingId()) return;
+
+    this.actionLoadingId.set(payment.publicId);
+    this.paymentService.rejectCashPayment(payment.publicId).subscribe({
+      next: (updatedPayment) => {
+        this.actionLoadingId.set(null);
+        this.closeRejectModal();
+        this.payments.update((list) =>
+          list.map((p) =>
+            p.publicId === payment.publicId
+              ? {
+                  ...p,
+                  ...updatedPayment,
+                  status: 'REJECTED' as PaymentStatus
+                }
+              : p
+          )
+        );
+        this.showToast('success', `Cobro de $${payment.amount.toLocaleString('es-AR')} rechazado. Membresía cancelada.`);
+      },
+      error: (err) => {
+        this.actionLoadingId.set(null);
+        const msg = err?.error?.message || 'Error al rechazar el pago en efectivo.';
+        this.showToast('error', msg);
+      }
+    });
+  }
+
+  rejectCash(payment: Payment): void {
+    this.openRejectModal(payment);
+    this.confirmRejectCash();
+  }
+
+  showToast(type: 'success' | 'error', message: string): void {
+    this.toast.set({ type, message });
+    setTimeout(() => {
+      if (this.toast()?.message === message) {
+        this.toast.set(null);
+      }
+    }, 4500);
+  }
+
+  getStatusBadgeClass(status?: PaymentStatus): string {
+    if (status === 'APPROVED') return 'badge-emerald';
+    if (status === 'REJECTED') return 'badge-rose';
+    return 'badge-amber';
+  }
+
+  getStatusLabel(status?: PaymentStatus): string {
+    return PAYMENT_STATUS_LABELS[status ?? 'PENDING'] ?? 'Pendiente';
   }
 }
