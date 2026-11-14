@@ -43,7 +43,8 @@ describe('UsersManagement Component', () => {
       phone: '3415551111',
       birthDate: '1990-01-01',
       role: 'ROLE_CLIENT',
-      enabled: true
+      enabled: true,
+      hasActiveMembership: true
     },
     {
       publicId: 'uuid-2',
@@ -261,6 +262,13 @@ describe('UsersManagement Component', () => {
     const suspendedUser = mockUsers[1];
     (component as any).openQrModal(suspendedUser);
     expect((component as any).errorMessage()).toContain('usuario suspendido');
+
+    const clientWithoutMembership: AdminUser = {
+      ...mockUsers[0],
+      hasActiveMembership: false
+    };
+    (component as any).openQrModal(clientWithoutMembership);
+    expect((component as any).errorMessage()).toContain('no posee una membresía activa');
   });
 
   it('should regenerate QR pass', () => {
