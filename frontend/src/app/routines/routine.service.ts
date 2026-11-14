@@ -37,6 +37,11 @@ export class RoutineService {
     return this.http.get<Routine>(`${this.routinesUrl}/${encodeURIComponent(publicId)}`);
   }
 
+  /** Rutina activa del socio logueado (GET /api/routines/my-routine, solo rol CLIENT). */
+  getMyRoutine(): Observable<Routine> {
+    return this.http.get<Routine>(`${this.routinesUrl}/my-routine`);
+  }
+
   /** Alta: crea la rutina y después carga cada ejercicio en /api/full-routines. */
   createRoutine(payload: RoutinePayload): Observable<Routine> {
     return this.http.post<Routine>(this.routinesUrl, this.toRoutineBody(payload)).pipe(

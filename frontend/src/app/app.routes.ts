@@ -45,6 +45,12 @@ export const routes: Routes = [
     loadComponent: () => import('./admin/users/users-management').then((m) => m.UsersManagement)
   },
   {
+    path: 'admin/planes',
+    canActivate: [authGuard, roleGuard, adminGuard],
+    data: { roles: ['ROLE_ADMIN'] },
+    loadComponent: () => import('./membership/plan-management').then((m) => m.PlanManagement)
+  },
+  {
     path: 'admin/users',
     redirectTo: 'admin/usuarios',
     pathMatch: 'full'
@@ -60,6 +66,12 @@ export const routes: Routes = [
     path: 'admin/metricas',
     redirectTo: 'admin/dashboard',
     pathMatch: 'full'
+  },
+  {
+    path: 'mi-rutina',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['ROLE_CLIENT'] },
+    loadComponent: () => import('./routines/my-routine').then((m) => m.MyRoutine)
   },
   {
     path: 'mi-entrenamiento',

@@ -39,6 +39,14 @@
         <span>Métricas & Auditoría</span>
       </a>
 
+      <a routerLink="/admin/planes" class="btn-ghost" title="Planes de membresía">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="2" y="5" width="20" height="14" rx="2" />
+          <line x1="2" y1="10" x2="22" y2="10" />
+        </svg>
+        <span>Planes</span>
+      </a>
+
       <a routerLink="/admin/usuarios" class="btn-ghost" title="Padrón de Usuarios">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
           stroke-linejoin="round">
@@ -53,6 +61,20 @@
       <a routerLink="/clases" class="btn-ghost">
           <span>Clases</span>
         </a>
+
+      @if (authService.isClient()) {
+      <a routerLink="/mi-rutina" class="btn-ghost" title="Mi rutina vigente">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M6.5 6.5h11" />
+          <path d="M6.5 17.5h11" />
+          <path d="M3 9v6" />
+          <path d="M21 9v6" />
+          <path d="M6 7v10" />
+          <path d="M18 7v10" />
+        </svg>
+        <span>Mi Rutina</span>
+      </a>
+      }
 
       @if (authService.isAdmin() || authService.isProfessor()) {
       <a routerLink="/profesor/rutinas" class="btn-ghost" title="Gestión de rutinas personalizadas">
