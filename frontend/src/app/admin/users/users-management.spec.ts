@@ -6,12 +6,31 @@ import { UsersManagement } from './users-management';
 import { AdminUserService } from './admin-user.service';
 import { AuthService } from '../../auth/auth.service';
 import { AdminUser } from './admin-users.models';
+import { AccessPassService } from '../../access/access-pass.service';
+import { AccessPass } from '../../access/access-pass.models';
 
 describe('UsersManagement Component', () => {
   let component: UsersManagement;
   let fixture: ComponentFixture<UsersManagement>;
   let mockAdminUserService: any;
   let mockAuthService: any;
+  let mockAccessPassService: any;
+
+  const mockPass: AccessPass = {
+    publicId: 'pass-uuid-1',
+    userPublicId: 'uuid-1',
+    clientName: 'Juan Perez',
+    clientDni: '10000001',
+    clientEmail: 'juan@gym.com',
+    planName: 'Plan Trimestral',
+    accessCode: 'GYM-PASS-10000001-XYZ1',
+    qrData: '{"code":"GYM-PASS-10000001-XYZ1"}',
+    qrImageBase64: 'data:image/png;base64,...',
+    generatedBy: 'admin',
+    generatedAt: '2026-11-14T19:00:00',
+    validUntil: '2027-02-12',
+    active: true
+  };
 
   const mockUsers: AdminUser[] = [
     {
@@ -65,12 +84,18 @@ describe('UsersManagement Component', () => {
       logout: vi.fn()
     };
 
+    mockAccessPassService = {
+      getPassByUser: vi.fn().mockReturnValue(of(mockPass)),
+      generatePass: vi.fn().mockReturnValue(of(mockPass))
+    };
+
     await TestBed.configureTestingModule({
       imports: [UsersManagement],
       providers: [
         provideRouter([]),
         { provide: AdminUserService, useValue: mockAdminUserService },
-        { provide: AuthService, useValue: mockAuthService }
+        { provide: AuthService, useValue: mockAuthService },
+        { provide: AccessPassService, useValue: mockAccessPassService }
       ]
     }).compileComponents();
 
@@ -202,6 +227,61 @@ describe('UsersManagement Component', () => {
 
     expect((component as any).errorMessage()).toBe('Error de servidor al modificar estado');
     expect((component as any).isConfirmModalOpen()).toBe(false);
+  });
+
+  it('should open QR modal when pass exists for user', () => {
+    const user = mockUsers[0]; // ROLE_CLIENT, enabled
+    mockAccessPassService.getPassByUser.mockReturnValue(of(mockPass));
+
+    (component as any).openQrModal(user);
+
+    expect(mockAccessPassService.getPassByUser).toHaveBeenCalledWith(user.publicId);
+    expect((component as any).isQrModalOpen()).toBe(true);
+    expect((component as any).selectedUserPass()).toEqual(mockPass);
+  });
+
+  it('should generate QR pass when user has no existing pass (404)', () => {
+    const user = mockUsers[0];
+    mockAccessPassService.getPassByUser.mockReturnValue(throwError(() => ({ status: 404 })));
+    mockAccessPassService.generatePass.mockReturnValue(of(mockPass));
+
+    (component as any).openQrModal(user);
+
+    expect(mockAccessPassService.getPassByUser).toHaveBeenCalledWith(user.publicId);
+    expect(mockAccessPassService.generatePass).toHaveBeenCalledWith(user.publicId);
+    expect((component as any).isQrModalOpen()).toBe(true);
+    expect((component as any).selectedUserPass()).toEqual(mockPass);
+  });
+
+  it('should show error when opening QR for non-client or suspended user', () => {
+    const adminUser = mockUsers[2];
+    (component as any).openQrModal(adminUser);
+    expect((component as any).errorMessage()).toContain('Solo los socios pueden poseer pases');
+
+    const suspendedUser = mockUsers[1];
+    (component as any).openQrModal(suspendedUser);
+    expect((component as any).errorMessage()).toContain('usuario suspendido');
+  });
+
+  it('should regenerate QR pass', () => {
+    const user = mockUsers[0];
+    (component as any).activeQrUser.set(user);
+    mockAccessPassService.generatePass.mockReturnValue(of({ ...mockPass, accessCode: 'NEW-CODE' }));
+
+    (component as any).regenerateQrPass();
+
+    expect(mockAccessPassService.generatePass).toHaveBeenCalledWith(user.publicId);
+    expect((component as any).selectedUserPass()?.accessCode).toBe('NEW-CODE');
+  });
+
+  it('should close QR modal', () => {
+    (component as any).isQrModalOpen.set(true);
+    (component as any).selectedUserPass.set(mockPass);
+
+    (component as any).closeQrModal();
+
+    expect((component as any).isQrModalOpen()).toBe(false);
+    expect((component as any).selectedUserPass()).toBeNull();
   });
 });
 

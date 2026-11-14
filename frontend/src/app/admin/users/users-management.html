@@ -239,6 +239,23 @@
                   </td>
 
                   <td class="cell-actions text-right">
+                    @if (user.role === 'ROLE_CLIENT') {
+                      <button
+                        type="button"
+                        class="btn-table-action btn-qr-action"
+                        title="Ver o generar credencial QR de acceso"
+                        (click)="openQrModal(user)"
+                        [disabled]="isLoadingQr() && activeQrUser()?.publicId === user.publicId"
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <rect x="3" y="3" width="7" height="7"></rect>
+                          <rect x="14" y="3" width="7" height="7"></rect>
+                          <rect x="14" y="14" width="7" height="7"></rect>
+                          <rect x="3" y="14" width="7" height="7"></rect>
+                        </svg>
+                        <span>{{ isLoadingQr() && activeQrUser()?.publicId === user.publicId ? 'Cargando...' : 'Pase QR' }}</span>
+                      </button>
+                    }
                     <button
                       type="button"
                       class="btn-table-action"
@@ -456,5 +473,15 @@
         </div>
       </div>
     </div>
+  }
+
+  @if (isQrModalOpen() && selectedUserPass()) {
+    <app-access-credential-modal
+      [pass]="selectedUserPass()!"
+      [isAdmin]="true"
+      [isRegenerating]="isRegeneratingQr()"
+      (close)="closeQrModal()"
+      (regenerate)="regenerateQrPass()"
+    />
   }
 </div>

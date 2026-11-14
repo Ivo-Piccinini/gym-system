@@ -7,6 +7,8 @@ import { Profile } from './profile';
 import { ProfileService } from './profile.service';
 import { AuthService } from '../auth/auth.service';
 import { UserProfile } from './profile.models';
+import { AccessPassService } from '../access/access-pass.service';
+import { AccessPass } from '../access/access-pass.models';
 
 describe('Profile Component', () => {
   let component: Profile;
@@ -14,6 +16,9 @@ describe('Profile Component', () => {
   let mockProfileService: {
     getProfile: ReturnType<typeof vi.fn>;
     updateProfile: ReturnType<typeof vi.fn>;
+  };
+  let mockAccessPassService: {
+    getMyPass: ReturnType<typeof vi.fn>;
   };
   let mockAuthService: {
     username: ReturnType<typeof signal<string>>;
@@ -23,6 +28,22 @@ describe('Profile Component', () => {
     isProfessor: ReturnType<typeof signal<boolean>>;
     isClient: ReturnType<typeof signal<boolean>>;
     logout: ReturnType<typeof vi.fn>;
+  };
+
+  const mockPass: AccessPass = {
+    publicId: 'pass-uuid-1',
+    userPublicId: 'uuid-1234-5678',
+    clientName: 'Lionel Messi',
+    clientDni: '33445566',
+    clientEmail: 'lionel@gym.com',
+    planName: 'Plan Trimestral',
+    accessCode: 'GYM-PASS-33445566-ABCD',
+    qrData: '{"code":"GYM-PASS-33445566-ABCD"}',
+    qrImageBase64: 'data:image/png;base64,mockImage',
+    generatedBy: 'admin',
+    generatedAt: '2026-11-14T19:00:00',
+    validUntil: '2027-02-12',
+    active: true
   };
 
   const initialProfile: UserProfile = {
@@ -42,6 +63,10 @@ describe('Profile Component', () => {
       updateProfile: vi.fn()
     };
 
+    mockAccessPassService = {
+      getMyPass: vi.fn().mockReturnValue(of(mockPass))
+    };
+
     mockAuthService = {
       username: signal('leomessi'),
       userRoles: signal(['ROLE_CLIENT']),
@@ -57,6 +82,7 @@ describe('Profile Component', () => {
       providers: [
         provideRouter([]),
         { provide: ProfileService, useValue: mockProfileService },
+        { provide: AccessPassService, useValue: mockAccessPassService },
         { provide: AuthService, useValue: mockAuthService }
       ]
     }).compileComponents();
@@ -148,6 +174,17 @@ describe('Profile Component', () => {
 
     expect(component['profileForm'].value.phone).toBe('3415551010');
     expect(component['profileForm'].pristine).toBe(true);
+  });
+
+  it('should load client access pass and open/close QR modal', () => {
+    expect(mockAccessPassService.getMyPass).toHaveBeenCalled();
+    expect(component['accessPass']()).toEqual(mockPass);
+
+    component['openQrModal']();
+    expect(component['isQrModalOpen']()).toBe(true);
+
+    component['closeQrModal']();
+    expect(component['isQrModalOpen']()).toBe(false);
   });
 });
 

@@ -5,17 +5,21 @@ import { AdminUserService } from './admin-user.service';
 import { AuthService } from '../../auth/auth.service';
 import { AdminUser, CreateUserRequest, UpdateUserRequest, UserRole } from './admin-users.models';
 import { NavbarComponent } from '../../shared/navbar/navbar';
+import { AccessPassService } from '../../access/access-pass.service';
+import { AccessPass } from '../../access/access-pass.models';
+import { AccessCredentialModal } from '../../access/access-credential-modal';
 
 @Component({
   selector: 'app-users-management',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, NavbarComponent],
+  imports: [CommonModule, ReactiveFormsModule, NavbarComponent, AccessCredentialModal],
   templateUrl: './users-management.html',
   styleUrls: ['./users-management.css']
 })
 export class UsersManagement implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly adminUserService = inject(AdminUserService);
+  private readonly accessPassService = inject(AccessPassService);
   protected readonly authService = inject(AuthService);
 
   protected readonly users = signal<AdminUser[]>([]);
@@ -33,6 +37,12 @@ export class UsersManagement implements OnInit {
 
   protected readonly isConfirmModalOpen = signal<boolean>(false);
   protected readonly userToToggle = signal<AdminUser | null>(null);
+
+  protected readonly isQrModalOpen = signal<boolean>(false);
+  protected readonly selectedUserPass = signal<AccessPass | null>(null);
+  protected readonly isLoadingQr = signal<boolean>(false);
+  protected readonly isRegeneratingQr = signal<boolean>(false);
+  protected readonly activeQrUser = signal<AdminUser | null>(null);
 
   protected readonly userForm = this.fb.group({
     firstName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
@@ -300,5 +310,83 @@ export class UsersManagement implements OnInit {
       default:
         return role;
     }
+  }
+
+  protected openQrModal(user: AdminUser): void {
+    if (!user.enabled) {
+      this.errorMessage.set('No se puede emitir o consultar el pase de un usuario suspendido.');
+      return;
+    }
+    if (user.role !== 'ROLE_CLIENT') {
+      this.errorMessage.set('Solo los socios pueden poseer pases de acceso a sedes.');
+      return;
+    }
+
+    this.activeQrUser.set(user);
+    this.isLoadingQr.set(true);
+    this.errorMessage.set(null);
+
+    this.accessPassService.getPassByUser(user.publicId).subscribe({
+      next: (pass) => {
+        this.selectedUserPass.set(pass);
+        this.isQrModalOpen.set(true);
+        this.isLoadingQr.set(false);
+      },
+      error: (err) => {
+        // If 404, generate a pass for the user
+        if (err.status === 404) {
+          this.accessPassService.generatePass(user.publicId).subscribe({
+            next: (newPass) => {
+              this.selectedUserPass.set(newPass);
+              this.isQrModalOpen.set(true);
+              this.isLoadingQr.set(false);
+              this.showSuccess(`Pase QR generado exitosamente para ${user.firstName} ${user.lastName}.`);
+            },
+            error: (genErr) => {
+              this.isLoadingQr.set(false);
+              this.activeQrUser.set(null);
+              this.errorMessage.set(
+                genErr.error?.message ||
+                'El socio no posee una membresía activa con pago verificado para generar el pase.'
+              );
+            }
+          });
+        } else {
+          this.isLoadingQr.set(false);
+          this.activeQrUser.set(null);
+          this.errorMessage.set(
+            err.error?.message || 'Error al consultar la credencial de acceso del socio.'
+          );
+        }
+      }
+    });
+  }
+
+  protected regenerateQrPass(): void {
+    const user = this.activeQrUser();
+    if (!user) return;
+
+    this.isRegeneratingQr.set(true);
+    this.errorMessage.set(null);
+
+    this.accessPassService.generatePass(user.publicId).subscribe({
+      next: (pass) => {
+        this.selectedUserPass.set(pass);
+        this.isRegeneratingQr.set(false);
+        this.showSuccess('Código QR de acceso regenerado con éxito.');
+      },
+      error: (err) => {
+        this.isRegeneratingQr.set(false);
+        this.errorMessage.set(
+          err.error?.message || 'Error al regenerar el pase de acceso a sedes.'
+        );
+      }
+    });
+  }
+
+  protected closeQrModal(): void {
+    this.isQrModalOpen.set(false);
+    this.selectedUserPass.set(null);
+    this.activeQrUser.set(null);
   }
 }

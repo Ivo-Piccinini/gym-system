@@ -15,8 +15,9 @@ public enum AuditActions {
     DELETE_PLAN,
     CREATE_SUBSCRIPTION,
     CANCEL_SUBSCRIPTION,
-    // Transacciones de Pago
+    // Transacciones de Pago y Acceso
     PROCESS_PAYMENT,
+    GENERATE_ACCESS_QR,
     // Gestión de Clases y Actividades
     CREATE_ACTIVITY,
     UPDATE_ACTIVITY,

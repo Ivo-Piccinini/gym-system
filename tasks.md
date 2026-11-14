@@ -315,6 +315,26 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
   - [x] `GS-48`: Crear componente Dashboard con gráficos estadísticos de ocupación y recaudación.
   - [x] `GS-49`: Implementar tabla de visor forense de auditoría AOP con detalles JSON.
 
+### `[GS-ACCESS-QR] Generación y Consulta de Credencial Digital QR de Acceso a Sedes`
+- **Tipo:** Historia de Usuario Complementaria
+- **Estado:** Completada
+- **Descripción:**
+  Como Administrador, quiero emitir y gestionar credenciales digitales con código QR para los socios con membresía activa y pago aprobado desde el padrón de usuarios (`/admin/usuarios`), y como Socio, quiero consultar y visualizar mi pase digital de acceso con QR en mi perfil (`/perfil`) para ingresar a las sedes del gimnasio.
+- **Criterios de Aceptación:**
+  - Generación de código QR en backend codificado en Base64 utilizando la librería Google ZXing.
+  - El Administrador puede emitir, consultar y regenerar la credencial de acceso QR desde la fila del socio en el Padrón de Usuarios (`/admin/usuarios`).
+  - El Socio puede consultar su credencial QR vigente desde la sección destacada de su perfil (`/perfil`).
+  - Validación de membresía activa (`status: ACTIVE`) con pago verificado previo a la emisión; bloqueo y alerta si no cumple la condición.
+  - Modal digital con diseño de credencial deportiva (`AccessCredentialModal`), código alfanumérico legible, datos del socio/plan y opción de impresión.
+- **Tareas de Desarrollo:**
+  - [x] `GS-ACCESS-QR-1`: Integrar dependencias Google ZXing en `backend/pom.xml` y acción de auditoría `GENERATE_ACCESS_QR`.
+  - [x] `GS-ACCESS-QR-2`: Crear entidad `AccessPassEntity`, repositorio `AccessPassRepository` y generador de imágenes `QrCodeGeneratorService`.
+  - [x] `GS-ACCESS-QR-3`: Implementar servicio `AccessPassService` con validación de membresía y endpoints en `AccessPassController` (`/api/access/**`).
+  - [x] `GS-ACCESS-QR-4`: Desarrollar servicio y modelos de frontend `AccessPassService` y modal de credencial `AccessCredentialModal`.
+  - [x] `GS-ACCESS-QR-5`: Integrar acción de emisión y consulta de Pase QR en `UsersManagement` (`/admin/usuarios`).
+  - [x] `GS-ACCESS-QR-6`: Integrar banner y visualizador de Pase QR en el perfil del socio `Profile` (`/perfil`).
+  - [x] `GS-ACCESS-QR-7`: Cobertura exhaustiva de pruebas unitarias en backend (JUnit 5/Mockito) y frontend (Vitest).
+
 ---
 
 ## Resumen Numérico del Proyecto
@@ -324,6 +344,6 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
 | **Épicas Funcionales** | 6 | Infraestructura, Seguridad, Membresías, Clases, Rutinas, Auditoría |
 | **Historias Jira Originales** | 10 | `GS-5`, `GS-11`, `GS-15`, `GS-23`, `GS-27`, `GS-31`, `GS-35`, `GS-39`, `GS-42`, `GS-46` |
 | **Subtareas Jira Originales** | 27 | Tareas técnicas desglosadas en el tablero |
-| **Historias Complementarias** | 5 | Setup Core, Cambio credenciales, Admin planes, Admin clases, Maestro ejercicios |
-| **Tareas Técnicas Complementarias** | 12 | Subtareas de soporte para completar el 100% del sistema |
-| **Total de Ítems de Trabajo** | **54** | Plan completo para finalización del proyecto |
+| **Historias Complementarias** | 6 | Setup Core, Cambio credenciales, Admin planes, Admin clases, Maestro ejercicios, Pase de Acceso QR |
+| **Tareas Técnicas Complementarias** | 19 | Subtareas de soporte para completar el 100% del sistema |
+| **Total de Ítems de Trabajo** | **55** | Plan completo para finalización del proyecto |

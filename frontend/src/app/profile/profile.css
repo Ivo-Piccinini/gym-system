@@ -276,6 +276,123 @@
   color: #f87171;
 }
 
+.access-pass-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.25rem;
+  background: linear-gradient(135deg, rgba(255, 122, 0, 0.08) 0%, rgba(18, 20, 28, 0.95) 100%);
+  border: 1px solid rgba(255, 122, 0, 0.28);
+  border-radius: 10px;
+  padding: 1.25rem 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  flex-wrap: wrap;
+}
+
+.pass-banner-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background-color: rgba(255, 122, 0, 0.15);
+  border: 1px solid rgba(255, 122, 0, 0.35);
+  color: #ff9e40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.pass-banner-icon svg {
+  width: 24px;
+  height: 24px;
+}
+
+.pass-banner-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  min-width: 240px;
+}
+
+.pass-banner-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.pass-banner-title {
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.badge-access-active {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  background-color: rgba(16, 185, 129, 0.15);
+  color: #34d399;
+  border: 1px solid rgba(16, 185, 129, 0.3);
+  letter-spacing: 0.05em;
+}
+
+.badge-access-pending {
+  font-size: 0.68rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 4px;
+  background-color: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.3);
+  letter-spacing: 0.05em;
+}
+
+.pass-banner-desc {
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+.pass-banner-desc strong {
+  color: #ff9e40;
+}
+
+.pass-banner-action {
+  flex-shrink: 0;
+}
+
+.btn-qr-view {
+  background: linear-gradient(180deg, #ff8c1a 0%, #ff7a00 100%);
+  border: 1px solid #ff7a00;
+  color: #0b0c10;
+  font-size: 0.85rem;
+  font-weight: 700;
+  padding: 0.55rem 1.15rem;
+  border-radius: 6px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 2px 8px rgba(255, 122, 0, 0.3);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.btn-qr-view:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 14px rgba(255, 122, 0, 0.45);
+}
+
+.btn-qr-view svg {
+  width: 16px;
+  height: 16px;
+}
+
 .profile-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;

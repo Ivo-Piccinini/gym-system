@@ -22,6 +22,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.time.LocalDateTime;
@@ -36,6 +37,7 @@ public class DatabaseInitializerConfig {
     @Bean
     @Transactional
     public CommandLineRunner initDatabase(
+            JdbcTemplate jdbcTemplate,
             PermitRepository permitRepository,
             RoleRepository roleRepository,
             CredentialsRepository credentialsRepository,
@@ -49,6 +51,12 @@ public class DatabaseInitializerConfig {
     ) {
         return args -> {
             System.out.println(">> Iniciando verificación de semillas de base de datos...");
+
+            try {
+                jdbcTemplate.execute("ALTER TABLE audit_logs DROP CONSTRAINT IF EXISTS audit_logs_action_check");
+            } catch (Exception e) {
+                System.out.println(">> Ajuste de constraint audit_logs_action_check omitido: " + e.getMessage());
+            }
 
             // 1. Sembrado de Permisos y Roles (Esencial para la seguridad)
             Map<Permits, PermitEntity> permitEntities = new HashMap<>();

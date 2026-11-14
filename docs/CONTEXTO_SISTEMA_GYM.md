@@ -52,6 +52,11 @@ El sistema soporta tres roles principales de usuarios con permisos jerárquicos:
 * **RF23:** El sistema debe permitir al **Profesor** asignar ejercicios específicos a una rutina, parametrizando valores de carga: series, repeticiones y peso.
 * **RF31:** El sistema debe permitir al **Cliente** visualizar exclusivamente su rutina activa y vigente.
 
+### Módulo Access & QR (Control de Acceso a Sedes)
+* **RF-Access-01:** El sistema debe permitir al **Administrador** emitir y regenerar credenciales digitales de acceso provistas de código QR para cualquier socio con membresía activa y pago aprobado (`/admin/usuarios`).
+* **RF-Access-02:** El sistema debe permitir al **Socio** consultar y presentar su credencial digital QR de acceso vigente desde su perfil (`/perfil`).
+* **RF-Access-03:** El sistema valida que el socio posea una suscripción con estado `ACTIVE` vigente antes de generar el código QR y revoca/desactiva pases previos al emitir uno nuevo.
+
 ---
 
 ## 3. Modelo de Datos y Entidades JPA (DER)
@@ -161,6 +166,20 @@ A continuación se detalla la estructura relacional de la Base de Datos distribu
     * `timestamp`: `TIMESTAMP`
     * `details`: `TEXT` o `JSON` (Estructura conteniendo los estados de la entidad antes y después)
 
+#### Módulo Access & QR
+14. **`access_passes`** (Credenciales digitales de acceso a sedes y molinetes)
+    * `id` (PK): `Long` (IDENTITY)
+    * `public_id`: `UUID` (Unique, Not Null)
+    * `user_id` (FK): `Long` (Apunta a `users`)
+    * `subscription_id` (FK): `Long` (Apunta a `subscriptions`)
+    * `access_code`: `VARCHAR(100)` (Unique, Not Null - Código alfanumérico legible)
+    * `qr_data`: `TEXT` (Payload JSON codificado)
+    * `qr_image_base64`: `TEXT` (Data URL Base64 de la imagen PNG generada con ZXing)
+    * `generated_by`: `VARCHAR(100)` (Username del administrador emisor)
+    * `generated_at`: `TIMESTAMP`
+    * `valid_until`: `DATE` (Fecha de vencimiento sincronizada con la suscripción)
+    * `active`: `BOOLEAN` (Indica si es el pase activo del usuario)
+
 ---
 
 ## 4. API Rest: Catálogo de Endpoints (OpenAPI 3.0)
@@ -212,6 +231,13 @@ Todos los endpoints base están prefijados bajo la ruta global `/api/v1`.
 | Método | Endpoint | Acceso | Descripción |
 | :--- | :--- | :--- | :--- |
 | `GET` | `/audit/logs` | `ADMIN` | Consulta la bitácora cronológica descendente de eventos auditados por AOP (`audit_logs`). |
+
+### Módulo Access & QR (Control de Acceso)
+| Método | Endpoint | Acceso | Descripción |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/access/generate/{userPublicId}` | `ADMIN` | Emite o regenera la credencial QR de acceso para un socio activo. Audita `GENERATE_ACCESS_QR`. |
+| `GET` | `/access/user/{userPublicId}` | `ADMIN` | Consulta la credencial de acceso activa de un socio por su UUID. |
+| `GET` | `/access/my-pass` | `CLIENT` | Consulta la credencial digital de acceso activa del socio autenticado para escanear en sede. |
 
 ---
 
