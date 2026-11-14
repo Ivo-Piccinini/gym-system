@@ -25,9 +25,16 @@ public class ExerciseService
         List<ExerciseEntity> exercises;
 
         if (muscleGroup != null && !muscleGroup.isBlank()) {
-            exercises = exerciseRepository.findByMuscleGroupAndEnabledTrue(muscleGroup);
+            MuscleGroup group;
+            try {
+                group = MuscleGroup.valueOf(muscleGroup.trim().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalStateException("Grupo muscular inválido: " + muscleGroup);
+            }
+            exercises = exerciseRepository.findByMuscleGroupAndEnabledTrue(group);
         } else {
-            exercises = exerciseRepository.findAll();
+            // Los ejercicios dados de baja no se ofrecen para armar rutinas.
+            exercises = exerciseRepository.findAllByEnabledTrue();
         }
 
         return exercises.stream()

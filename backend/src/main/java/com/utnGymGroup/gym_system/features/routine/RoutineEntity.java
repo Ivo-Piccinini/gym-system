@@ -8,7 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.Date;
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -29,13 +29,11 @@ public class RoutineEntity
 
     private String name;
 
-    @Temporal(TemporalType.DATE)
     @Column(name = "start_date")
-    private Date startDate;
+    private LocalDate startDate;
 
-    @Temporal(TemporalType.DATE)
     @Column(name = "end_date")
-    private Date endDate;
+    private LocalDate endDate;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "client_id")
@@ -48,10 +46,18 @@ public class RoutineEntity
     @Enumerated(EnumType.STRING)
     private TypeRoutines type_routine;
 
+    // Baja lógica: las rutinas dadas de baja no se listan, pero se conservan en la base.
+    // El default de la columna deja habilitadas las filas que ya existen al actualizar el esquema.
+    @Column(name = "enabled", nullable = false, columnDefinition = "boolean default true")
+    private Boolean enabled = true;
+
     @PrePersist
     private void prePersist() {
         if (this.publicId == null) {
             this.publicId = UUID.randomUUID();
+        }
+        if (this.enabled == null) {
+            this.enabled = true;
         }
     }
 

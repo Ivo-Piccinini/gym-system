@@ -15,5 +15,8 @@ public interface ExerciseRepository extends JpaRepository<ExerciseEntity, Long> 
     boolean existsByName(String ExerciseName);
 
 
-    List<ExerciseEntity> findByMuscleGroupAndEnabledTrue(String muscleGroup);
+    // El campo de la entidad es un enum: el parámetro tiene que ser MuscleGroup (con String falla en runtime).
+    List<ExerciseEntity> findByMuscleGroupAndEnabledTrue(MuscleGroup muscleGroup);
+
+    List<ExerciseEntity> findAllByEnabledTrue();
 }

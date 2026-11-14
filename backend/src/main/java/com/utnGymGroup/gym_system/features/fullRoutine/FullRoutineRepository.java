@@ -11,7 +11,7 @@ public interface FullRoutineRepository extends JpaRepository<FullRoutineEntity, 
 {
     Optional<FullRoutineEntity> findByPublicId(UUID publicId);
 
-    @org.springframework.data.jpa.repository.Query("SELECT f FROM FullRoutineEntity f WHERE f.routine.publicId = :routinePublicId AND f.enabled = true")
+    @org.springframework.data.jpa.repository.Query("SELECT f FROM FullRoutineEntity f WHERE f.routine.publicId = :routinePublicId AND f.enabled = true ORDER BY f.id")
     java.util.List<FullRoutineEntity> findAllByRoutinePublicId(@org.springframework.data.repository.query.Param("routinePublicId") UUID routinePublicId);
 
 }
