@@ -64,10 +64,12 @@ function createExerciseRow(fb: FormBuilder, line?: RoutineLine) {
 
 type ExerciseRowForm = ReturnType<typeof createExerciseRow>;
 
+import { NavbarComponent } from '../shared/navbar/navbar';
+
 @Component({
   selector: 'app-routine-form',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, RouterLink, NavbarComponent],
   templateUrl: './routine-form.html',
   styleUrls: ['./routine-form.css']
 })

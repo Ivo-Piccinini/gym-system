@@ -1,7 +1,6 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { BaseChartDirective, provideCharts, withDefaultRegisterables } from 'ng2-charts';
 import { ChartConfiguration, ChartData, ChartType } from 'chart.js';
 import { forkJoin, of, catchError } from 'rxjs';
@@ -12,13 +11,14 @@ import { AuthService } from '../../auth/auth.service';
 import { Payment } from '../../membership/membership.models';
 import { GymClass } from '../../classes/classes.models';
 import { AuditLog } from '../audit/audit.models';
+import { NavbarComponent } from '../../shared/navbar/navbar';
 
 export type AuditCategoryFilter = 'ALL' | 'PRICE_CHANGES' | 'PAYMENTS' | 'USERS' | 'CLASSES';
 
 @Component({
   selector: 'app-dashboard-metrics',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink, BaseChartDirective],
+  imports: [CommonModule, FormsModule, BaseChartDirective, NavbarComponent],
   providers: [provideCharts(withDefaultRegisterables())],
   templateUrl: './dashboard-metrics.html',
   styleUrls: ['./dashboard-metrics.css']

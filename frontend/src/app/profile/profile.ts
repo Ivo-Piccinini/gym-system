@@ -1,15 +1,16 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { ProfileService } from './profile.service';
 import { AuthService } from '../auth/auth.service';
 import { UserProfile } from './profile.models';
+import { NavbarComponent } from '../shared/navbar/navbar';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, NavbarComponent],
   templateUrl: './profile.html',
   styleUrls: ['./profile.css']
 })

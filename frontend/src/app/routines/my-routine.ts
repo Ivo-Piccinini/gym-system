@@ -9,11 +9,12 @@ import {
   RoutineLine
 } from './routines.models';
 import { extractApiError, formatDate, todayIso, toDateInput } from './routine.utils';
+import { NavbarComponent } from '../shared/navbar/navbar';
 
 @Component({
   selector: 'app-my-routine',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, NavbarComponent],
   templateUrl: './my-routine.html',
   styleUrls: ['./my-routine.css']
 })

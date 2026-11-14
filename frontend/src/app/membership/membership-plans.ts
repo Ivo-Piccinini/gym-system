@@ -1,5 +1,4 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { RouterLink } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
 import { MembershipPlan, Payment, Subscription } from './membership.models';
 import {
@@ -14,6 +13,7 @@ import {
 import { MembershipPlanService } from './membership-plan.service';
 import { SubscriptionDialog } from './subscription-dialog';
 import { SubscriptionService } from './subscription.service';
+import { NavbarComponent } from '../shared/navbar/navbar';
 
 interface PlanCard {
   plan: MembershipPlan;
@@ -29,7 +29,7 @@ interface PlanCard {
 @Component({
   selector: 'app-membership-plans',
   standalone: true,
-  imports: [RouterLink, SubscriptionDialog],
+  imports: [SubscriptionDialog, NavbarComponent],
   templateUrl: './membership-plans.html',
   styleUrls: ['./membership-plans.css']
 })

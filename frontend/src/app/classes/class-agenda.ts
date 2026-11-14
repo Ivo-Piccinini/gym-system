@@ -1,6 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
 import { EMPTY, catchError, switchMap, tap } from 'rxjs';
 import { AuthService } from '../auth/auth.service';
 import { ClassFilters } from './class-filters';
@@ -23,10 +22,12 @@ import {
   HttpErrorLike
 } from './enrollment-feedback';
 
+import { NavbarComponent } from '../shared/navbar/navbar';
+
 @Component({
   selector: 'app-class-agenda',
   standalone: true,
-  imports: [RouterLink, ClassFilters],
+  imports: [ClassFilters, NavbarComponent],
   templateUrl: './class-agenda.html',
   styleUrls: ['./class-agenda.css']
 })

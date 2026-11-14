@@ -1,15 +1,15 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { AdminUserService } from './admin-user.service';
 import { AuthService } from '../../auth/auth.service';
 import { AdminUser, CreateUserRequest, UpdateUserRequest, UserRole } from './admin-users.models';
+import { NavbarComponent } from '../../shared/navbar/navbar';
 
 @Component({
   selector: 'app-users-management',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, NavbarComponent],
   templateUrl: './users-management.html',
   styleUrls: ['./users-management.css']
 })

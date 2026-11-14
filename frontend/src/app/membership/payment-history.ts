@@ -14,6 +14,7 @@ import { MembershipPlanService } from './membership-plan.service';
 import { formatPrice, formatShortDate } from './membership.utils';
 import { PaymentService } from './payment.service';
 import { SubscriptionService } from './subscription.service';
+import { NavbarComponent } from '../shared/navbar/navbar';
 
 interface PaymentRow {
   key: string;
@@ -28,7 +29,7 @@ interface PaymentRow {
 @Component({
   selector: 'app-payment-history',
   standalone: true,
-  imports: [RouterLink],
+  imports: [RouterLink, NavbarComponent],
   templateUrl: './payment-history.html',
   styleUrls: ['./payment-history.css']
 })

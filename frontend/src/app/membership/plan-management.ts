@@ -1,16 +1,16 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
 import { extractApiError } from '../routines/routine.utils';
 import { MembershipPlan } from './membership.models';
 import { MembershipPlanService } from './membership-plan.service';
 import { durationLabel, formatPrice, pricePerMonth } from './membership.utils';
+import { NavbarComponent } from '../shared/navbar/navbar';
 
 @Component({
   selector: 'app-plan-management',
   standalone: true,
-  imports: [ReactiveFormsModule, RouterLink],
+  imports: [ReactiveFormsModule, NavbarComponent],
   templateUrl: './plan-management.html',
   styleUrls: ['./plan-management.css']
 })

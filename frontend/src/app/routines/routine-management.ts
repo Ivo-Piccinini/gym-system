@@ -12,11 +12,12 @@ import {
   RoutineType
 } from './routines.models';
 import { extractApiError, formatDate, todayIso, toDateInput } from './routine.utils';
+import { NavbarComponent } from '../shared/navbar/navbar';
 
 @Component({
   selector: 'app-routine-management',
   standalone: true,
-  imports: [CommonModule, RouterLink],
+  imports: [CommonModule, RouterLink, NavbarComponent],
   templateUrl: './routine-management.html',
   styleUrls: ['./routine-management.css']
 })
