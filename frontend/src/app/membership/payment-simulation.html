@@ -57,9 +57,99 @@
     </div>
   </fieldset>
 
-  <p class="sim-note">
-    Es una simulación: no se realiza ningún cobro real ni se te piden datos de tarjeta.
-  </p>
+  @if (method() === 'TARJETA') {
+    <form class="card-form" [formGroup]="cardForm" (ngSubmit)="confirm()" novalidate autocomplete="off">
+      <div class="form-group">
+        <label for="card-holder" class="form-label">Titular de la tarjeta</label>
+        <input
+          id="card-holder"
+          type="text"
+          class="form-input"
+          formControlName="holder"
+          placeholder="COMO FIGURA EN LA TARJETA"
+          maxlength="40"
+          autocomplete="cc-name"
+          [class.input-invalid]="showError('holder')"
+          (input)="onHolderInput($event)"
+        />
+        @if (showError('holder')) {
+          <span class="field-error">Ingresá el nombre del titular (solo letras, entre 3 y 40 caracteres).</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="card-number" class="form-label">
+          Número de tarjeta
+          @if (brand(); as b) {
+            <span class="brand-tag">{{ brandLabel(b) }}</span>
+          }
+        </label>
+        <input
+          id="card-number"
+          type="text"
+          inputmode="numeric"
+          class="form-input"
+          formControlName="number"
+          placeholder="0000 0000 0000 0000"
+          maxlength="19"
+          autocomplete="cc-number"
+          [class.input-invalid]="showError('number')"
+          (input)="onNumberInput($event)"
+        />
+        @if (showError('number')) {
+          <span class="field-error">{{ numberError() }}</span>
+        }
+      </div>
+
+      <div class="card-row">
+        <div class="form-group">
+          <label for="card-expiry" class="form-label">Vencimiento</label>
+          <input
+            id="card-expiry"
+            type="text"
+            inputmode="numeric"
+            class="form-input"
+            formControlName="expiry"
+            placeholder="MM/AA"
+            maxlength="5"
+            autocomplete="cc-exp"
+            [class.input-invalid]="showError('expiry')"
+            (input)="onExpiryInput($event)"
+          />
+          @if (showError('expiry')) {
+            <span class="field-error">{{ expiryError() }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="card-cvv" class="form-label">Código de seguridad</label>
+          <input
+            id="card-cvv"
+            type="password"
+            inputmode="numeric"
+            class="form-input"
+            formControlName="cvv"
+            [placeholder]="cvvLength() === 4 ? '••••' : '•••'"
+            maxlength="4"
+            autocomplete="cc-csc"
+            [class.input-invalid]="showError('cvv')"
+            (input)="onCvvInput($event)"
+          />
+          @if (showError('cvv')) {
+            <span class="field-error">El código tiene {{ cvvLength() }} dígitos.</span>
+          }
+        </div>
+      </div>
+
+      <p class="sim-note">
+        Es una simulación: no se realiza ningún cobro real y los datos de la tarjeta no se envían ni se guardan.
+      </p>
+    </form>
+  } @else {
+    <p class="sim-note">
+      Es una simulación: no se realiza ningún cobro real.
+    </p>
+  }
 
   @if (errorMessage()) {
     <div class="toast-banner error-banner" role="alert">
@@ -79,7 +169,7 @@
   <button type="button" class="btn-ghost" (click)="postpone()" [disabled]="isSubmitting()">
     Pagar después
   </button>
-  <button type="button" class="btn-primary" (click)="confirm()" [disabled]="!method() || isSubmitting()">
+  <button type="button" class="btn-primary" (click)="confirm()" [disabled]="!canConfirm()">
     @if (isSubmitting()) {
       <span class="spinner-sm"></span>
       <span>Registrando...</span>
