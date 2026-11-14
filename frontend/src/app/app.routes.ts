@@ -68,8 +68,22 @@ export const routes: Routes = [
   },
   {
     path: 'profesor/rutinas',
-    redirectTo: 'perfil',
-    pathMatch: 'full'
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['ROLE_PROFESSOR', 'ROLE_ADMIN'] },
+    loadComponent: () =>
+      import('./routines/routine-management').then((m) => m.RoutineManagement)
+  },
+  {
+    path: 'profesor/rutinas/nueva',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['ROLE_PROFESSOR', 'ROLE_ADMIN'] },
+    loadComponent: () => import('./routines/routine-form').then((m) => m.RoutineForm)
+  },
+  {
+    path: 'profesor/rutinas/:id/editar',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['ROLE_PROFESSOR', 'ROLE_ADMIN'] },
+    loadComponent: () => import('./routines/routine-form').then((m) => m.RoutineForm)
   },
   {
     path: '',

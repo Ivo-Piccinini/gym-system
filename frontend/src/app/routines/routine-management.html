@@ -1,0 +1,356 @@
+<div class="routines-container">
+  <header class="routines-navbar">
+    <div class="navbar-brand">
+      <div class="brand-logo">
+        <svg viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="navAmberGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stop-color="#fbbf24" />
+              <stop offset="100%" stop-color="#d97706" />
+            </linearGradient>
+            <linearGradient id="navSteelGrad3" x1="0%" y1="0%" x2="0%" y2="100%">
+              <stop offset="0%" stop-color="#f8fafc" />
+              <stop offset="100%" stop-color="#64748b" />
+            </linearGradient>
+          </defs>
+          <rect x="18" y="29" width="28" height="6" rx="2" fill="url(#navSteelGrad3)" />
+          <rect x="15" y="26" width="3" height="12" rx="1" fill="url(#navAmberGrad3)" />
+          <rect x="46" y="26" width="3" height="12" rx="1" fill="url(#navAmberGrad3)" />
+          <rect x="10" y="16" width="5" height="32" rx="1.5" fill="url(#navSteelGrad3)" />
+          <rect x="49" y="16" width="5" height="32" rx="1.5" fill="url(#navSteelGrad3)" />
+          <rect x="5" y="21" width="5" height="22" rx="1.5" fill="url(#navAmberGrad3)" />
+          <rect x="54" y="21" width="5" height="22" rx="1.5" fill="url(#navAmberGrad3)" />
+        </svg>
+      </div>
+      <div class="brand-text">
+        <span class="brand-title">Gym System</span>
+        <span class="brand-subtitle">Portal de Entrenamiento</span>
+      </div>
+    </div>
+
+    <div class="navbar-actions">
+      <a routerLink="/perfil" class="btn-ghost">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+          <circle cx="12" cy="7" r="4" />
+        </svg>
+        <span>Mi Perfil</span>
+      </a>
+      <button type="button" class="btn-ghost" (click)="authService.logout()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+          <polyline points="16 17 21 12 16 7" />
+          <line x1="21" y1="12" x2="9" y2="12" />
+        </svg>
+        <span>Cerrar Sesión</span>
+      </button>
+    </div>
+  </header>
+
+  <main class="routines-main">
+    @if (successMessage()) {
+      <div class="toast-banner success-banner">
+        <div class="toast-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+            <polyline points="22 4 12 14.01 9 11.01" />
+          </svg>
+        </div>
+        <div class="toast-content">{{ successMessage() }}</div>
+        <button type="button" class="toast-close" (click)="successMessage.set(null)" aria-label="Cerrar notificación">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+    }
+
+    @if (errorMessage()) {
+      <div class="toast-banner error-banner">
+        <div class="toast-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="12" />
+            <line x1="12" y1="16" x2="12.01" y2="16" />
+          </svg>
+        </div>
+        <div class="toast-content">{{ errorMessage() }}</div>
+        <button type="button" class="toast-close" (click)="errorMessage.set(null)" aria-label="Cerrar alerta">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18" />
+            <line x1="6" y1="6" x2="18" y2="18" />
+          </svg>
+        </button>
+      </div>
+    }
+
+    <section class="routines-header-section">
+      <div class="header-titles">
+        <h1 class="page-title">Rutinas de Entrenamiento</h1>
+        <p class="page-subtitle">Creá, modificá y dá de baja las rutinas personalizadas asignadas a cada socio.</p>
+      </div>
+      <div class="header-action">
+        <a routerLink="/profesor/rutinas/nueva" class="btn-primary btn-new-routine">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19" />
+            <line x1="5" y1="12" x2="19" y2="12" />
+          </svg>
+          <span>Nueva Rutina</span>
+        </a>
+      </div>
+    </section>
+
+    <section class="roster-strip">
+      <div class="roster-stat">
+        <span class="stat-number">{{ totalCount() }}</span>
+        <span class="stat-tag">Rutinas activas</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="roster-stat">
+        <span class="stat-number text-client">{{ clientCount() }}</span>
+        <span class="stat-tag">Socios con rutina</span>
+      </div>
+      <div class="stat-divider"></div>
+      <div class="roster-stat">
+        <span class="stat-number text-amber">{{ exerciseCount() }}</span>
+        <span class="stat-tag">Ejercicios asignados</span>
+      </div>
+    </section>
+
+    <section class="toolbar-section">
+      <div class="search-field">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8" />
+          <line x1="21" y1="21" x2="16.65" y2="16.65" />
+        </svg>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Buscar por rutina, socio o DNI..."
+          [value]="searchTerm()"
+          (input)="updateSearch($event)"
+        />
+        @if (searchTerm()) {
+          <button type="button" class="search-clear" (click)="searchTerm.set('')" aria-label="Limpiar búsqueda">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18" />
+              <line x1="6" y1="6" x2="18" y2="18" />
+            </svg>
+          </button>
+        }
+      </div>
+
+      <div class="filter-groups">
+        <div class="segmented-control" role="group" aria-label="Filtro por tipo de rutina">
+          <button
+            type="button"
+            class="seg-btn"
+            [class.active]="selectedType() === 'ALL'"
+            (click)="setTypeFilter('ALL')"
+          >
+            Todas
+          </button>
+          @for (type of routineTypes; track type) {
+            <button
+              type="button"
+              class="seg-btn"
+              [class.active]="selectedType() === type"
+              (click)="setTypeFilter(type)"
+            >
+              {{ getTypeLabel(type) }}
+            </button>
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="table-container">
+      @if (isLoading()) {
+        <div class="table-state-box">
+          <div class="spinner"></div>
+          <p class="state-message">Consultando rutinas...</p>
+        </div>
+      } @else if (filteredRoutines().length === 0) {
+        <div class="table-state-box">
+          @if (totalCount() === 0) {
+            <p class="empty-title">Todavía no hay rutinas cargadas</p>
+            <p class="empty-subtitle">Creá la primera rutina para asignarle ejercicios a un socio.</p>
+            <a routerLink="/profesor/rutinas/nueva" class="btn-primary">Nueva Rutina</a>
+          } @else {
+            <p class="empty-title">Sin resultados coincidentes</p>
+            <p class="empty-subtitle">No se hallaron rutinas con el criterio de búsqueda o filtros indicados.</p>
+          }
+        </div>
+      } @else {
+        <div class="table-responsive">
+          <table class="routine-table">
+            <thead>
+              <tr>
+                <th>Rutina</th>
+                <th>Socio</th>
+                <th>Vigencia</th>
+                <th>Ejercicios</th>
+                <th class="text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (routine of filteredRoutines(); track routine.publicId) {
+                <tr class="table-row" [class.row-expanded]="expandedId() === routine.publicId">
+                  <td class="cell-routine">
+                    <div class="routine-info">
+                      <span class="routine-name">{{ routine.name }}</span>
+                      <span class="type-badge">{{ getTypeLabel(routine.typeRoutine) }}</span>
+                    </div>
+                  </td>
+
+                  <td class="cell-client">
+                    <div class="client-cell">
+                      <div class="client-avatar">{{ getClientInitials(routine) }}</div>
+                      <div class="client-info">
+                        <span class="client-fullname">{{ getClientName(routine) }}</span>
+                        @if (routine.client?.dni) {
+                          <span class="client-handle">DNI {{ routine.client?.dni }}</span>
+                        }
+                      </div>
+                    </div>
+                  </td>
+
+                  <td class="cell-dates">
+                    <div class="date-range">
+                      {{ formatDate(routine.startDate) }}
+                      <span class="date-sep">→</span>
+                      {{ routine.endDate ? formatDate(routine.endDate) : 'Sin fin' }}
+                    </div>
+                    @if (isExpired(routine)) {
+                      <span class="status-pill status-expired">Vencida</span>
+                    } @else {
+                      <span class="status-pill status-active">Vigente</span>
+                    }
+                  </td>
+
+                  <td class="cell-count">
+                    <span class="count-number">{{ routine.exercises?.length || 0 }}</span>
+                  </td>
+
+                  <td class="cell-actions text-right">
+                    <div class="actions-group">
+                      <button
+                        type="button"
+                        class="btn-table-action"
+                        [attr.aria-expanded]="expandedId() === routine.publicId"
+                        (click)="toggleExpanded(routine)"
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          @if (expandedId() === routine.publicId) {
+                            <polyline points="18 15 12 9 6 15" />
+                          } @else {
+                            <polyline points="6 9 12 15 18 9" />
+                          }
+                        </svg>
+                        <span>Detalle</span>
+                      </button>
+                      <a
+                        class="btn-table-action"
+                        [routerLink]="['/profesor/rutinas', routine.publicId, 'editar']"
+                        title="Editar rutina"
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                          <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+                        </svg>
+                        <span>Editar</span>
+                      </a>
+                      <button
+                        type="button"
+                        class="btn-table-action action-danger"
+                        title="Dar de baja la rutina"
+                        (click)="promptDelete(routine)"
+                      >
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="3 6 5 6 21 6" />
+                          <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                          <path d="M10 11v6" />
+                          <path d="M14 11v6" />
+                          <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+                        </svg>
+                        <span>Baja</span>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+
+                @if (expandedId() === routine.publicId) {
+                  <tr class="detail-row">
+                    <td colspan="5">
+                      @if (!routine.exercises || routine.exercises.length === 0) {
+                        <p class="detail-empty">Esta rutina todavía no tiene ejercicios asignados.</p>
+                      } @else {
+                        <ul class="exercise-list">
+                          @for (line of routine.exercises; track line.publicId) {
+                            <li class="exercise-item">
+                              <div class="exercise-main">
+                                <span class="exercise-name">{{ line.exercise.name }}</span>
+                                <span class="muscle-tag">{{ getMuscleLabel(line) }}</span>
+                              </div>
+                              <div class="exercise-prescription">
+                                <span class="prescription-value">{{ line.series }} × {{ line.reps }}</span>
+                                <span class="prescription-weight">
+                                  {{ line.weight > 0 ? (line.weight + ' kg') : 'Peso corporal' }}
+                                </span>
+                              </div>
+                            </li>
+                          }
+                        </ul>
+                      }
+                    </td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <span>Mostrando {{ filteredRoutines().length }} de {{ totalCount() }} rutinas activas</span>
+        </div>
+      }
+    </section>
+  </main>
+
+  @if (routineToDelete(); as routine) {
+    <div class="modal-backdrop" (click)="cancelDelete()">
+      <div class="modal-card modal-confirm-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+        <div class="confirm-icon icon-danger">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="3 6 5 6 21 6" />
+            <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+            <path d="M10 11v6" />
+            <path d="M14 11v6" />
+            <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+          </svg>
+        </div>
+
+        <h3 class="confirm-title">¿Dar de baja esta rutina?</h3>
+
+        <p class="confirm-desc">
+          La rutina <strong>{{ routine.name }}</strong> de <strong>{{ getClientName(routine) }}</strong>
+          dejará de estar disponible para el socio. Es una baja lógica: el registro se conserva en el sistema.
+        </p>
+
+        <div class="modal-footer confirm-footer">
+          <button type="button" class="btn-ghost" (click)="cancelDelete()" [disabled]="isDeleting()">
+            Cancelar
+          </button>
+          <button type="button" class="btn-danger" (click)="confirmDelete()" [disabled]="isDeleting()">
+            @if (isDeleting()) {
+              <span class="spinner-sm"></span>
+              <span>Procesando...</span>
+            } @else {
+              <span>Sí, dar de baja</span>
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
