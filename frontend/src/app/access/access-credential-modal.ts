@@ -24,8 +24,4 @@ export class AccessCredentialModal {
   onRegenerate(): void {
     this.regenerate.emit();
   }
-
-  print(): void {
-    window.print();
-  }
 }

@@ -57,11 +57,4 @@ describe('AccessCredentialModal Component', () => {
     component.onRegenerate();
     expect(regSpy).toHaveBeenCalled();
   });
-
-  it('should trigger window.print on print', () => {
-    const printSpy = vi.spyOn(window, 'print').mockImplementation(() => {});
-    component.print();
-    expect(printSpy).toHaveBeenCalled();
-    printSpy.mockRestore();
-  });
 });
