@@ -1,6 +1,5 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { takeUntilDestroyed, toObservable } from '@angular/core/rxjs-interop';
-import { EMPTY, catchError, switchMap, tap } from 'rxjs';
+import { RouterLink } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
 import { ClassFilters } from './class-filters';
 import { ClassService } from './class.service';
@@ -13,7 +12,6 @@ import {
   GymClass,
   STATUS_LABELS
 } from './classes.models';
-import { addDays, parseIsoDate, startOfWeek, toIsoDate } from './date.utils';
 import { EnrollmentService } from './enrollment.service';
 import {
   Feedback,
@@ -27,7 +25,7 @@ import { NavbarComponent } from '../shared/navbar/navbar';
 @Component({
   selector: 'app-class-agenda',
   standalone: true,
-  imports: [ClassFilters, NavbarComponent],
+  imports: [RouterLink, ClassFilters, NavbarComponent],
   templateUrl: './class-agenda.html',
   styleUrls: ['./class-agenda.css']
 })
@@ -41,7 +39,6 @@ export class ClassAgenda {
   protected readonly isLoading = signal<boolean>(true);
   protected readonly errorMessage = signal<string | null>(null);
 
-  protected readonly selectedDate = signal<string>(toIsoDate(new Date())); // "YYYY-MM-DD"
   protected readonly discipline = signal<string>('');
   protected readonly day = signal<ApiDay | ''>('');
 
@@ -62,88 +59,42 @@ export class ClassAgenda {
     ].sort((a, b) => a.localeCompare(b))
   );
 
-  /** Lunes a sábado de la semana de la fecha elegida. */
-  protected readonly weekDays = computed(() => {
-    const monday = startOfWeek(parseIsoDate(this.selectedDate()));
-    return DAY_ORDER.map((apiDay, i) => {
-      const date = addDays(monday, i);
-      return { apiDay, label: DAY_LABELS[apiDay], date, iso: toIsoDate(date) };
-    });
-  });
-
-  /** Día (en términos del back) de la fecha elegida; undefined si cae domingo. */
-  private readonly selectedApiDay = computed<ApiDay | undefined>(
-    () => DAY_ORDER[(parseIsoDate(this.selectedDate()).getDay() + 6) % 7]
-  );
-
-  /** Agenda final: aplica filtro de día y disciplina y ordena cada día por horario. */
+  /**
+   * Agenda semanal: una columna por día de la semana (lunes a sábado) con todas las clases de ese
+   * día, ordenadas por horario. No hay fechas: las clases se repiten todas las semanas.
+   */
   protected readonly agenda = computed(() => {
     const discipline = this.discipline();
     const dayFilter = this.day();
     const all = this.classes();
 
-    return this.weekDays()
-      .filter((d) => !dayFilter || d.apiDay === dayFilter)
-      .map((d) => ({
-        ...d,
-        classes: all
-          .filter(
-            (c) => c.dayOfWeek === d.apiDay && (!discipline || this.disciplineOf(c) === discipline)
-          )
-          .sort((a, b) => a.startTime.localeCompare(b.startTime))
-      }));
+    return DAY_ORDER.filter((apiDay) => !dayFilter || apiDay === dayFilter).map((apiDay) => ({
+      apiDay,
+      label: DAY_LABELS[apiDay],
+      classes: all
+        .filter(
+          (c) => c.dayOfWeek === apiDay && (!discipline || this.disciplineOf(c) === discipline)
+        )
+        .sort((a, b) => a.startTime.localeCompare(b.startTime))
+    }));
   });
 
   protected readonly totalVisible = computed(() =>
     this.agenda().reduce((sum, d) => sum + d.classes.length, 0)
   );
 
-  /**
-   * Inscripciones vigentes por clase. El back guarda siempre la fecha de hoy en la inscripción
-   * (y cuenta los cupos por esa fecha), así que "inscripto" = inscripción de hoy a esa clase.
-   */
-  private readonly enrollmentByClass = computed(() => {
-    const today = toIsoDate(new Date());
-    return new Map(
-      this.enrollments()
-        .filter((e) => e.enrollmentDate === today && !!e.gymClass?.externalId)
-        .map((e) => [e.gymClass.externalId, e] as const)
-    );
-  });
+  /** Inscripción vigente del socio en cada clase (la inscripción dura hasta que la cancela). */
+  private readonly enrollmentByClass = computed(
+    () =>
+      new Map(
+        this.enrollments()
+          .filter((e) => !!e.gymClass?.externalId)
+          .map((e) => [e.gymClass.externalId, e] as const)
+      )
+  );
 
   constructor() {
-    // Recarga cuando cambia la fecha; switchMap cancela la request anterior si cambia rápido.
-    toObservable(this.selectedDate)
-      .pipe(
-        tap(() => {
-          // El spinner a pantalla completa solo en la primera carga; después la grilla
-          // queda visible mientras se actualizan los datos.
-          if (this.classes().length === 0) {
-            this.isLoading.set(true);
-          }
-          this.errorMessage.set(null);
-        }),
-        switchMap((date) =>
-          this.classService.getClasses(date).pipe(
-            catchError((err) => {
-              this.isLoading.set(false);
-              if (err.status === 401) {
-                this.authService.logout();
-              } else {
-                this.errorMessage.set(
-                  'No se pudieron cargar las clases. Por favor, reintente más tarde.'
-                );
-              }
-              return EMPTY;
-            })
-          )
-        ),
-        takeUntilDestroyed()
-      )
-      .subscribe((list) => {
-        this.classes.set(list);
-        this.isLoading.set(false);
-      });
+    this.loadClasses();
 
     // Solo los clientes tienen inscripciones (el endpoint es exclusivo del rol CLIENT).
     if (this.authService.isClient()) {
@@ -151,41 +102,10 @@ export class ClassAgenda {
     }
   }
 
-  // --- acciones: fecha ---
-  protected onDateChange(event: Event): void {
-    const value = (event.target as HTMLInputElement).value;
-    if (value) {
-      this.selectedDate.set(value);
-    }
-  }
-
-  protected shiftWeek(weeks: number): void {
-    this.selectedDate.set(toIsoDate(addDays(parseIsoDate(this.selectedDate()), weeks * 7)));
-  }
-
-  protected goToToday(): void {
-    this.selectedDate.set(toIsoDate(new Date()));
-  }
-
-  /** Clic en una columna: ese día pasa a ser la fecha elegida. */
-  protected selectDate(iso: string): void {
-    this.selectedDate.set(iso);
-  }
-
   protected retry(): void {
-    // Reasignar la misma fecha no dispara el signal, así que se recarga directo.
     this.isLoading.set(true);
     this.errorMessage.set(null);
-    this.classService.getClasses(this.selectedDate()).subscribe({
-      next: (list) => {
-        this.classes.set(list);
-        this.isLoading.set(false);
-      },
-      error: () => {
-        this.isLoading.set(false);
-        this.errorMessage.set('No se pudieron cargar las clases. Por favor, reintente más tarde.');
-      }
-    });
+    this.loadClasses();
   }
 
   // --- acciones: inscripción (GS-32) ---
@@ -211,7 +131,7 @@ export class ClassAgenda {
         const enrollment: Enrollment = {
           ...created,
           gymClass: c,
-          enrollmentDate: created.enrollmentDate ?? toIsoDate(new Date())
+          enrollmentDate: created.enrollmentDate
         };
         this.enrollments.update((list) => [...list, enrollment]);
         this.adjustSpots(c.externalId, -1);
@@ -275,17 +195,12 @@ export class ClassAgenda {
     return this.enrollmentByClass().get(c.externalId);
   }
 
-  /** Los cupos libres son de la fecha elegida: solo aplican a las clases de ese día de la semana. */
-  private hasSpotsData(c: GymClass): boolean {
-    return c.availableSpots != null && c.dayOfWeek === this.selectedApiDay();
-  }
-
   protected isFull(c: GymClass): boolean {
-    return this.hasSpotsData(c) && c.availableSpots === 0;
+    return c.availableSpots != null && c.availableSpots === 0;
   }
 
   protected spotsLabel(c: GymClass): string {
-    if (!this.hasSpotsData(c)) {
+    if (c.availableSpots == null) {
       return `Cupo máx.: ${c.capacityMax}`;
     }
     return c.availableSpots === 0
@@ -301,7 +216,7 @@ export class ClassAgenda {
     if (this.isFull(c)) {
       return 'full';
     }
-    if (this.hasSpotsData(c)) {
+    if (c.availableSpots != null) {
       return 'available';
     }
     return null; // sin dato de cupos del back, no se afirma nada
@@ -312,6 +227,23 @@ export class ClassAgenda {
   }
 
   // --- internos ---
+  private loadClasses(): void {
+    this.classService.getClasses().subscribe({
+      next: (list) => {
+        this.classes.set(list);
+        this.isLoading.set(false);
+      },
+      error: (err: HttpErrorLike) => {
+        this.isLoading.set(false);
+        if (err.status === 401) {
+          this.authService.logout();
+        } else {
+          this.errorMessage.set('No se pudieron cargar las clases. Por favor, reintente más tarde.');
+        }
+      }
+    });
+  }
+
   private loadEnrollments(): void {
     this.enrollmentService.getMyEnrollments().subscribe({
       next: (list) => this.enrollments.set(list),
@@ -331,7 +263,7 @@ export class ClassAgenda {
 
   /** Recarga silenciosa (sin spinner) para dejar el aforo igual al del back. */
   private refreshClasses(): void {
-    this.classService.getClasses(this.selectedDate()).subscribe({
+    this.classService.getClasses().subscribe({
       next: (list) => this.classes.set(list),
       error: () => undefined
     });

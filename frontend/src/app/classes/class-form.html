@@ -1,0 +1,135 @@
+<div class="modal-backdrop" (click)="close()">
+  <div class="modal-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="class-form-title">
+    <header class="modal-header">
+      <div class="modal-header-text">
+        <h2 id="class-form-title" class="modal-title">{{ gymClass() ? 'Editar clase' : 'Nueva clase' }}</h2>
+        <p class="modal-subtitle">
+          {{ gymClass() ? 'Modificá los datos de la clase.' : 'Asigná disciplina, profesor, día, horario y cupo.' }}
+        </p>
+      </div>
+      <button type="button" class="modal-close-btn" (click)="close()" aria-label="Cerrar ventana">×</button>
+    </header>
+
+    @if (overlapMessage(); as overlap) {
+      <div class="modal-alert" role="alert">{{ overlap }}</div>
+    }
+    @if (serverError(); as error) {
+      <div class="modal-alert" role="alert">{{ error }}</div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="modal-form">
+      <div class="form-grid">
+        <div class="form-group">
+          <label for="activityId" class="form-label">Disciplina</label>
+          <select
+            id="activityId"
+            class="form-select"
+            formControlName="activityId"
+            [class.input-invalid]="form.controls.activityId.invalid && form.controls.activityId.touched"
+          >
+            <option value="">Elegí una disciplina</option>
+            @for (a of activityOptions(); track a.externalId) {
+              <option [value]="a.externalId">{{ a.name }}</option>
+            }
+          </select>
+          @if (form.controls.activityId.invalid && form.controls.activityId.touched) {
+            <span class="field-error">Elegí una disciplina.</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="professorId" class="form-label">Profesor</label>
+          <select
+            id="professorId"
+            class="form-select"
+            formControlName="professorId"
+            [class.input-invalid]="form.controls.professorId.invalid && form.controls.professorId.touched"
+          >
+            <option value="">Elegí un profesor</option>
+            @for (p of professorOptions(); track p.publicId) {
+              <option [value]="p.publicId">{{ professorLabel(p) }}</option>
+            }
+          </select>
+          @if (form.controls.professorId.invalid && form.controls.professorId.touched) {
+            <span class="field-error">Elegí un profesor.</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="dayOfWeek" class="form-label">Día de la semana</label>
+          <select
+            id="dayOfWeek"
+            class="form-select"
+            formControlName="dayOfWeek"
+            [class.input-invalid]="form.controls.dayOfWeek.invalid && form.controls.dayOfWeek.touched"
+          >
+            <option value="">Elegí un día</option>
+            @for (d of days; track d.value) {
+              <option [value]="d.value">{{ d.label }}</option>
+            }
+          </select>
+          @if (form.controls.dayOfWeek.invalid && form.controls.dayOfWeek.touched) {
+            <span class="field-error">Elegí un día.</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="capacityMax" class="form-label">Cupo máximo</label>
+          <input
+            id="capacityMax"
+            type="number"
+            class="form-input"
+            formControlName="capacityMax"
+            min="1"
+            max="50"
+            [class.input-invalid]="form.controls.capacityMax.invalid && form.controls.capacityMax.touched"
+          />
+          @if (form.controls.capacityMax.invalid && form.controls.capacityMax.touched) {
+            <span class="field-error">El cupo debe ser un número entero entre 1 y 50.</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="startTime" class="form-label">Hora de inicio</label>
+          <app-class-time-field
+            inputId="startTime"
+            formControlName="startTime"
+            [invalid]="form.controls.startTime.invalid && form.controls.startTime.touched"
+          />
+          @if (form.controls.startTime.invalid && form.controls.startTime.touched) {
+            <span class="field-error">Indicá la hora de inicio.</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="endTime" class="form-label">Hora de fin</label>
+          <app-class-time-field
+            inputId="endTime"
+            formControlName="endTime"
+            [invalid]="(form.controls.endTime.invalid || form.hasError('timeRange')) && form.controls.endTime.touched"
+          />
+          @if (form.controls.endTime.invalid && form.controls.endTime.touched) {
+            <span class="field-error">Indicá la hora de fin.</span>
+          } @else if (form.hasError('timeRange') && form.controls.endTime.touched) {
+            <span class="field-error">La hora de fin debe ser posterior a la de inicio.</span>
+          }
+        </div>
+
+        @if (duration(); as d) {
+          <p class="form-hint">Duración: <strong>{{ d }}</strong></p>
+        }
+      </div>
+
+      <footer class="modal-footer">
+        <button type="button" class="btn-ghost" (click)="close()" [disabled]="isSaving()">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="isSaving() || form.invalid || !!overlapMessage()">
+          @if (isSaving()) {
+            <span>Guardando...</span>
+          } @else {
+            <span>{{ gymClass() ? 'Guardar cambios' : 'Crear clase' }}</span>
+          }
+        </button>
+      </footer>
+    </form>
+  </div>
+</div>

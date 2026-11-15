@@ -1,6 +1,7 @@
 package com.utnGymGroup.gym_system.common.exceptions;
 
 import com.utnGymGroup.gym_system.common.auth.permissions.exceptions.RoleNotFoundException;
+import com.utnGymGroup.gym_system.features.GymClass.exceptions.ScheduleOverlapException;
 import com.utnGymGroup.gym_system.features.audit.exceptions.AuditSerializationException;
 import com.utnGymGroup.gym_system.features.exercise.exceptions.ExerciseAlreadyExistsException;
 import com.utnGymGroup.gym_system.features.exercise.exceptions.ExerciseNotFoundException;
@@ -284,5 +285,25 @@ public class GlobalExceptionHandler {
                 .description(webRequest.getDescription(false))
                 .build();
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    @ExceptionHandler(ScheduleOverlapException.class)
+    public ResponseEntity<ErrorResponse> handleScheduleOverlapException(ScheduleOverlapException ex, WebRequest webRequest) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .message(ex.getMessage())
+                .description(webRequest.getDescription(false))
+                .build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest webRequest) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .message(ex.getMessage())
+                .description(webRequest.getDescription(false))
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 }

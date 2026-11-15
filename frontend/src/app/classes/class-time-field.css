@@ -1,0 +1,55 @@
+.time-field {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.hour-input {
+  width: 4rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.time-sep {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.minute-chips {
+  display: inline-flex;
+  align-items: center;
+  background-color: #101217;
+  border: 1px solid var(--border-subtle);
+  border-radius: 6px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.minute-chip {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.82rem;
+  font-weight: 500;
+  font-family: var(--font-body);
+  font-variant-numeric: tabular-nums;
+  padding: 0.4rem 0.6rem;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.minute-chip:hover:not(:disabled) {
+  color: var(--text-primary);
+}
+
+.minute-chip.active {
+  background-color: #1e222c;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.minute-chip:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}

@@ -7,45 +7,6 @@
   font-family: var(--font-body);
 }
 
-.agenda-navbar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0.85rem 2rem;
-  background-color: #090a0e;
-  border-bottom: 1px solid var(--border-subtle);
-  position: sticky;
-  top: 0;
-  z-index: 20;
-}
-
-.brand-text {
-  display: flex;
-  flex-direction: column;
-}
-
-.brand-title {
-  font-family: var(--font-display);
-  font-size: 1rem;
-  font-weight: 700;
-  color: var(--text-primary);
-  letter-spacing: -0.01em;
-}
-
-.brand-subtitle {
-  font-size: 0.7rem;
-  color: var(--accent-amber);
-  font-weight: 600;
-  letter-spacing: 0.03em;
-  text-transform: uppercase;
-}
-
-.navbar-actions {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
 .agenda-main {
   flex: 1;
   width: 100%;
@@ -77,11 +38,17 @@
   color: var(--text-muted);
 }
 
-.date-nav {
+.heading-side {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.75rem;
+}
+
+.manage-btn {
+  display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
+  text-decoration: none;
 }
 
 .filters-section {
@@ -194,16 +161,6 @@
 }
 
 .day-column {
-  cursor: pointer;
-  transition: border-color 0.15s ease;
-}
-
-.day-column:not(.selected):hover {
-  border-color: var(--text-subtle);
-}
-
-.day-column.selected {
-  border-color: var(--accent-amber-border);
 }
 
 .day-title {
@@ -326,7 +283,35 @@
   cursor: not-allowed;
 }
 
-/* --- Banner de Modo Administrador --- */
+@media (max-width: 1100px) {
+  .week-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 720px) {
+  .week-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  .heading-side {
+    align-items: flex-start;
+  }
+
+  .agenda-main {
+    padding: 1.5rem 1rem 3rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .week-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+/* --- aviso y etiqueta de modo administrador (solo lectura) --- */
 .admin-mode-banner {
   display: flex;
   align-items: flex-start;
@@ -335,7 +320,6 @@
   border: 1px solid rgba(245, 158, 11, 0.25);
   border-radius: 8px;
   padding: 0.85rem 1.1rem;
-  margin-bottom: 1.25rem;
   color: #fbbf24;
 }
 
@@ -364,49 +348,12 @@
 }
 
 .admin-view-tag {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.35rem;
   margin-top: 0.5rem;
-  padding: 0.35rem 0.5rem;
-  border-radius: 4px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: #a1a1aa;
-  font-size: 0.72rem;
-  font-weight: 500;
-  text-align: center;
-}
-
-.admin-view-tag svg {
-  color: #71717a;
-}
-
-@media (max-width: 1100px) {
-  .week-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 720px) {
-  .week-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 640px) {
-  .agenda-navbar {
-    padding: 0.75rem 1rem;
-  }
-
-  .agenda-main {
-    padding: 1.5rem 1rem 3rem;
-  }
-}
-
-@media (max-width: 480px) {
-  .week-grid {
-    grid-template-columns: minmax(0, 1fr);
-  }
+  align-self: flex-start;
+  padding: 0.15rem 0.5rem;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-muted);
 }

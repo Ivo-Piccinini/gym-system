@@ -33,6 +33,16 @@ describe('EnrollmentService', () => {
     expect(service).toBeTruthy();
   });
 
+  it('should get all enrollments via GET /enrollments (admin/professor)', () => {
+    service.getAll().subscribe((list) => {
+      expect(list).toEqual([mockEnrollment]);
+    });
+
+    const req = httpTesting.expectOne(`${environment.apiUrl}/enrollments`);
+    expect(req.request.method).toBe('GET');
+    req.flush([mockEnrollment]);
+  });
+
   it('should get my enrollments via GET /enrollments/my-enrollments', () => {
     service.getMyEnrollments().subscribe((list) => {
       expect(list).toEqual([mockEnrollment]);

@@ -99,7 +99,7 @@ public class GymClassController {
             @ApiResponse(responseCode = "400", description = "Error de validación (Ej: La hora de inicio es posterior a la de fin, o el profesor ya tiene una clase asignada que se solapa en ese horario)."),
             @ApiResponse(responseCode = "403", description = "No autorizado (Solo ADMIN o PROFESSOR).")
     })
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<GymClassDTO> createGymClass(
             @Parameter(description = "Datos de la nueva clase a programar")
             @Validated(ICreate.class) @RequestBody GymClassDTO gymClassDTO) {
@@ -114,7 +114,7 @@ public class GymClassController {
             @ApiResponse(responseCode = "403", description = "No autorizado."),
             @ApiResponse(responseCode = "404", description = "La clase no existe o está inactiva.")
     })
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<GymClassDTO> updateGymClass(
             @Parameter(description = "UUID de la clase a modificar")
             @PathVariable UUID externalId,
@@ -130,7 +130,7 @@ public class GymClassController {
             @ApiResponse(responseCode = "403", description = "No autorizado."),
             @ApiResponse(responseCode = "404", description = "La clase no existe.")
     })
-    @PreAuthorize("hasAnyRole('ADMIN', 'PROFESSOR')")
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteGymClass(
             @Parameter(description = "UUID de la clase a dar de baja")
             @PathVariable UUID externalId) {

@@ -55,8 +55,13 @@ public class EnrollmentService {
         GymClassEntity gymClass = gymClassRepository.findByExternalIdAndActiveTrue(classExternalId)
                 .orElseThrow(() -> new EntityNotFoundException("Clase no encontrada con el ID: " + classExternalId));
 
-        LocalDate enrollDate= LocalDate.now();
-        long currentEnrolled = enrollmentRepository.countByGymClassIdAndEnrollmentDate(gymClass.getId(),enrollDate);
+        // La inscripción es a la clase semanal y dura hasta que el socio la cancela: no se puede
+        // repetir y el cupo se calcula sobre todas las inscripciones vigentes de la clase.
+        if (enrollmentRepository.existsByClientIdAndGymClassId(client.getId(), gymClass.getId())) {
+            throw new IllegalStateException("Ya estás inscripto a esta clase.");
+        }
+
+        long currentEnrolled = enrollmentRepository.countByGymClassId(gymClass.getId());
         if (currentEnrolled >= gymClass.getCapacityMax()) {
             throw new IllegalStateException("No se puede inscribir: La clase ha alcanzado su capacidad máxima de " + gymClass.getCapacityMax() + " alumnos.");
         }

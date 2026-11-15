@@ -12,6 +12,11 @@ export class EnrollmentService {
   // environment.apiUrl ya incluye "/api"
   private readonly baseUrl = `${environment.apiUrl}/enrollments`;
 
+  /** Todas las inscripciones (solo ADMIN y PROFESSOR). Sirve para ver los alumnos de cada clase. */
+  getAll(): Observable<Enrollment[]> {
+    return this.http.get<Enrollment[]>(this.baseUrl);
+  }
+
   /** Inscripciones del cliente logueado (solo rol CLIENT). */
   getMyEnrollments(): Observable<Enrollment[]> {
     return this.http.get<Enrollment[]>(`${this.baseUrl}/my-enrollments`);
