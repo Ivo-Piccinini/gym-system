@@ -472,13 +472,108 @@ export class DashboardMetricsComponent implements OnInit {
   }
 
   getFormattedJson(raw: string | undefined): string {
-    if (!raw) return 'Sin detalles registrados';
+    return this.getLogSummaryText(raw);
+  }
+
+  getParsedDetailFields(raw: string | undefined): { label: string; value: string }[] {
+    if (!raw) return [];
     try {
       const parsed = JSON.parse(raw);
-      return JSON.stringify(parsed, null, 2);
+      return this.extractDetailFields(parsed);
     } catch {
-      return raw;
+      const clean = raw.replace(/[{\}[\]"]/g, '').trim();
+      return clean ? [{ label: 'Información', value: clean }] : [];
     }
+  }
+
+  private extractDetailFields(data: any): { label: string; value: string }[] {
+    if (!data) return [];
+    const fields: { label: string; value: string }[] = [];
+
+    const labelMap: Record<string, string> = {
+      name: 'Nombre',
+      firstName: 'Nombre',
+      lastName: 'Apellido',
+      email: 'Correo electrónico',
+      dni: 'DNI',
+      phone: 'Teléfono',
+      birthDate: 'Fecha de nacimiento',
+      role: 'Rol',
+      username: 'Usuario',
+      oldPrice: 'Precio anterior',
+      newPrice: 'Precio nuevo',
+      price: 'Precio',
+      amount: 'Monto',
+      method: 'Método de pago',
+      status: 'Estado',
+      capacity: 'Capacidad',
+      description: 'Descripción',
+      enabled: 'Habilitado',
+      active: 'Activo',
+      publicId: 'ID Público',
+      id: 'Identificador',
+      paymentDate: 'Fecha de pago',
+      rejectionReason: 'Motivo de rechazo'
+    };
+
+    const processItem = (item: any) => {
+      if (item === null || item === undefined) return;
+      if (typeof item !== 'object') {
+        fields.push({ label: 'Dato', value: String(item) });
+        return;
+      }
+      if (Array.isArray(item)) {
+        item.forEach(processItem);
+        return;
+      }
+      for (const [key, val] of Object.entries(item)) {
+        if (val === null || val === undefined || val === '') continue;
+        if (key === 'password' || key.toLowerCase().includes('token')) continue;
+
+        const label = labelMap[key] || this.formatKeyLabel(key);
+        let formattedValue = String(val);
+
+        if (typeof val === 'number' && (key.toLowerCase().includes('price') || key === 'amount')) {
+          formattedValue = `$${val.toLocaleString('es-AR')}`;
+        } else if (typeof val === 'boolean') {
+          formattedValue = val ? 'Sí' : 'No';
+        } else if (key === 'role') {
+          if (val === 'ROLE_CLIENT') formattedValue = 'Cliente';
+          else if (val === 'ROLE_ADMIN') formattedValue = 'Administrador';
+          else if (val === 'ROLE_PROFESSOR') formattedValue = 'Profesor';
+        } else if (key === 'status') {
+          if (val === 'APPROVED') formattedValue = 'Aprobado';
+          else if (val === 'PENDING') formattedValue = 'Pendiente';
+          else if (val === 'REJECTED') formattedValue = 'Rechazado';
+        } else if (typeof val === 'object') {
+          formattedValue = JSON.stringify(val).replace(/[{\}[\]"]/g, '').replace(/,/g, ', ');
+        }
+
+        fields.push({ label, value: formattedValue });
+      }
+    };
+
+    if (Array.isArray(data)) {
+      data.forEach(processItem);
+    } else {
+      processItem(data);
+    }
+
+    return fields;
+  }
+
+  private formatKeyLabel(key: string): string {
+    return key
+      .replace(/([A-Z])/g, ' $1')
+      .replace(/^./, (str) => str.toUpperCase())
+      .trim();
+  }
+
+  getLogSummaryText(raw: string | undefined): string {
+    if (!raw) return 'Sin detalles adicionales';
+    const fields = this.getParsedDetailFields(raw);
+    if (fields.length === 0) return 'Sin detalles adicionales';
+    return fields.slice(0, 3).map((f) => `${f.label}: ${f.value}`).join(' · ');
   }
 
   isPriceChangeAction(action: string | undefined): boolean {
@@ -502,14 +597,26 @@ export class DashboardMetricsComponent implements OnInit {
     }
   }
 
-  copyJsonToClipboard(): void {
+  copyDetailsToClipboard(): void {
     const log = this.selectedLogForModal();
     if (!log) return;
-    const json = this.getFormattedJson(log.details);
-    navigator.clipboard.writeText(json).then(() => {
+    const fields = this.getParsedDetailFields(log.details);
+    const lines = [
+      `Registro de Auditoría #${log.id}`,
+      `Acción: ${this.formatActionName(log.action)}`,
+      `Operador: @${log.performedBy || 'sistema'}`,
+      `Fecha: ${new Date(log.timestamp).toLocaleString('es-AR')}`,
+      '',
+      ...fields.map((f) => `${f.label}: ${f.value}`)
+    ];
+    navigator.clipboard.writeText(lines.join('\n')).then(() => {
       this.copySuccess.set(true);
       setTimeout(() => this.copySuccess.set(false), 2000);
     });
+  }
+
+  copyJsonToClipboard(): void {
+    this.copyDetailsToClipboard();
   }
 
   formatActionName(action: string): string {
@@ -623,9 +730,18 @@ export class DashboardMetricsComponent implements OnInit {
   }
 
   showToast(type: 'success' | 'error', message: string): void {
-    this.toast.set({ type, message });
+    let cleanMessage = message;
+    if (typeof cleanMessage === 'string' && (cleanMessage.startsWith('{') || cleanMessage.startsWith('['))) {
+      try {
+        const parsed = JSON.parse(cleanMessage);
+        cleanMessage = parsed.message || parsed.error || 'Ocurrió un error en la operación.';
+      } catch {
+        cleanMessage = cleanMessage.replace(/[{\}[\]"]/g, '').trim();
+      }
+    }
+    this.toast.set({ type, message: cleanMessage });
     setTimeout(() => {
-      if (this.toast()?.message === message) {
+      if (this.toast()?.message === cleanMessage) {
         this.toast.set(null);
       }
     }, 4500);

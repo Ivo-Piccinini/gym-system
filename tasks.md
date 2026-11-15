@@ -314,7 +314,7 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
 - **Subtareas Jira:**
   - [x] `GS-47`: Instalar y configurar `chart.js` y `ng2-charts` en Angular.
   - [x] `GS-48`: Crear componente Dashboard con gráficos estadísticos de ocupación y recaudación.
-  - [x] `GS-49`: Implementar tabla de visor forense de auditoría AOP con detalles JSON.
+  - [x] `GS-49`: Implementar tabla y modal de visor de auditoría AOP con detalles legibles y amigables (sin mensajes ni sintaxis JSON).
 
 ### `[GS-ACCESS-QR] Generación y Consulta de Credencial Digital QR de Acceso a Sedes`
 - **Tipo:** Historia de Usuario Complementaria

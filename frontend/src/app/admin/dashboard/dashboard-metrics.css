@@ -530,21 +530,69 @@
 .price-col .price-val.strike { text-decoration: line-through; color: #f87171; }
 .price-col .price-val.updated { color: #34d399; }
 .flow-arrow { color: #fbbf24; font-size: 1.25rem; }
-.json-viewer-container { display: flex; flex-direction: column; gap: 0.5rem; }
-.json-header { display: flex; align-items: center; justify-content: space-between; }
-.json-title { font-size: 0.8rem; font-weight: 600; color: #a1a1aa; }
+.audit-details-container { display: flex; flex-direction: column; gap: 0.75rem; margin-top: 0.5rem; }
+.details-header { display: flex; align-items: center; justify-content: space-between; }
+.details-title { font-size: 0.85rem; font-weight: 600; color: #d4d4d8; text-transform: uppercase; letter-spacing: 0.05em; }
+.btn-copy-details,
 .btn-copy-json {
   background: #27272a;
   border: 1px solid rgba(255, 255, 255, 0.1);
   color: #fbbf24;
   font-size: 0.75rem;
   font-weight: 600;
-  padding: 0.3rem 0.65rem;
-  border-radius: 0.3rem;
+  padding: 0.35rem 0.75rem;
+  border-radius: 0.375rem;
   cursor: pointer;
   transition: all 0.15s ease;
 }
+.btn-copy-details:hover,
 .btn-copy-json:hover { background: #3f3f46; color: #fff; }
+.details-fields-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 0.75rem;
+  background: #09090b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  max-height: 280px;
+  overflow-y: auto;
+}
+.detail-field-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  background: rgba(255, 255, 255, 0.03);
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.375rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.detail-field-card .field-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #a1a1aa;
+  font-weight: 600;
+}
+.detail-field-card .field-value {
+  font-size: 0.875rem;
+  color: #f4f4f5;
+  font-weight: 500;
+  word-break: break-word;
+}
+.details-empty {
+  font-size: 0.85rem;
+  color: #71717a;
+  font-style: italic;
+  padding: 1rem;
+  text-align: center;
+  background: #09090b;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+.json-viewer-container { display: flex; flex-direction: column; gap: 0.5rem; }
+.json-header { display: flex; align-items: center; justify-content: space-between; }
+.json-title { font-size: 0.8rem; font-weight: 600; color: #a1a1aa; }
 .json-code {
   background: #09090b;
   border: 1px solid rgba(255, 255, 255, 0.08);

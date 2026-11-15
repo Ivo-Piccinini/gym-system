@@ -531,10 +531,10 @@
                         }
                       </div>
                     } @else {
-                      <span class="truncate-text">{{ log.details }}</span>
+                      <span class="truncate-text">{{ getLogSummaryText(log.details) }}</span>
                     }
                   } @else {
-                    <span class="truncate-text">{{ log.details }}</span>
+                    <span class="truncate-text">{{ getLogSummaryText(log.details) }}</span>
                   }
                 </td>
                 <td class="text-right">
@@ -542,13 +542,13 @@
                     type="button"
                     class="btn-inspect"
                     (click)="openInspector(log)"
-                    title="Inspeccionar JSON Forense"
+                    title="Ver detalle del registro"
                   >
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                       <circle cx="11" cy="11" r="8" />
                       <line x1="21" y1="21" x2="16.65" y2="16.65" />
                     </svg>
-                    <span>Ver JSON</span>
+                    <span>Ver detalle</span>
                   </button>
                 </td>
               </tr>
@@ -559,13 +559,13 @@
     </div>
   </section>
 
-  <!-- MODAL DE INSPECCIÓN FORENSE JSON (GS-49) -->
+  <!-- MODAL DE DETALLE DE AUDITORÍA (GS-49) -->
   @if (isModalOpen() && selectedLogForModal(); as selectedLog) {
     <div class="modal-backdrop" (click)="closeInspector()">
       <div class="modal-dialog" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
         <header class="modal-header">
           <div class="modal-title-wrap">
-            <span class="modal-eyebrow">Auditoría Forense AOP</span>
+            <span class="modal-eyebrow">Auditoría del Sistema</span>
             <h3>Registro #{{ selectedLog.id }} — {{ formatActionName(selectedLog.action) }}</h3>
           </div>
           <button type="button" class="btn-close" (click)="closeInspector()" aria-label="Cerrar modal">
@@ -619,15 +619,29 @@
             </div>
           }
 
-          <!-- VISOR JSON -->
-          <div class="json-viewer-container">
-            <div class="json-header">
-              <span class="json-title">Payload Serializado por AspectJ (AOP)</span>
-              <button type="button" class="btn-copy-json" (click)="copyJsonToClipboard()">
-                {{ copySuccess() ? '¡Copiado!' : 'Copiar JSON' }}
+          <!-- DETALLES ESTRUCTURADOS DE LA OPERACIÓN -->
+          <div class="audit-details-container">
+            <div class="details-header">
+              <span class="details-title">Detalles de la Operación</span>
+              <button type="button" class="btn-copy-details" (click)="copyDetailsToClipboard()">
+                {{ copySuccess() ? '¡Copiado!' : 'Copiar detalles' }}
               </button>
             </div>
-            <pre class="json-code"><code>{{ getFormattedJson(selectedLog.details) }}</code></pre>
+
+            @if (getParsedDetailFields(selectedLog.details); as fields) {
+              @if (fields.length > 0) {
+                <div class="details-fields-grid">
+                  @for (field of fields; track field.label + field.value) {
+                    <div class="detail-field-card">
+                      <span class="field-label">{{ field.label }}</span>
+                      <span class="field-value">{{ field.value }}</span>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <p class="details-empty">Sin datos adicionales registrados para esta acción.</p>
+              }
+            }
           </div>
         </div>
 

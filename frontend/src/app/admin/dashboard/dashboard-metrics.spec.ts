@@ -207,6 +207,32 @@ describe('DashboardMetricsComponent', () => {
     });
   });
 
+  it('parsea detalles de auditoría en campos amigables sin exponer sintaxis JSON', () => {
+    const raw = '[{"firstName":"Juan","lastName":"Perez","dni":"12345678","role":"ROLE_CLIENT"}]';
+    const fields = component.getParsedDetailFields(raw);
+
+    expect(fields.length).toBe(4);
+    expect(fields[0]).toEqual({ label: 'Nombre', value: 'Juan' });
+    expect(fields[1]).toEqual({ label: 'Apellido', value: 'Perez' });
+    expect(fields[2]).toEqual({ label: 'DNI', value: '12345678' });
+    expect(fields[3]).toEqual({ label: 'Rol', value: 'Cliente' });
+
+    const summary = component.getLogSummaryText(raw);
+    expect(summary).toContain('Nombre: Juan');
+    expect(summary).not.toContain('{');
+    expect(summary).not.toContain('}');
+    expect(summary).not.toContain('"');
+  });
+
+  it('renderiza botón "Ver detalle" en lugar de "Ver JSON" en la tabla de auditoría', () => {
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    const inspectBtn = compiled.querySelector('.btn-inspect');
+    expect(inspectBtn).toBeTruthy();
+    expect(inspectBtn?.textContent).toContain('Ver detalle');
+    expect(inspectBtn?.textContent).not.toContain('Ver JSON');
+  });
+
   it('maneja error de forma resiliente cuando falla una petición', () => {
     paymentServiceMock.getAllPayments.mockReturnValue(throwError(() => new Error('Error de conexión')));
     component.loadAllData();
