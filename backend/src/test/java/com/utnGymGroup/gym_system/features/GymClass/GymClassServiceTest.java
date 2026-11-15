@@ -58,12 +58,12 @@ class GymClassServiceTest {
     }
 
     @Test
-    @DisplayName("getAllClasses con fecha dada calcula enrolledCount y availableSpots correctamente")
+    @DisplayName("getAllClasses calcula enrolledCount y availableSpots correctamente")
     void shouldCalculateEnrolledAndAvailableSpotsForDate() {
         LocalDate testDate = LocalDate.of(2026, 11, 10);
         when(gymClassRepository.findByActiveTrue()).thenReturn(List.of(testClassEntity));
         when(gymClassMapper.convertToDto(testClassEntity)).thenReturn(testClassDTO);
-        when(enrollmentRepository.countByGymClassIdAndEnrollmentDate(10L, testDate)).thenReturn(7L);
+        when(enrollmentRepository.countByGymClassId(10L)).thenReturn(7L);
 
         List<GymClassDTO> result = gymClassService.getAllClasses(testDate);
 
@@ -72,15 +72,15 @@ class GymClassServiceTest {
         GymClassDTO item = result.get(0);
         assertEquals(7, item.getEnrolledCount());
         assertEquals(13, item.getAvailableSpots());
-        verify(enrollmentRepository).countByGymClassIdAndEnrollmentDate(10L, testDate);
+        verify(enrollmentRepository).countByGymClassId(10L);
     }
 
     @Test
-    @DisplayName("getAllClasses sin fecha utiliza LocalDate.now() por defecto")
+    @DisplayName("getAllClasses sin fecha calcula enrolledCount y availableSpots correctamente")
     void shouldDefaultToCurrentDateWhenDateIsNull() {
         when(gymClassRepository.findByActiveTrue()).thenReturn(List.of(testClassEntity));
         when(gymClassMapper.convertToDto(testClassEntity)).thenReturn(testClassDTO);
-        when(enrollmentRepository.countByGymClassIdAndEnrollmentDate(eq(10L), any(LocalDate.class))).thenReturn(3L);
+        when(enrollmentRepository.countByGymClassId(10L)).thenReturn(3L);
 
         List<GymClassDTO> result = gymClassService.getAllClasses((LocalDate) null);
 
@@ -97,7 +97,7 @@ class GymClassServiceTest {
         LocalDate testDate = LocalDate.of(2026, 11, 10);
         when(gymClassRepository.findByActiveTrue()).thenReturn(List.of(testClassEntity));
         when(gymClassMapper.convertToDto(testClassEntity)).thenReturn(testClassDTO);
-        when(enrollmentRepository.countByGymClassIdAndEnrollmentDate(10L, testDate)).thenReturn(25L);
+        when(enrollmentRepository.countByGymClassId(10L)).thenReturn(25L);
 
         List<GymClassDTO> result = gymClassService.getAllClasses(testDate);
 
@@ -108,11 +108,11 @@ class GymClassServiceTest {
     }
 
     @Test
-    @DisplayName("Sobrecarga getAllClasses sin argumentos delega al cálculo con fecha actual")
+    @DisplayName("Sobrecarga getAllClasses sin argumentos delega al cálculo de cupos vigentes")
     void shouldSupportNoArgGetAllClasses() {
         when(gymClassRepository.findByActiveTrue()).thenReturn(List.of(testClassEntity));
         when(gymClassMapper.convertToDto(testClassEntity)).thenReturn(testClassDTO);
-        when(enrollmentRepository.countByGymClassIdAndEnrollmentDate(eq(10L), any(LocalDate.class))).thenReturn(0L);
+        when(enrollmentRepository.countByGymClassId(10L)).thenReturn(0L);
 
         List<GymClassDTO> result = gymClassService.getAllClasses();
 

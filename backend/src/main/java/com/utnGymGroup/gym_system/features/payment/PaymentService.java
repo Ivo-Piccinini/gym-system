@@ -15,6 +15,7 @@ import com.utnGymGroup.gym_system.features.user.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -140,7 +141,7 @@ public class PaymentService {
     }
 
     public List<PaymentResponseDto> getAllPayments() {
-        return paymentRepository.findAll()
+        return paymentRepository.findAll(Sort.by(Sort.Direction.DESC, "paymentDate", "id"))
                 .stream()
                 .map(responseMapper::convertToDto)
                 .toList();

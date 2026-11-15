@@ -113,8 +113,7 @@ class EnrollmentServiceTest {
         authenticateWithRole("ROLE_CLIENT");
         when(userService.getAuthenticatedUserEntity()).thenReturn(clientUser);
         when(gymClassRepository.findByExternalIdAndActiveTrue(classExternalId)).thenReturn(Optional.of(gymClass));
-        when(enrollmentRepository.countByGymClassIdAndEnrollmentDate(eq(gymClass.getId()), any(LocalDate.class)))
-                .thenReturn(20L);
+        when(enrollmentRepository.countByGymClassId(gymClass.getId())).thenReturn(20L);
 
         IllegalStateException exception = assertThrows(IllegalStateException.class, () ->
                 enrollmentService.enrollClient(classExternalId)
@@ -130,8 +129,7 @@ class EnrollmentServiceTest {
         authenticateWithRole("ROLE_CLIENT");
         when(userService.getAuthenticatedUserEntity()).thenReturn(clientUser);
         when(gymClassRepository.findByExternalIdAndActiveTrue(classExternalId)).thenReturn(Optional.of(gymClass));
-        when(enrollmentRepository.countByGymClassIdAndEnrollmentDate(eq(gymClass.getId()), any(LocalDate.class)))
-                .thenReturn(5L);
+        when(enrollmentRepository.countByGymClassId(gymClass.getId())).thenReturn(5L);
 
         EnrollmentEntity savedEntity = new EnrollmentEntity();
         savedEntity.setId(100L);

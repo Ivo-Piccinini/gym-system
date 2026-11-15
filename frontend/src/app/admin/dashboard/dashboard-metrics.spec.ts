@@ -228,6 +228,35 @@ describe('DashboardMetricsComponent', () => {
     expect((component as any).filteredCashPayments().length).toBe(1);
   });
 
+  it('ordena los cobros en efectivo mostrando los más recientes primero', () => {
+    const pOlder: Payment = {
+      id: 10,
+      publicId: 'old',
+      subscriptionId: 1,
+      amount: 10000,
+      paymentDate: '2026-11-01',
+      method: 'EFECTIVO',
+      status: 'PENDING'
+    };
+    const pNewer: Payment = {
+      id: 20,
+      publicId: 'new',
+      subscriptionId: 2,
+      amount: 15000,
+      paymentDate: '2026-11-10',
+      method: 'EFECTIVO',
+      status: 'PENDING'
+    };
+
+    (component as any).payments.set([pOlder, pNewer]);
+    component.setCashFilter('ALL');
+
+    const result = (component as any).filteredCashPayments();
+    expect(result.length).toBe(2);
+    expect(result[0].publicId).toBe('new');
+    expect(result[1].publicId).toBe('old');
+  });
+
   it('valida un cobro en efectivo y actualiza el estado a APPROVED', () => {
     const cashPayment = mockPayments[0];
     component.validateCash(cashPayment);

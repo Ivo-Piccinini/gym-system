@@ -52,7 +52,16 @@ export class DashboardMetricsComponent implements OnInit {
   protected readonly isRejectModalOpen = signal<boolean>(false);
 
   protected readonly cashPayments = computed(() => {
-    return this.payments().filter((p) => p.method === 'EFECTIVO');
+    return this.payments()
+      .filter((p) => p.method === 'EFECTIVO')
+      .sort((a, b) => {
+        const timeA = a.paymentDate ? new Date(a.paymentDate).getTime() : 0;
+        const timeB = b.paymentDate ? new Date(b.paymentDate).getTime() : 0;
+        if (timeA !== timeB) {
+          return timeB - timeA;
+        }
+        return (b.id || 0) - (a.id || 0);
+      });
   });
 
   protected readonly pendingCashCount = computed(() => {
@@ -63,26 +72,35 @@ export class DashboardMetricsComponent implements OnInit {
     const filter = this.selectedCashFilter();
     const term = this.cashSearchTerm().trim().toLowerCase();
 
-    return this.cashPayments().filter((p) => {
-      if (filter !== 'ALL' && p.status !== filter) {
-        return false;
-      }
-      if (!term) return true;
+    return this.cashPayments()
+      .filter((p) => {
+        if (filter !== 'ALL' && p.status !== filter) {
+          return false;
+        }
+        if (!term) return true;
 
-      const clientName = (p.clientName || '').toLowerCase();
-      const clientEmail = (p.clientEmail || '').toLowerCase();
-      const clientDni = (p.clientDni || '').toLowerCase();
-      const planName = (p.planName || '').toLowerCase();
-      const publicId = (p.publicId || '').toLowerCase();
+        const clientName = (p.clientName || '').toLowerCase();
+        const clientEmail = (p.clientEmail || '').toLowerCase();
+        const clientDni = (p.clientDni || '').toLowerCase();
+        const planName = (p.planName || '').toLowerCase();
+        const publicId = (p.publicId || '').toLowerCase();
 
-      return (
-        clientName.includes(term) ||
-        clientEmail.includes(term) ||
-        clientDni.includes(term) ||
-        planName.includes(term) ||
-        publicId.includes(term)
-      );
-    });
+        return (
+          clientName.includes(term) ||
+          clientEmail.includes(term) ||
+          clientDni.includes(term) ||
+          planName.includes(term) ||
+          publicId.includes(term)
+        );
+      })
+      .sort((a, b) => {
+        const timeA = a.paymentDate ? new Date(a.paymentDate).getTime() : 0;
+        const timeB = b.paymentDate ? new Date(b.paymentDate).getTime() : 0;
+        if (timeA !== timeB) {
+          return timeB - timeA;
+        }
+        return (b.id || 0) - (a.id || 0);
+      });
   });
 
   // Modal de Inspección Forense
