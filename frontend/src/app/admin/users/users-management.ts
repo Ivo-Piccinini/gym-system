@@ -280,10 +280,21 @@ export class UsersManagement implements OnInit {
   }
 
   private handleFormError(err: any, action: string): void {
-    if (err.status === 409 || (err.error && typeof err.error.message === 'string' && err.error.message.includes('existe'))) {
-      this.errorMessage.set(err.error?.message || 'Ya existe un usuario con este Email o DNI.');
-    } else if (err.error?.message) {
-      this.errorMessage.set(err.error.message);
+    const rawMsg = typeof err?.error?.message === 'string' ? err.error.message : '';
+    const isTechnicalOrSql = /could not execute statement|constraint|violates|duplicate key|syntax error|exception|insert into/i.test(rawMsg);
+
+    if (isTechnicalOrSql) {
+      if (/dni/i.test(rawMsg)) {
+        this.errorMessage.set('Ya existe un usuario registrado con el DNI ingresado.');
+      } else if (/email|correo/i.test(rawMsg)) {
+        this.errorMessage.set('Ya existe un usuario registrado con este email.');
+      } else {
+        this.errorMessage.set('Ya existe un usuario con este Email o DNI.');
+      }
+    } else if (rawMsg) {
+      this.errorMessage.set(rawMsg);
+    } else if (err?.status === 409) {
+      this.errorMessage.set('Ya existe un usuario con este Email o DNI.');
     } else {
       this.errorMessage.set(`Ocurrió un error inesperado al ${action} el usuario.`);
     }

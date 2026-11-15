@@ -171,9 +171,22 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDatabaseExceptions(DataIntegrityViolationException databaseException, WebRequest webRequest){
+        String rawMessage = databaseException.getMessage() != null ? databaseException.getMessage().toLowerCase() : "";
+        String friendlyMessage;
+
+        if (rawMessage.contains("users_dni_key") || rawMessage.contains("(dni)=") || rawMessage.contains("dni")) {
+            friendlyMessage = "Ya existe un usuario registrado con el DNI ingresado.";
+        } else if (rawMessage.contains("users_email_key") || rawMessage.contains("(email)=") || rawMessage.contains("email")) {
+            friendlyMessage = "Ya existe un usuario registrado con este email.";
+        } else if (rawMessage.contains("unique constraint") || rawMessage.contains("duplicate key")) {
+            friendlyMessage = "Los datos ingresados ya se encuentran registrados en el sistema.";
+        } else {
+            friendlyMessage = "Ocurrió un conflicto de integridad con los datos enviados.";
+        }
+
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-                .message(databaseException.getMessage())
+                .message(friendlyMessage)
                 .description(webRequest.getDescription(false))
                 .build();
 

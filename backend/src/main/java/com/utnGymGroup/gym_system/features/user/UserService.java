@@ -74,13 +74,16 @@ public class UserService {
     @Transactional
     @Auditable(AuditActions.USER_REGISTRATION)
     public UserDTO userRegister(UserDTO request){
+        if(request.getDni() != null && userRepository.existsByDni(request.getDni())){
+            throw new UserAlreadyExistsException("Ya existe un usuario registrado con el DNI ingresado.");
+        }
         if(userRepository.existsByEmail(request.getEmail())){
             throw new UserAlreadyExistsException("Ya existe un usuario con este email.");
         }
         // definimos que el username por defecto va a ser el dni, luego tendrá la posibilidad de cambiarlo.
         String defaultUsername = request.getDni();
-        if(credentialsRepository.findByUsername(defaultUsername).isPresent()){
-            throw new UserAlreadyExistsException("El usuario ya existe.");
+        if(defaultUsername != null && credentialsRepository.findByUsername(defaultUsername).isPresent()){
+            throw new UserAlreadyExistsException("Ya existe un usuario registrado con el DNI ingresado.");
         }
 
         UserEntity userEntity = userMapper.convertToEntity(request);
@@ -112,6 +115,9 @@ public class UserService {
     @Transactional
     @Auditable(AuditActions.USER_REGISTRATION)
     public UserDTO userRegister(NewAccountRequest request){
+        if(request.dni() != null && userRepository.existsByDni(request.dni())){
+            throw new UserAlreadyExistsException("Ya existe un usuario registrado con el DNI ingresado.");
+        }
         if(userRepository.existsByEmail(request.email())){
             throw new UserAlreadyExistsException("Ya existe un usuario con este email.");
         }

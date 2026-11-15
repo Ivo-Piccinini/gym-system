@@ -10,6 +10,7 @@ import com.utnGymGroup.gym_system.common.auth.permissions.Roles;
 import com.utnGymGroup.gym_system.features.user.dtos.PasswordChangeDTO;
 import com.utnGymGroup.gym_system.features.user.dtos.UserDTO;
 import com.utnGymGroup.gym_system.features.user.dtos.UserPatchDTO;
+import com.utnGymGroup.gym_system.features.user.exceptions.UserAlreadyExistsException;
 import com.utnGymGroup.gym_system.features.user.mappers.UserMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -207,5 +208,40 @@ class UserServiceTest {
         assertEquals("juan_nuevo", testCredentials.getUsername());
         assertFalse(response.requiresPasswordChange());
         verify(credentialsRepository, times(1)).save(testCredentials);
+    }
+
+    @Test
+    @DisplayName("userRegister lanza UserAlreadyExistsException con mensaje amigable cuando el DNI ya existe")
+    void shouldThrowExceptionWhenRegisteringUserWithExistingDni() {
+        UserDTO dto = new UserDTO();
+        dto.setDni("12345678");
+        dto.setEmail("nuevo@gym.com");
+
+        when(userRepository.existsByDni("12345678")).thenReturn(true);
+
+        UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class, () -> {
+            userService.userRegister(dto);
+        });
+
+        assertEquals("Ya existe un usuario registrado con el DNI ingresado.", exception.getMessage());
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("userRegister lanza UserAlreadyExistsException con mensaje amigable cuando el Email ya existe")
+    void shouldThrowExceptionWhenRegisteringUserWithExistingEmail() {
+        UserDTO dto = new UserDTO();
+        dto.setDni("87654321");
+        dto.setEmail("juan@test.com");
+
+        when(userRepository.existsByDni("87654321")).thenReturn(false);
+        when(userRepository.existsByEmail("juan@test.com")).thenReturn(true);
+
+        UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class, () -> {
+            userService.userRegister(dto);
+        });
+
+        assertEquals("Ya existe un usuario con este email.", exception.getMessage());
+        verify(userRepository, never()).save(any());
     }
 }

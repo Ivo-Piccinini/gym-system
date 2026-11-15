@@ -300,6 +300,7 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
 - **Subtareas Jira:**
   - [x] `GS-43`: Crear `AdminUserService` y DTOs de gestión de usuarios.
   - [x] `GS-44`: Diseñar modal de alta y edición de socios y staff (profesores/admin).
+  - [x] `GS-44-FIX`: Validación y mensajes amigables al registrar usuarios con DNI duplicado (sanitización de errores técnicos/SQL).
   - [x] `GS-45`: Integrar toggle de estado con `PATCH /api/users/{publicId}/status`.
 
 ### `GS-46: Auditoría de Precios y Dashboard de Métricas (Chart.js)`
