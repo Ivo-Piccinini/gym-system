@@ -321,6 +321,10 @@ export class UsersManagement implements OnInit {
       this.errorMessage.set('Solo los socios pueden poseer pases de acceso a sedes.');
       return;
     }
+    if (!user.hasActiveMembership) {
+      this.errorMessage.set('No se puede generar el código QR: el socio no posee una membresía activa con pago verificado.');
+      return;
+    }
 
     this.activeQrUser.set(user);
     this.isLoadingQr.set(true);

@@ -11,6 +11,9 @@ import com.utnGymGroup.gym_system.common.auth.permissions.Roles;
 import com.utnGymGroup.gym_system.common.auth.permissions.exceptions.RoleNotFoundException;
 import com.utnGymGroup.gym_system.features.audit.AuditActions;
 import com.utnGymGroup.gym_system.features.audit.Auditable;
+import com.utnGymGroup.gym_system.features.subscription.SubscriptionEntity;
+import com.utnGymGroup.gym_system.features.subscription.SubscriptionRepository;
+import com.utnGymGroup.gym_system.features.subscription.SubscriptionStatus;
 import com.utnGymGroup.gym_system.features.user.dtos.*;
 import com.utnGymGroup.gym_system.features.user.exceptions.*;
 import com.utnGymGroup.gym_system.features.user.mappers.*;
@@ -20,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -33,6 +37,7 @@ public class UserService {
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final SubscriptionRepository subscriptionRepository;
 
     public List<UserDTO> findAllUsers(Boolean enabled, Roles role){
         if(role != null){
@@ -268,6 +273,7 @@ public class UserService {
                     .findFirst()
                     .ifPresent(roleEntity -> dto.setRole(roleEntity.getRole()));
         }
+        dto.setHasActiveMembership(hasActiveSubscription(credentials.getUser()));
         return dto;
     }
 
@@ -285,7 +291,25 @@ public class UserService {
                         }
                     });
         }
+        dto.setHasActiveMembership(hasActiveSubscription(userEntity));
         return dto;
+    }
+
+    private boolean hasActiveSubscription(UserEntity user) {
+        if (user == null || subscriptionRepository == null) {
+            return false;
+        }
+        try {
+            List<SubscriptionEntity> subs = subscriptionRepository.findByUser(user);
+            if (subs == null || subs.isEmpty()) {
+                return false;
+            }
+            LocalDate today = LocalDate.now();
+            return subs.stream().anyMatch(s -> s.getStatus() == SubscriptionStatus.ACTIVE &&
+                    (s.getEndDate() == null || !s.getEndDate().isBefore(today)));
+        } catch (Exception e) {
+            return false;
+        }
     }
 
 }

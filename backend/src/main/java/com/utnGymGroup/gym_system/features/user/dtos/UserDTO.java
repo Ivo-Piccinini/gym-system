@@ -56,5 +56,8 @@ public class UserDTO {
 
     @Schema(description = "Estado de habilitación de la cuenta", example = "true")
     private Boolean enabled;
+
+    @Schema(description = "Indica si el socio posee una membresía activa y vigente", example = "true")
+    private Boolean hasActiveMembership;
 }
 

@@ -53,6 +53,9 @@ class UserServiceTest {
     @Mock
     private JwtService jwtService;
 
+    @Mock
+    private com.utnGymGroup.gym_system.features.subscription.SubscriptionRepository subscriptionRepository;
+
     @InjectMocks
     private UserService userService;
 
