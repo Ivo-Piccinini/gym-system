@@ -67,8 +67,11 @@ export class AuthService {
   }
 
   getDefaultRedirectUrl(): string {
-    return '/perfil';
-  }
+  if (this.isAdmin()) return '/admin/usuarios';
+  if (this.isProfessor()) return '/clases';
+  if (this.isClient()) return '/mi-rutina';
+  return '/perfil';
+}
 
   setSession(token: string, requiresPasswordChange?: boolean): void {
     const decoded = this.decodeToken(token);
