@@ -9,6 +9,7 @@ import { NavbarComponent } from '../shared/navbar/navbar';
 import { AccessPassService } from '../access/access-pass.service';
 import { AccessPass } from '../access/access-pass.models';
 import { AccessCredentialModal } from '../access/access-credential-modal';
+import { minAgeValidator, getMaxBirthDate } from '../shared/validators/age.validator';
 
 @Component({
   selector: 'app-profile',
@@ -41,7 +42,7 @@ export class Profile implements OnInit {
         Validators.pattern(/^[0-9+\-\s]{7,15}$/)
       ]
     ],
-    birthDate: ['', [Validators.required]]
+    birthDate: ['', [Validators.required, minAgeValidator(18)]]
   });
 
   ngOnInit(): void {
@@ -182,8 +183,6 @@ export class Profile implements OnInit {
   }
 
   protected getMaxBirthDate(): string {
-    const today = new Date();
-    today.setFullYear(today.getFullYear() - 10);
-    return today.toISOString().split('T')[0];
+    return getMaxBirthDate(18);
   }
 }

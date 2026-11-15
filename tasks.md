@@ -102,6 +102,7 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
 - **Subtareas Jira:**
   - [x] `GS-12`: Crear `ProfileComponent` y servicio de actualización (`profile.service.ts`).
   - [x] `GS-13`: Integrar formulario reactivo para patch de datos personales.
+  - [x] `GS-13-AGE`: Validación de edad mínima (+18 años) en autogestión de perfil.
   - [x] `GS-14`: Probar la persistencia parcial de datos de usuario con el backend.
 
 ### `[GS-AUTH-EXT] Actualización Obligatoria de Clave y Nombre de Usuario Temporal`
@@ -301,6 +302,7 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
   - [x] `GS-43`: Crear `AdminUserService` y DTOs de gestión de usuarios.
   - [x] `GS-44`: Diseñar modal de alta y edición de socios y staff (profesores/admin).
   - [x] `GS-44-FIX`: Validación y mensajes amigables al registrar usuarios con DNI duplicado (sanitización de errores técnicos/SQL).
+  - [x] `GS-44-AGE`: Validación de edad mínima (+18 años) en alta y modificación de usuarios en panel administrativo.
   - [x] `GS-45`: Integrar toggle de estado con `PATCH /api/users/{publicId}/status`.
 
 ### `GS-46: Auditoría de Precios y Dashboard de Métricas (Chart.js)`

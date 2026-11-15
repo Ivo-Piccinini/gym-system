@@ -228,6 +228,22 @@ describe('UsersManagement Component', () => {
     expect((component as any).errorMessage()).not.toContain('users_dni_key');
   });
 
+  it('should invalidate birthDate and prevent submission when user is under 18', () => {
+    (component as any).openCreateModal();
+    const today = new Date();
+    const under18Year = today.getFullYear() - 17;
+    (component as any).userForm.patchValue({
+      birthDate: `${under18Year}-01-01`
+    });
+
+    const birthControl = (component as any).userForm.get('birthDate');
+    expect(birthControl?.errors?.['minAge']).toBeTruthy();
+    expect((component as any).userForm.invalid).toBe(true);
+
+    (component as any).saveUser();
+    expect(mockAdminUserService.createUser).not.toHaveBeenCalled();
+  });
+
   it('should open edit modal with user data and update user', () => {
     const userToEdit = mockUsers[0];
     (component as any).openEditModal(userToEdit);

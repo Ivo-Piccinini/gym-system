@@ -8,6 +8,7 @@ import { NavbarComponent } from '../../shared/navbar/navbar';
 import { AccessPassService } from '../../access/access-pass.service';
 import { AccessPass } from '../../access/access-pass.models';
 import { AccessCredentialModal } from '../../access/access-credential-modal';
+import { minAgeValidator, getMaxBirthDate } from '../../shared/validators/age.validator';
 
 @Component({
   selector: 'app-users-management',
@@ -44,13 +45,15 @@ export class UsersManagement implements OnInit {
   protected readonly isRegeneratingQr = signal<boolean>(false);
   protected readonly activeQrUser = signal<AdminUser | null>(null);
 
+  protected readonly maxBirthDate = getMaxBirthDate(18);
+
   protected readonly userForm = this.fb.group({
     firstName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
     lastName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
     dni: ['', [Validators.required, Validators.pattern(/^[0-9]{8}$/)]],
     email: ['', [Validators.required, Validators.email]],
     phone: ['', [Validators.pattern(/^[0-9+\-\s]{7,15}$/)]],
-    birthDate: ['', [Validators.required]],
+    birthDate: ['', [Validators.required, minAgeValidator(18)]],
     role: ['ROLE_CLIENT' as UserRole, [Validators.required]]
   });
 

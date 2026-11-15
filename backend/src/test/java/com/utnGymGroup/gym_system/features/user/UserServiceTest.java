@@ -244,4 +244,35 @@ class UserServiceTest {
         assertEquals("Ya existe un usuario con este email.", exception.getMessage());
         verify(userRepository, never()).save(any());
     }
+
+    @Test
+    @DisplayName("userRegister lanza IllegalArgumentException si el usuario es menor de 18 años")
+    void shouldThrowExceptionWhenRegisteringUserUnder18() {
+        UserDTO dto = new UserDTO();
+        dto.setDni("88887777");
+        dto.setEmail("menor@gym.com");
+        dto.setBirthDate(LocalDate.now().minusYears(17));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            userService.userRegister(dto);
+        });
+
+        assertEquals("El usuario debe tener al menos 18 años de edad.", exception.getMessage());
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("updatePartialUser lanza IllegalArgumentException si la nueva fecha de nacimiento corresponde a un menor de 18 años")
+    void shouldThrowExceptionWhenUpdatingPartialUserUnder18() {
+        UserPatchDTO patchDTO = UserPatchDTO.builder()
+                .birthDay(LocalDate.now().minusYears(16))
+                .build();
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            userService.updatePartialUser(patchDTO);
+        });
+
+        assertEquals("El usuario debe tener al menos 18 años de edad.", exception.getMessage());
+        verify(userRepository, never()).save(any());
+    }
 }

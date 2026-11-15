@@ -184,7 +184,11 @@
               <input id="birthdate-input" type="date" formControlName="birthDate" [max]="getMaxBirthDate()"
                 class="field-input"
                 [class.has-error]="profileForm.controls.birthDate.invalid && profileForm.controls.birthDate.touched" />
-              @if (profileForm.controls.birthDate.invalid && profileForm.controls.birthDate.touched) {
+              @if (profileForm.controls.birthDate.errors?.['minAge'] && profileForm.controls.birthDate.touched) {
+              <span class="field-error">
+                Debes ser mayor de 18 años.
+              </span>
+              } @else if (profileForm.controls.birthDate.invalid && profileForm.controls.birthDate.touched) {
               <span class="field-error">
                 La fecha de nacimiento es obligatoria.
               </span>

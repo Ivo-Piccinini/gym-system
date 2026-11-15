@@ -74,6 +74,7 @@ public class UserService {
     @Transactional
     @Auditable(AuditActions.USER_REGISTRATION)
     public UserDTO userRegister(UserDTO request){
+        validateUserAge(request.getBirthDate());
         if(request.getDni() != null && userRepository.existsByDni(request.getDni())){
             throw new UserAlreadyExistsException("Ya existe un usuario registrado con el DNI ingresado.");
         }
@@ -200,6 +201,7 @@ public class UserService {
     @Transactional
     @Auditable(AuditActions.UPDATE_PROFILE)
     public UserDTO updateUser(String username, UserDTO userDTO){
+        validateUserAge(userDTO.getBirthDate());
         CredentialsEntity credentials = credentialsRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + username));
         UserEntity user = credentials.getUser();
@@ -233,6 +235,7 @@ public class UserService {
     @Transactional
     @Auditable(AuditActions.UPDATE_PROFILE)
     public UserDTO updatePartialUser(UserPatchDTO userPatchDTO){
+        validateUserAge(userPatchDTO.getBirthDay());
         String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
 
         CredentialsEntity credentials = credentialsRepository.findByUsername(username)
@@ -315,6 +318,12 @@ public class UserService {
                     (s.getEndDate() == null || !s.getEndDate().isBefore(today)));
         } catch (Exception e) {
             return false;
+        }
+    }
+
+    private void validateUserAge(LocalDate birthDate) {
+        if (birthDate != null && birthDate.isAfter(LocalDate.now().minusYears(18))) {
+            throw new IllegalArgumentException("El usuario debe tener al menos 18 años de edad.");
         }
     }
 

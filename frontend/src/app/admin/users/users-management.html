@@ -396,9 +396,12 @@
                 type="date"
                 class="form-input"
                 formControlName="birthDate"
+                [max]="maxBirthDate"
                 [class.input-invalid]="userForm.get('birthDate')?.invalid && userForm.get('birthDate')?.touched"
               />
-              @if (userForm.get('birthDate')?.invalid && userForm.get('birthDate')?.touched) {
+              @if (userForm.get('birthDate')?.errors?.['minAge'] && userForm.get('birthDate')?.touched) {
+                <span class="field-error">El usuario debe ser mayor de 18 años.</span>
+              } @else if (userForm.get('birthDate')?.invalid && userForm.get('birthDate')?.touched) {
                 <span class="field-error">La fecha de nacimiento es requerida.</span>
               }
             </div>

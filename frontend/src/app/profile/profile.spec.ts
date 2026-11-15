@@ -186,5 +186,19 @@ describe('Profile Component', () => {
     component['closeQrModal']();
     expect(component['isQrModalOpen']()).toBe(false);
   });
+
+  it('should invalidate birthDate when user is under 18 years old', () => {
+    const today = new Date();
+    const under18Year = today.getFullYear() - 17;
+    const birthControl = component['profileForm'].controls.birthDate;
+
+    birthControl.setValue(`${under18Year}-05-10`);
+    expect(birthControl.invalid).toBe(true);
+    expect(birthControl.errors?.['minAge']).toBeTruthy();
+
+    const adultYear = today.getFullYear() - 25;
+    birthControl.setValue(`${adultYear}-05-10`);
+    expect(birthControl.valid).toBe(true);
+  });
 });
 
