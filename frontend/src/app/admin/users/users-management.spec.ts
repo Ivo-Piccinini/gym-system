@@ -174,6 +174,32 @@ describe('UsersManagement Component', () => {
     expect((component as any).successMessage()).toContain('Lionel Messi');
   });
 
+  it('should close user modal and display error message when creating a user with existing DNI', () => {
+    (component as any).openCreateModal();
+    expect((component as any).isUserModalOpen()).toBe(true);
+
+    (component as any).userForm.setValue({
+      firstName: 'Lionel',
+      lastName: 'Messi',
+      dni: '10000001',
+      email: 'leo@gym.com',
+      phone: '3419998877',
+      birthDate: '1987-06-24',
+      role: 'ROLE_CLIENT'
+    });
+
+    mockAdminUserService.createUser.mockReturnValue(throwError(() => ({
+      status: 409,
+      error: { message: 'Ya existe un usuario con este Email o DNI.' }
+    })));
+
+    (component as any).saveUser();
+
+    expect(mockAdminUserService.createUser).toHaveBeenCalled();
+    expect((component as any).isUserModalOpen()).toBe(false);
+    expect((component as any).errorMessage()).toContain('Ya existe un usuario con este Email o DNI.');
+  });
+
   it('should open edit modal with user data and update user', () => {
     const userToEdit = mockUsers[0];
     (component as any).openEditModal(userToEdit);

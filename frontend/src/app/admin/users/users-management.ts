@@ -191,6 +191,7 @@ export class UsersManagement implements OnInit {
         },
         error: (err) => {
           this.isSaving.set(false);
+          this.closeUserModal();
           this.handleFormError(err, 'actualizar');
         }
       });
@@ -214,6 +215,7 @@ export class UsersManagement implements OnInit {
         },
         error: (err) => {
           this.isSaving.set(false);
+          this.closeUserModal();
           this.handleFormError(err, 'registrar');
         }
       });
