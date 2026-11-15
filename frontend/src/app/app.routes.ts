@@ -97,6 +97,12 @@ export const routes: Routes = [
     data: { roles: ['ROLE_PROFESSOR', 'ROLE_ADMIN'] },
     loadComponent: () => import('./routines/routine-form').then((m) => m.RoutineForm)
   },
+  {
+  path: 'profesor/ejercicios',
+  canActivate: [authGuard, roleGuard],
+  data: { roles: ['ROLE_PROFESSOR', 'ROLE_ADMIN'] },
+  loadComponent: () => import('./routines/exercise-bank').then((m) => m.ExerciseBank)
+},
 {
   path: 'admin/clases',
   canActivate: [authGuard, roleGuard, adminGuard],

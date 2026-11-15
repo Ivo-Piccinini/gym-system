@@ -745,3 +745,17 @@
     justify-content: flex-end;
   }
 }
+
+.header-action {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-exercise-bank {
+  padding: 0.4rem 0.85rem !important;
+  font-size: 0.78rem !important;
+  font-weight: 600;
+  text-decoration: none;
+}

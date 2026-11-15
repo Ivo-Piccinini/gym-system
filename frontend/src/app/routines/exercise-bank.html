@@ -1,0 +1,128 @@
+<div class="bank-container">
+  <app-navbar />
+
+  <main class="bank-main">
+    @if (successMessage()) {
+      <div class="toast-banner success-banner" role="status">
+        <div class="toast-content">{{ successMessage() }}</div>
+        <button type="button" class="toast-close" (click)="dismissSuccess()" aria-label="Cerrar notificación">×</button>
+      </div>
+    }
+    @if (errorMessage()) {
+      <div class="toast-banner error-banner" role="alert">
+        <div class="toast-content">{{ errorMessage() }}</div>
+        <button type="button" class="toast-close" (click)="dismissError()" aria-label="Cerrar alerta">×</button>
+      </div>
+    }
+
+    <section class="bank-heading">
+      <div>
+        <h1 class="bank-title">Banco de ejercicios</h1>
+        <p class="bank-subtitle">
+          Consultá, buscá y administrá los ejercicios por zona muscular para armar las rutinas de los alumnos.
+        </p>
+      </div>
+      <div class="heading-actions">
+        <a routerLink="/profesor/rutinas" class="btn-ghost">Volver a rutinas</a>
+        <button type="button" class="btn-primary" (click)="openCreate()" [disabled]="isLoading()">
+          Nuevo ejercicio
+        </button>
+      </div>
+    </section>
+
+    <section class="toolbar">
+      <div class="toolbar-field toolbar-search">
+        <label for="exercise-search" class="form-label">Buscar por nombre</label>
+        <input
+          id="exercise-search"
+          type="search"
+          class="form-input"
+          placeholder="Ej.: press, sentadilla, curl..."
+          autocomplete="off"
+          [value]="search()"
+          (input)="onSearch($event)"
+        />
+      </div>
+
+      <div class="toolbar-field">
+        <label for="exercise-group" class="form-label">Grupo muscular</label>
+        <select id="exercise-group" class="form-select" (change)="onGroupChange($event)">
+          <option value="" [selected]="!muscleFilter()">Todos los grupos</option>
+          @for (g of groupOptions(); track g.value) {
+            <option [value]="g.value" [selected]="g.value === muscleFilter()">{{ g.label }}</option>
+          }
+        </select>
+      </div>
+
+      @if (search() || muscleFilter()) {
+        <button type="button" class="btn-ghost clear-btn" (click)="clearFilters()">Limpiar filtros</button>
+      }
+    </section>
+
+    @if (isLoading()) {
+      <div class="state-card">
+        <div class="spinner"></div>
+        <p class="state-text">Cargando ejercicios...</p>
+      </div>
+    } @else if (loadError()) {
+      <div class="state-card error-state" role="alert">
+        <p class="state-title">No pudimos cargar los ejercicios</p>
+        <p class="state-text">{{ loadError() }}</p>
+        <button type="button" class="btn-primary" (click)="loadAll()">Reintentar</button>
+      </div>
+    } @else if (filtered().length === 0) {
+      <div class="state-card">
+        <p class="state-title">No hay ejercicios para mostrar</p>
+        <p class="state-text">
+          {{ exercises().length === 0 ? 'Todavía no hay ejercicios cargados. Creá el primero.' : 'Probá con otra búsqueda o cambiá el grupo muscular.' }}
+        </p>
+      </div>
+    } @else {
+      <p class="results-summary">
+        Mostrando {{ filtered().length }} de {{ exercises().length }} {{ exercises().length === 1 ? 'ejercicio' : 'ejercicios' }}
+      </p>
+
+      <div class="exercise-grid">
+        @for (e of filtered(); track e.idPublic) {
+          <article class="exercise-card">
+            <div class="exercise-top">
+              <h2 class="exercise-name">{{ e.name }}</h2>
+              <span class="group-chip">{{ groupLabel(e) }}</span>
+            </div>
+            <p class="exercise-description" [attr.title]="e.descripcion">{{ e.descripcion }}</p>
+            <div class="exercise-actions">
+              <button type="button" class="btn-ghost btn-sm" (click)="openEdit(e)">Editar</button>
+              <button type="button" class="btn-ghost btn-sm btn-delete" (click)="askDelete(e)">Eliminar</button>
+            </div>
+          </article>
+        }
+      </div>
+    }
+  </main>
+
+  @if (formOpen()) {
+    <app-exercise-form
+      [exercise]="editing()"
+      [existingExercises]="exercises()"
+      (saved)="onSaved()"
+      (closed)="closeForm()"
+    />
+  }
+
+  @if (deleteTarget(); as target) {
+    <div class="modal-backdrop" (click)="cancelDelete()">
+      <div class="modal-card modal-confirm-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+        <h2 class="modal-title">¿Eliminar este ejercicio?</h2>
+        <p class="modal-subtitle">
+          "{{ target.name }}" va a dejar de ofrecerse para armar rutinas nuevas.
+        </p>
+        <footer class="modal-footer">
+          <button type="button" class="btn-ghost" (click)="cancelDelete()" [disabled]="isDeleting()">Cancelar</button>
+          <button type="button" class="btn-danger" (click)="confirmDelete()" [disabled]="isDeleting()">
+            {{ isDeleting() ? 'Eliminando...' : 'Eliminar ejercicio' }}
+          </button>
+        </footer>
+      </div>
+    </div>
+  }
+</div>
