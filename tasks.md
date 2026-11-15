@@ -103,6 +103,7 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
   - [x] `GS-12`: Crear `ProfileComponent` y servicio de actualización (`profile.service.ts`).
   - [x] `GS-13`: Integrar formulario reactivo para patch de datos personales.
   - [x] `GS-13-AGE`: Validación de edad mínima (+18 años) en autogestión de perfil.
+  - [x] `GS-13-CLEANUP`: Eliminación de identificador único técnico (UUID) del panel personal.
   - [x] `GS-14`: Probar la persistencia parcial de datos de usuario con el backend.
 
 ### `[GS-AUTH-EXT] Actualización Obligatoria de Clave y Nombre de Usuario Temporal`

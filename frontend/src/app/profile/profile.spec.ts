@@ -109,7 +109,8 @@ describe('Profile Component', () => {
     expect(textContent).toContain('33445566');
     expect(textContent).toContain('lionel@gym.com');
     expect(textContent).toContain('Socio / Cliente');
-    expect(textContent).toContain('uuid-1234-5678');
+    expect(textContent).not.toContain('uuid-1234-5678');
+    expect(textContent).not.toContain('Identificador único');
   });
 
   it('should validate phone pattern and mark form as invalid on bad input', () => {
