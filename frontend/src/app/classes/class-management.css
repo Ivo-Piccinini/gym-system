@@ -49,6 +49,9 @@
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: 8px;
+  overflow: hidden;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .filters-bar {
@@ -56,6 +59,7 @@
   flex-wrap: wrap;
   align-items: flex-end;
   gap: 1rem 1.25rem;
+  max-width: 100%;
 }
 
 .filter-field {
@@ -63,10 +67,17 @@
   flex-direction: column;
   gap: 0.35rem;
   min-width: 0;
+  max-width: 100%;
 }
 
 .filter-field .form-select {
   min-width: 220px;
+  max-width: 100%;
+}
+
+.filter-day {
+  min-width: 0;
+  max-width: 100%;
 }
 
 .clear-btn {
@@ -74,15 +85,17 @@
 }
 
 .segmented-control {
-  display: inline-flex;
+  display: flex;
   align-items: center;
   max-width: 100%;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
   background-color: #101217;
   border: 1px solid var(--border-subtle);
   border-radius: 6px;
   padding: 3px;
   gap: 2px;
+  box-sizing: border-box;
 }
 
 .seg-btn {
@@ -92,9 +105,11 @@
   font-size: 0.78rem;
   font-weight: 500;
   font-family: var(--font-body);
-  padding: 0.38rem 0.7rem;
+  padding: 0.38rem 0.55rem;
   border-radius: 4px;
   cursor: pointer;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .seg-btn:hover {
@@ -142,6 +157,7 @@
 
 .table-scroll {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
 
 .classes-table {
@@ -206,6 +222,117 @@
 
 @media (max-width: 640px) {
   .mgmt-main {
-    padding: 1.5rem 1rem 3rem;
+    padding: 1.5rem 0.85rem 3rem;
+  }
+
+  .mgmt-heading {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .mgmt-heading .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .filters-bar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .filter-field {
+    width: 100%;
+  }
+
+  .filter-field .form-select {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .clear-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .segmented-control {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+
+  .segmented-control::-webkit-scrollbar {
+    display: none;
+  }
+
+  .seg-btn {
+    flex: 1;
+    min-width: 36px;
+    padding: 0.4rem 0.2rem;
+    text-align: center;
+    font-size: 0.75rem;
+  }
+
+  .table-card {
+    background: transparent;
+    border: none;
+    border-radius: 0;
+  }
+
+  .classes-table,
+  .classes-table tbody {
+    display: block;
+  }
+
+  .classes-table thead {
+    display: none;
+  }
+
+  .classes-table tbody tr {
+    display: block;
+    margin-bottom: 0.85rem;
+    padding: 0.75rem 1rem;
+    background-color: var(--bg-surface);
+    border: 1px solid var(--border-subtle);
+    border-radius: 8px;
+  }
+
+  .classes-table td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.45rem 0;
+    border-bottom: 1px solid #161822;
+  }
+
+  .classes-table td:last-child {
+    border-bottom: none;
+    padding-top: 0.75rem;
+  }
+
+  .classes-table td::before {
+    content: attr(data-label);
+    font-size: 0.72rem;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    text-align: left;
+  }
+
+  .col-actions {
+    text-align: left;
+  }
+
+  .row-actions {
+    width: 100%;
+    justify-content: flex-end;
   }
 }
+
+

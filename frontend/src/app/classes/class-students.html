@@ -43,9 +43,9 @@
             <tbody>
               @for (e of visible(); track e.externalId) {
                 <tr>
-                  <td>{{ e.client?.lastName }}, {{ e.client?.firstName }}</td>
-                  <td>{{ e.client?.dni ?? '—' }}</td>
-                  <td>{{ formatDate(e.enrollmentDate) }}</td>
+                  <td data-label="Alumno">{{ e.client?.lastName }}, {{ e.client?.firstName }}</td>
+                  <td data-label="DNI">{{ e.client?.dni ?? '—' }}</td>
+                  <td data-label="Inscripción">{{ formatDate(e.enrollmentDate) }}</td>
                 </tr>
               }
             </tbody>
