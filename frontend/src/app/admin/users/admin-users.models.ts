@@ -11,6 +11,7 @@ export interface AdminUser {
   birthDate: string | null;
   role: UserRole;
   enabled: boolean;
+  hasActiveMembership?: boolean;
 }
 
 export interface CreateUserRequest {

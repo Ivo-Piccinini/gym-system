@@ -1,0 +1,306 @@
+<div class="routines-container">
+  <app-navbar />
+
+  <main class="routines-main form-main">
+    <section class="routines-header-section">
+      <div class="header-titles">
+        <h1 class="page-title">{{ isEditMode ? 'Editar Rutina' : 'Nueva Rutina' }}</h1>
+        <p class="page-subtitle">
+          {{
+            isEditMode
+              ? 'Modificá los datos de la rutina y ajustá los ejercicios asignados al socio.'
+              : 'Asigná ejercicios con series, repeticiones y peso para personalizar el entrenamiento de un socio.'
+          }}
+        </p>
+      </div>
+    </section>
+
+    @if (isLoading()) {
+      <div class="state-card">
+        <div class="spinner"></div>
+        <p class="state-message">Cargando datos del formulario...</p>
+      </div>
+    } @else if (loadError()) {
+      <div class="state-card">
+        <p class="empty-title">No pudimos cargar el formulario</p>
+        <p class="empty-subtitle">{{ loadError() }}</p>
+        <div class="state-actions">
+          <a routerLink="/profesor/rutinas" class="btn-ghost">Volver al listado</a>
+          <button type="button" class="btn-primary" (click)="loadInitialData()">Reintentar</button>
+        </div>
+      </div>
+    } @else {
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" class="routine-form" novalidate>
+        <section class="panel-section">
+          <div class="panel-heading">
+            <h2 class="panel-title">Datos de la rutina</h2>
+            <p class="panel-subtitle">Socio destinatario, tipo de entrenamiento y vigencia.</p>
+          </div>
+
+          <div class="form-grid">
+            <div class="form-group span-full">
+              <label for="routine-name" class="form-label">Nombre de la rutina</label>
+              <input
+                id="routine-name"
+                type="text"
+                class="form-input"
+                placeholder="Ej. Hipertrofia tren superior"
+                maxlength="60"
+                formControlName="name"
+                [class.input-invalid]="showError(form.controls.name)"
+              />
+              @if (showError(form.controls.name)) {
+                <span class="field-error">El nombre es obligatorio y debe tener entre 4 y 60 caracteres.</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="routine-client" class="form-label">Socio</label>
+              <select
+                id="routine-client"
+                class="form-select"
+                formControlName="clientId"
+                [class.input-invalid]="showError(form.controls.clientId)"
+              >
+                <option value="">Seleccioná un socio</option>
+                @for (client of clients(); track client.publicId) {
+                  <option [value]="client.publicId">
+                    {{ client.lastName }}, {{ client.firstName }}{{ client.dni ? ' · DNI ' + client.dni : '' }}
+                  </option>
+                }
+              </select>
+              @if (showError(form.controls.clientId)) {
+                <span class="field-error">Seleccioná el socio al que se le asigna la rutina.</span>
+              } @else if (clients().length === 0) {
+                <span class="field-hint">No hay socios habilitados para asignar una rutina.</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="routine-type" class="form-label">Tipo de rutina</label>
+              <select id="routine-type" class="form-select" formControlName="typeRoutine">
+                @for (type of routineTypes; track type) {
+                  <option [value]="type">{{ typeLabels[type] }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="routine-start" class="form-label">Fecha de inicio</label>
+              <input
+                id="routine-start"
+                type="date"
+                class="form-input"
+                formControlName="startDate"
+                [class.input-invalid]="showError(form.controls.startDate)"
+              />
+              @if (showError(form.controls.startDate)) {
+                <span class="field-error">La fecha de inicio es obligatoria.</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="routine-end" class="form-label">Fecha de fin (opcional)</label>
+              <input
+                id="routine-end"
+                type="date"
+                class="form-input"
+                formControlName="endDate"
+                [min]="form.controls.startDate.value"
+                [class.input-invalid]="form.errors?.['dateRange']"
+              />
+              @if (form.errors?.['dateRange']) {
+                <span class="field-error">La fecha de fin no puede ser anterior a la de inicio.</span>
+              }
+            </div>
+          </div>
+        </section>
+
+        <section class="panel-section">
+          <div class="panel-heading panel-heading-row">
+            <div>
+              <h2 class="panel-title">Ejercicios</h2>
+              <p class="panel-subtitle">
+                Elegí el grupo muscular, después el ejercicio, y definí series, repeticiones y peso.
+              </p>
+            </div>
+            <button type="button" class="btn-secondary btn-add-exercise" (click)="addExercise()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19" />
+                <line x1="5" y1="12" x2="19" y2="12" />
+              </svg>
+              <span>Agregar ejercicio</span>
+            </button>
+          </div>
+
+          @if (exercisesArray.length === 0) {
+            <div class="rows-empty">
+              <p class="empty-title">Todavía no agregaste ejercicios</p>
+              <p class="empty-subtitle">Usá el botón "Agregar ejercicio" para armar la rutina.</p>
+            </div>
+          }
+
+          <div formArrayName="exercises" class="exercise-rows">
+            @for (row of exercisesArray.controls; track row; let i = $index) {
+              <div class="exercise-row" [formGroupName]="i">
+                <span class="row-index">{{ i + 1 }}</span>
+
+                <div class="form-group field-group">
+                  <label class="form-label" [for]="'group-' + i">Grupo muscular</label>
+                  <select
+                    [id]="'group-' + i"
+                    class="form-select"
+                    formControlName="muscleGroup"
+                    (change)="onGroupChange(i)"
+                  >
+                    <option value="">Elegí un grupo</option>
+                    @for (group of groupsWithExercises(); track group) {
+                      <option [value]="group">{{ muscleLabels[group] }}</option>
+                    }
+                  </select>
+                </div>
+
+                <div class="form-group field-exercise">
+                  <label class="form-label" [for]="'exercise-' + i">Ejercicio</label>
+                  <select
+                    [id]="'exercise-' + i"
+                    class="form-select"
+                    formControlName="exerciseId"
+                    [class.input-invalid]="showError(row.controls.exerciseId)"
+                  >
+                    <option value="">
+                      {{ row.controls.muscleGroup.value ? 'Elegí un ejercicio' : 'Primero elegí un grupo' }}
+                    </option>
+                    @for (exercise of exercisesFor(row.controls.muscleGroup.value); track exercise.idPublic) {
+                      <option [value]="exercise.idPublic" [disabled]="isTaken(exercise.idPublic, i)">
+                        {{ exercise.name }}
+                      </option>
+                    }
+                  </select>
+                  @if (showError(row.controls.exerciseId)) {
+                    <span class="field-error">Seleccioná un ejercicio.</span>
+                  }
+                </div>
+
+                <div class="form-group field-number">
+                  <label class="form-label" [for]="'series-' + i">Series</label>
+                  <input
+                    [id]="'series-' + i"
+                    type="number"
+                    inputmode="numeric"
+                    min="1"
+                    max="20"
+                    step="1"
+                    class="form-input"
+                    formControlName="series"
+                    [class.input-invalid]="showError(row.controls.series)"
+                  />
+                  @if (showError(row.controls.series)) {
+                    <span class="field-error">1 a 20</span>
+                  }
+                </div>
+
+                <div class="form-group field-number">
+                  <label class="form-label" [for]="'reps-' + i">Reps</label>
+                  <input
+                    [id]="'reps-' + i"
+                    type="number"
+                    inputmode="numeric"
+                    min="1"
+                    max="100"
+                    step="1"
+                    class="form-input"
+                    formControlName="reps"
+                    [class.input-invalid]="showError(row.controls.reps)"
+                  />
+                  @if (showError(row.controls.reps)) {
+                    <span class="field-error">1 a 100</span>
+                  }
+                </div>
+
+                <div class="form-group field-number">
+                  <label class="form-label" [for]="'weight-' + i">Peso (kg)</label>
+                  <input
+                    [id]="'weight-' + i"
+                    type="number"
+                    inputmode="decimal"
+                    min="0"
+                    max="999"
+                    step="0.5"
+                    class="form-input"
+                    formControlName="weight"
+                    [class.input-invalid]="showError(row.controls.weight)"
+                  />
+                  @if (showError(row.controls.weight)) {
+                    <span class="field-error">0 a 999</span>
+                  }
+                </div>
+
+                <button
+                  type="button"
+                  class="btn-remove-row"
+                  (click)="removeExercise(i)"
+                  [attr.aria-label]="'Quitar ejercicio ' + (i + 1)"
+                  title="Quitar ejercicio"
+                >
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="3 6 5 6 21 6" />
+                    <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6" />
+                    <path d="M10 11v6" />
+                    <path d="M14 11v6" />
+                  </svg>
+                </button>
+              </div>
+            }
+          </div>
+
+          <p class="weight-hint">Usá 0 kg para ejercicios con peso corporal.</p>
+
+          @if (exercisesArray.errors?.['duplicated']) {
+            <span class="field-error array-error">No podés repetir el mismo ejercicio dentro de una rutina.</span>
+          }
+          @if (exercisesArray.errors?.['minArray'] && submitAttempted()) {
+            <span class="field-error array-error">Agregá al menos un ejercicio a la rutina.</span>
+          }
+        </section>
+
+        @if (errorMessage()) {
+          <div class="toast-banner error-banner" role="alert">
+            <div class="toast-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="12" y1="8" x2="12" y2="12" />
+                <line x1="12" y1="16" x2="12.01" y2="16" />
+              </svg>
+            </div>
+            <div class="toast-content">{{ errorMessage() }}</div>
+            <button type="button" class="toast-close" (click)="errorMessage.set(null)" aria-label="Cerrar alerta">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+            </button>
+          </div>
+        }
+
+        <footer class="form-footer">
+          <span class="footer-summary">
+            {{ exercisesArray.length }} {{ exercisesArray.length === 1 ? 'ejercicio' : 'ejercicios' }} ·
+            {{ totalSeries() }} series en total
+          </span>
+          <div class="footer-actions">
+            <a routerLink="/profesor/rutinas" class="btn-ghost" [class.link-disabled]="isSaving()">Cancelar</a>
+            <button type="submit" class="btn-primary" [disabled]="isSaving()">
+              @if (isSaving()) {
+                <span class="spinner-sm"></span>
+                <span>Guardando...</span>
+              } @else {
+                <span>{{ isEditMode ? 'Guardar Cambios' : 'Crear Rutina' }}</span>
+              }
+            </button>
+          </div>
+        </footer>
+      </form>
+    }
+  </main>
+</div>

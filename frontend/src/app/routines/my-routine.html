@@ -1,0 +1,95 @@
+<div class="my-routine-container">
+  <app-navbar />
+
+  <main class="my-routine-main">
+    <section class="header-titles">
+      <h1 class="page-title">Mi Rutina</h1>
+      <p class="page-subtitle">Tu plan de entrenamiento vigente con el detalle de cada ejercicio.</p>
+    </section>
+
+    @if (errorMessage()) {
+      <div class="error-banner">
+        <span class="banner-text">{{ errorMessage() }}</span>
+        <button type="button" class="btn-ghost" (click)="loadRoutine()">Reintentar</button>
+      </div>
+    }
+
+    @if (isLoading()) {
+      <div class="state-box">
+        <div class="spinner"></div>
+        <p class="state-message">Cargando tu rutina...</p>
+      </div>
+    } @else if (isEmpty()) {
+      <div class="state-box">
+        <p class="empty-title">Todavía no tenés una rutina activa</p>
+        <p class="empty-subtitle">Cuando tu profesor te asigne una, la vas a ver acá.</p>
+        <a routerLink="/clases" class="btn-primary">Ver clases</a>
+      </div>
+    } @else if (routine(); as r) {
+      <section class="summary-card">
+        <div class="summary-top">
+          <h2 class="routine-name">{{ r.name }}</h2>
+          <div class="summary-badges">
+            <span class="type-badge">{{ getTypeLabel() }}</span>
+            @if (isExpired()) {
+              <span class="status-pill status-expired">Vencida</span>
+            } @else {
+              <span class="status-pill status-active">Vigente</span>
+            }
+          </div>
+        </div>
+        <div class="summary-meta">
+          <div class="meta-item">
+            <span class="meta-label">Vigencia</span>
+            <span class="meta-value">
+              {{ formatDate(r.startDate) }} → {{ r.endDate ? formatDate(r.endDate) : 'Sin fin' }}
+            </span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Profesor</span>
+            <span class="meta-value">{{ getProfessorName() }}</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Ejercicios</span>
+            <span class="meta-value">{{ lines().length }}</span>
+          </div>
+        </div>
+      </section>
+
+      @if (lines().length === 0) {
+        <div class="state-box">
+          <p class="empty-title">Tu rutina todavía no tiene ejercicios</p>
+          <p class="empty-subtitle">Tu profesor aún no cargó el detalle. Volvé a consultar más tarde.</p>
+        </div>
+      } @else {
+        <ul class="exercise-grid">
+          @for (line of lines(); track line.publicId; let i = $index) {
+            <li class="exercise-card">
+              <div class="card-head">
+                <span class="card-index">{{ i + 1 }}</span>
+                <div class="card-title-group">
+                  <span class="exercise-name">{{ line.exercise.name }}</span>
+                  <span class="muscle-tag">{{ getMuscleLabel(line) }}</span>
+                </div>
+              </div>
+              <div class="card-stats">
+                <div class="stat">
+                  <span class="stat-value">{{ line.series }}</span>
+                  <span class="stat-label">Series</span>
+                </div>
+                <div class="stat">
+                  <span class="stat-value">{{ line.reps }}</span>
+                  <span class="stat-label">Reps</span>
+                </div>
+                <div class="stat">
+                  <span class="stat-value">{{ formatWeight(line.weight) }}</span>
+                  <span class="stat-label">Carga</span>
+                </div>
+              </div>
+            </li>
+          }
+        </ul>
+      }
+    }
+  </main>
+</div>

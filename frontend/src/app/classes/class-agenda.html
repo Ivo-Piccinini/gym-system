@@ -1,0 +1,139 @@
+<div class="agenda-container">
+  <app-navbar />
+
+  <main class="agenda-main">
+    <section class="agenda-heading">
+      <div>
+        <h1 class="agenda-title">Clases disponibles</h1>
+        <p class="agenda-subtitle">
+          Las clases de cada día de la semana. Consultá los cupos libres y filtrá por disciplina o día.
+        </p>
+      </div>
+
+      @if (authService.isAdmin()) {
+        <div class="heading-side">
+          <a routerLink="/admin/clases" class="btn-primary manage-btn">Gestionar clases</a>
+        </div>
+      }
+    </section>
+
+    @if (authService.isAdmin()) {
+      <div class="admin-mode-banner" role="status">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="12" cy="12" r="10" />
+          <line x1="12" y1="16" x2="12" y2="12" />
+          <line x1="12" y1="8" x2="12.01" y2="8" />
+        </svg>
+        <div class="banner-content">
+          <strong class="banner-title">Modo Administrador (Vista de clases)</strong>
+          <span class="banner-text">
+            Como administrador podés consultar la grilla de clases. La inscripción está reservada exclusivamente a los socios.
+          </span>
+        </div>
+      </div>
+    }
+
+    <section class="filters-section">
+      <app-class-filters
+        [disciplines]="disciplines()"
+        [(discipline)]="discipline"
+        [(day)]="day"
+      />
+    </section>
+
+    @if (feedback(); as fb) {
+      <div
+        class="feedback"
+        [class.feedback-success]="fb.kind === 'success'"
+        [class.feedback-warning]="fb.kind === 'warning'"
+        [class.feedback-error]="fb.kind === 'error'"
+        [attr.role]="fb.kind === 'success' ? 'status' : 'alert'"
+      >
+        <div class="feedback-body">
+          <strong class="feedback-title">{{ fb.title }}</strong>
+          <span class="feedback-message">{{ fb.message }}</span>
+        </div>
+        <button type="button" class="feedback-close" (click)="dismissFeedback()" aria-label="Cerrar aviso">×</button>
+      </div>
+    }
+
+    @if (isLoading()) {
+      <div class="state-card">
+        <div class="spinner"></div>
+        <p class="state-text">Cargando clases...</p>
+      </div>
+    } @else if (errorMessage()) {
+      <div class="state-card error-state" role="alert">
+        <p class="state-title">No pudimos cargar las clases</p>
+        <p class="state-text">{{ errorMessage() }}</p>
+        <button type="button" class="btn-primary" (click)="retry()">Reintentar</button>
+      </div>
+    } @else if (totalVisible() === 0) {
+      <div class="state-card">
+        <p class="state-title">No hay clases para mostrar</p>
+        <p class="state-text">Probá cambiando los filtros.</p>
+      </div>
+    } @else {
+      <div class="week-grid">
+        @for (d of agenda(); track d.apiDay) {
+          <article class="day-column">
+            <h2 class="day-title">
+              <span>{{ d.label }}</span>
+              <small>{{ d.classes.length }} {{ d.classes.length === 1 ? 'clase' : 'clases' }}</small>
+            </h2>
+
+            @for (c of d.classes; track c.externalId) {
+              <div
+                class="class-card"
+                [class.full]="statusOf(c) === 'full'"
+                [class.enrolled]="statusOf(c) === 'enrolled'"
+                [class.mine]="isMine(c)"
+              >
+                <div class="class-top">
+                  <span class="class-name">{{ disciplineOf(c) }}</span>
+                  @if (statusOf(c); as status) {
+                    <span class="badge" [attr.data-status]="status">{{ statusLabel(status) }}</span>
+                  }
+                  @if (isMine(c)) {
+                    <span class="mine-tag">Mi clase</span>
+                  }
+                </div>
+                <span class="class-hours">{{ time(c.startTime) }} – {{ time(c.endTime) }}</span>
+                @if (professorName(c)) {
+                  <span class="class-prof">Prof. {{ professorName(c) }}</span>
+                }
+                <span class="class-spots">{{ spotsLabel(c) }}</span>
+
+                @if (authService.isAdmin()) {
+                  <span class="admin-view-tag">Solo lectura (Admin)</span>
+                } @else if (authService.isClient()) {
+                  @if (enrollmentOf(c)) {
+                    <button
+                      type="button"
+                      class="btn-ghost card-action"
+                      [disabled]="pendingClassId() !== null"
+                      (click)="cancel(c)"
+                    >
+                      {{ pendingClassId() === c.externalId ? 'Cancelando…' : 'Cancelar inscripción' }}
+                    </button>
+                  } @else {
+                    <button
+                      type="button"
+                      class="btn-primary card-action"
+                      [disabled]="pendingClassId() !== null || isFull(c)"
+                      (click)="enroll(c)"
+                    >
+                      {{ pendingClassId() === c.externalId ? 'Inscribiendo…' : 'Inscribirme' }}
+                    </button>
+                  }
+                }
+              </div>
+            } @empty {
+              <p class="day-empty">Sin clases</p>
+            }
+          </article>
+        }
+      </div>
+    }
+  </main>
+</div>

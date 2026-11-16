@@ -8,6 +8,8 @@ import com.utnGymGroup.gym_system.features.user.UserEntity;
 import com.utnGymGroup.gym_system.features.user.UserService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +36,7 @@ public class EnrollmentService {
 
     @Transactional(readOnly = true)
     public List<EnrollmentDTO> getMyEnrollments() {
+        assertNotAdminUser();
 
         UserEntity actualUser = userService.getAuthenticatedUserEntity();
 
@@ -45,14 +48,20 @@ public class EnrollmentService {
     @Auditable(AuditActions.ENROLL_IN_CLASS)
     @Transactional
     public EnrollmentDTO enrollClient(UUID classExternalId) {
+        assertNotAdminUser();
 
         UserEntity client = userService.getAuthenticatedUserEntity();
 
         GymClassEntity gymClass = gymClassRepository.findByExternalIdAndActiveTrue(classExternalId)
                 .orElseThrow(() -> new EntityNotFoundException("Clase no encontrada con el ID: " + classExternalId));
 
-        LocalDate enrollDate= LocalDate.now();
-        long currentEnrolled = enrollmentRepository.countByGymClassIdAndEnrollmentDate(gymClass.getId(),enrollDate);
+        // La inscripción es a la clase semanal y dura hasta que el socio la cancela: no se puede
+        // repetir y el cupo se calcula sobre todas las inscripciones vigentes de la clase.
+        if (enrollmentRepository.existsByClientIdAndGymClassId(client.getId(), gymClass.getId())) {
+            throw new IllegalStateException("Ya estás inscripto a esta clase.");
+        }
+
+        long currentEnrolled = enrollmentRepository.countByGymClassId(gymClass.getId());
         if (currentEnrolled >= gymClass.getCapacityMax()) {
             throw new IllegalStateException("No se puede inscribir: La clase ha alcanzado su capacidad máxima de " + gymClass.getCapacityMax() + " alumnos.");
         }
@@ -78,5 +87,16 @@ public class EnrollmentService {
         }
 
         enrollmentRepository.delete(enrollment);
+    }
+
+    private void assertNotAdminUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getAuthorities() != null) {
+            boolean isAdmin = auth.getAuthorities().stream()
+                    .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+            if (isAdmin) {
+                throw new IllegalStateException("Los administradores no pueden inscribirse a clases como alumnos. Esta acción es exclusiva para socios.");
+            }
+        }
     }
 }

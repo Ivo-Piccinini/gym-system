@@ -1,0 +1,318 @@
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { of, throwError } from 'rxjs';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { DashboardMetricsComponent } from './dashboard-metrics';
+import { PaymentService } from '../../membership/payment.service';
+import { ClassService } from '../../classes/class.service';
+import { AuditService } from '../audit/audit.service';
+import { AuthService } from '../../auth/auth.service';
+import { Payment } from '../../membership/membership.models';
+import { GymClass } from '../../classes/classes.models';
+import { AuditLog } from '../audit/audit.models';
+
+describe('DashboardMetricsComponent', () => {
+  let component: DashboardMetricsComponent;
+  let fixture: ComponentFixture<DashboardMetricsComponent>;
+
+  const mockPayments: Payment[] = [
+    {
+      id: 1,
+      publicId: 'p1',
+      subscriptionId: 1,
+      amount: 20000,
+      paymentDate: '2026-11-01',
+      method: 'EFECTIVO',
+      status: 'PENDING',
+      clientName: 'Juan Perez',
+      clientEmail: 'juan@gym.com',
+      clientDni: '12345678',
+      planName: 'Pase Libre'
+    },
+    {
+      id: 2,
+      publicId: 'p2',
+      subscriptionId: 2,
+      amount: 25000,
+      paymentDate: '2026-11-02',
+      method: 'TARJETA',
+      status: 'APPROVED',
+      clientName: 'Maria Lopez',
+      clientEmail: 'maria@gym.com',
+      planName: 'Musculación'
+    }
+  ];
+
+  const mockClasses: GymClass[] = [
+    {
+      externalId: 'c1',
+      activity: { externalId: 'a1', name: 'Spinning', description: 'Bici' },
+      activityName: 'Spinning',
+      dayOfWeek: 'MONDAY',
+      startTime: '08:00:00',
+      endTime: '09:00:00',
+      capacityMax: 20,
+      enrolledCount: 15,
+      availableSpots: 5
+    },
+    {
+      externalId: 'c2',
+      activity: { externalId: 'a2', name: 'Crossfit', description: 'Fuerza' },
+      activityName: 'Crossfit',
+      dayOfWeek: 'WEDNSEDAY',
+      startTime: '18:00:00',
+      endTime: '19:30:00',
+      capacityMax: 20,
+      enrolledCount: 5,
+      availableSpots: 15
+    }
+  ];
+
+  const mockAuditLogs: AuditLog[] = [
+    {
+      id: 1,
+      action: 'UPDATE_PLAN',
+      performedBy: 'admin',
+      timestamp: '2026-11-05T12:00:00',
+      details: '[{"name":"Pase Libre","oldPrice":20000,"newPrice":25000}]'
+    },
+    {
+      id: 2,
+      action: 'PROCESS_PAYMENT',
+      performedBy: 'admin',
+      timestamp: '2026-11-05T11:00:00',
+      details: '[{"amount":25000}]'
+    },
+    {
+      id: 3,
+      action: 'USER_REGISTRATION',
+      performedBy: 'admin',
+      timestamp: '2026-11-05T10:00:00',
+      details: '[{"username":"socio1"}]'
+    }
+  ];
+
+  let paymentServiceMock: {
+    getAllPayments: ReturnType<typeof vi.fn>;
+    validateCashPayment: ReturnType<typeof vi.fn>;
+    rejectCashPayment: ReturnType<typeof vi.fn>;
+  };
+  let classServiceMock: { getClasses: ReturnType<typeof vi.fn> };
+  let auditServiceMock: { getAuditLogs: ReturnType<typeof vi.fn> };
+  let authServiceMock: { isAdmin: ReturnType<typeof vi.fn>; username: ReturnType<typeof vi.fn> };
+
+  beforeEach(async () => {
+    paymentServiceMock = {
+      getAllPayments: vi.fn().mockReturnValue(of(mockPayments)),
+      validateCashPayment: vi.fn().mockReturnValue(
+        of({
+          ...mockPayments[0],
+          status: 'APPROVED',
+          validatedBy: 'admin',
+          validationDate: '2026-11-14T19:00:00'
+        })
+      ),
+      rejectCashPayment: vi.fn().mockReturnValue(
+        of({
+          ...mockPayments[0],
+          status: 'REJECTED'
+        })
+      )
+    };
+    classServiceMock = {
+      getClasses: vi.fn().mockReturnValue(of(mockClasses))
+    };
+    auditServiceMock = {
+      getAuditLogs: vi.fn().mockReturnValue(of(mockAuditLogs))
+    };
+    authServiceMock = {
+      isAdmin: vi.fn().mockReturnValue(true),
+      username: vi.fn().mockReturnValue('admin')
+    };
+
+    await TestBed.configureTestingModule({
+      imports: [DashboardMetricsComponent],
+      providers: [
+        provideRouter([]),
+        { provide: PaymentService, useValue: paymentServiceMock },
+        { provide: ClassService, useValue: classServiceMock },
+        { provide: AuditService, useValue: auditServiceMock },
+        { provide: AuthService, useValue: authServiceMock }
+      ]
+    }).compileComponents();
+
+    fixture = TestBed.createComponent(DashboardMetricsComponent);
+    component = fixture.componentInstance;
+    fixture.detectChanges();
+  });
+
+  it('debe crearse correctamente', () => {
+    expect(component).toBeTruthy();
+  });
+
+  it('debe calcular KPIs correctamente tras cargar los datos', () => {
+    // Total Revenue: 20000 + 25000 = 45000
+    expect((component as any).totalRevenue()).toBe(45000);
+    expect((component as any).totalPaymentsCount()).toBe(2);
+
+    // Ocupación: (15 + 5) / (20 + 20) = 20/40 = 50%
+    expect((component as any).averageOccupancyRate()).toBe(50);
+
+    // Auditoría: 3 logs en total, 1 cambio de plan/precio
+    expect((component as any).totalAuditLogsCount()).toBe(3);
+    expect((component as any).priceChangesCount()).toBe(1);
+  });
+
+  it('permite alternar el tipo de gráfico de cobros entre línea y barras', () => {
+    expect((component as any).revenueChartType()).toBe('line');
+    component.toggleRevenueChartType('bar');
+    expect((component as any).revenueChartType()).toBe('bar');
+    component.toggleRevenueChartType('line');
+    expect((component as any).revenueChartType()).toBe('line');
+  });
+
+  it('filtra logs de auditoría por categoría de Precios y Planes', () => {
+    component.setCategoryFilter('PRICE_CHANGES');
+    const filtered = (component as any).filteredAuditLogs();
+    expect(filtered.length).toBe(1);
+    expect(filtered[0].action).toBe('UPDATE_PLAN');
+  });
+
+  it('filtra logs de auditoría por término de búsqueda', () => {
+    (component as any).auditSearchTerm.set('socio1');
+    const filtered = (component as any).filteredAuditLogs();
+    expect(filtered.length).toBe(1);
+    expect(filtered[0].action).toBe('USER_REGISTRATION');
+  });
+
+  it('abre y cierra el modal de inspección forense', () => {
+    expect((component as any).isModalOpen()).toBe(false);
+    component.openInspector(mockAuditLogs[0]);
+    expect((component as any).isModalOpen()).toBe(true);
+    expect((component as any).selectedLogForModal()).toEqual(mockAuditLogs[0]);
+
+    component.closeInspector();
+    expect((component as any).isModalOpen()).toBe(false);
+    expect((component as any).selectedLogForModal()).toBeNull();
+  });
+
+  it('formatea correctamente detalles de cambio de precio JSON', () => {
+    const raw = '[{"name":"Pase Mensual","oldPrice":18000,"newPrice":22000}]';
+    const info = component.getPriceChangeInfo(raw);
+    expect(info).toEqual({
+      name: 'Pase Mensual',
+      oldPrice: 18000,
+      newPrice: 22000,
+      price: undefined
+    });
+  });
+
+  it('parsea detalles de auditoría en campos amigables sin exponer sintaxis JSON', () => {
+    const raw = '[{"firstName":"Juan","lastName":"Perez","dni":"12345678","role":"ROLE_CLIENT"}]';
+    const fields = component.getParsedDetailFields(raw);
+
+    expect(fields.length).toBe(4);
+    expect(fields[0]).toEqual({ label: 'Nombre', value: 'Juan' });
+    expect(fields[1]).toEqual({ label: 'Apellido', value: 'Perez' });
+    expect(fields[2]).toEqual({ label: 'DNI', value: '12345678' });
+    expect(fields[3]).toEqual({ label: 'Rol', value: 'Cliente' });
+
+    const summary = component.getLogSummaryText(raw);
+    expect(summary).toContain('Nombre: Juan');
+    expect(summary).not.toContain('{');
+    expect(summary).not.toContain('}');
+    expect(summary).not.toContain('"');
+  });
+
+  it('renderiza botón "Ver detalle" en lugar de "Ver JSON" en la tabla de auditoría', () => {
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+    const inspectBtn = compiled.querySelector('.btn-inspect');
+    expect(inspectBtn).toBeTruthy();
+    expect(inspectBtn?.textContent).toContain('Ver detalle');
+    expect(inspectBtn?.textContent).not.toContain('Ver JSON');
+  });
+
+  it('maneja error de forma resiliente cuando falla una petición', () => {
+    paymentServiceMock.getAllPayments.mockReturnValue(throwError(() => new Error('Error de conexión')));
+    component.loadAllData();
+    expect((component as any).isLoading()).toBe(false);
+    expect((component as any).payments()).toEqual([]);
+  });
+
+  it('calcula cobros en efectivo pendientes y permite filtrarlos', () => {
+    expect((component as any).cashPayments().length).toBe(1);
+    expect((component as any).pendingCashCount()).toBe(1);
+
+    // Por defecto el filtro es PENDING
+    expect((component as any).filteredCashPayments().length).toBe(1);
+
+    component.setCashFilter('APPROVED');
+    expect((component as any).filteredCashPayments().length).toBe(0);
+
+    component.setCashFilter('ALL');
+    expect((component as any).filteredCashPayments().length).toBe(1);
+  });
+
+  it('ordena los cobros en efectivo mostrando los más recientes primero', () => {
+    const pOlder: Payment = {
+      id: 10,
+      publicId: 'old',
+      subscriptionId: 1,
+      amount: 10000,
+      paymentDate: '2026-11-01',
+      method: 'EFECTIVO',
+      status: 'PENDING'
+    };
+    const pNewer: Payment = {
+      id: 20,
+      publicId: 'new',
+      subscriptionId: 2,
+      amount: 15000,
+      paymentDate: '2026-11-10',
+      method: 'EFECTIVO',
+      status: 'PENDING'
+    };
+
+    (component as any).payments.set([pOlder, pNewer]);
+    component.setCashFilter('ALL');
+
+    const result = (component as any).filteredCashPayments();
+    expect(result.length).toBe(2);
+    expect(result[0].publicId).toBe('new');
+    expect(result[1].publicId).toBe('old');
+  });
+
+  it('valida un cobro en efectivo y actualiza el estado a APPROVED', () => {
+    const cashPayment = mockPayments[0];
+    component.validateCash(cashPayment);
+
+    expect(paymentServiceMock.validateCashPayment).toHaveBeenCalledWith('p1');
+    const updated = (component as any).payments().find((p: Payment) => p.publicId === 'p1');
+    expect(updated?.status).toBe('APPROVED');
+    expect(updated?.validatedBy).toBe('admin');
+    expect((component as any).pendingCashCount()).toBe(0);
+    expect((component as any).toast()?.type).toBe('success');
+  });
+
+  it('rechaza un cobro en efectivo tras confirmar y actualiza el estado a REJECTED', () => {
+    const cashPayment = mockPayments[0];
+    component.rejectCash(cashPayment);
+
+    expect(paymentServiceMock.rejectCashPayment).toHaveBeenCalledWith('p1');
+    const updated = (component as any).payments().find((p: Payment) => p.publicId === 'p1');
+    expect(updated?.status).toBe('REJECTED');
+    expect((component as any).toast()?.type).toBe('success');
+  });
+
+  it('abre y cierra el modal de rechazo de cobro', () => {
+    expect((component as any).isRejectModalOpen()).toBe(false);
+    component.openRejectModal(mockPayments[0]);
+    expect((component as any).isRejectModalOpen()).toBe(true);
+    expect((component as any).paymentToReject()).toEqual(mockPayments[0]);
+
+    component.closeRejectModal();
+    expect((component as any).isRejectModalOpen()).toBe(false);
+    expect((component as any).paymentToReject()).toBeNull();
+  });
+});

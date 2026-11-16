@@ -47,7 +47,7 @@ public class EnrollmentController {
             @ApiResponse(responseCode = "401", description = "No autenticado"),
             @ApiResponse(responseCode = "403", description = "No autorizado (Solo usuarios con rol CLIENT pueden ver sus inscripciones)")
     })
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasRole('CLIENT') and !hasRole('ADMIN')")
     public ResponseEntity<List<EnrollmentDTO>> getMyEnrollments() {
         return ResponseEntity.ok(enrollmentService.getMyEnrollments());
     }
@@ -64,7 +64,7 @@ public class EnrollmentController {
             @ApiResponse(responseCode = "403", description = "No autorizado (Solo los clientes pueden inscribirse)"),
             @ApiResponse(responseCode = "404", description = "La clase solicitada no existe o fue dada de baja.")
     })
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasRole('CLIENT') and !hasRole('ADMIN')")
     public ResponseEntity<EnrollmentDTO> enrollClient(
             @Parameter(description = "UUID externo de la clase a la que el cliente desea asistir", example = "123e4567-e89b-12d3-a456-426614174000", required = true)
             @PathVariable UUID classExternalId) {
@@ -83,7 +83,7 @@ public class EnrollmentController {
             @ApiResponse(responseCode = "403", description = "No autorizado (Solo clientes)"),
             @ApiResponse(responseCode = "404", description = "La inscripción no existe o ya fue cancelada.")
     })
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasRole('CLIENT') and !hasRole('ADMIN')")
     public ResponseEntity<Void> cancelEnrollment(
             @Parameter(description = "UUID externo de la inscripción específica que se desea cancelar", example = "987e6543-e21b-12d3-a456-426614174999", required = true)
             @PathVariable UUID externalId) {

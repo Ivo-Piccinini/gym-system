@@ -1,0 +1,735 @@
+<div class="dashboard-shell">
+  <app-navbar />
+
+  <div class="dashboard-container">
+  <!-- ENCABEZADO DE PÁGINA -->
+  <header class="dashboard-header">
+    <div class="header-titles">
+      <div class="title-with-badge">
+        <h1>Dashboard de Métricas y Auditoría</h1>
+        <span class="badge-aop">AOP Forense Activo</span>
+      </div>
+      <p class="header-subtitle">
+        Monitoreo analítico de cobros, aforo de clases y bitácora de trazabilidad de cambios en tiempo real.
+      </p>
+    </div>
+  </header>
+
+  <!-- BANNER DE ERROR -->
+  @if (errorMessage()) {
+    <div class="banner-error">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <circle cx="12" cy="12" r="10" />
+        <line x1="12" y1="8" x2="12" y2="12" />
+        <line x1="12" y1="16" x2="12.01" y2="16" />
+      </svg>
+      <span>{{ errorMessage() }}</span>
+      <button type="button" class="btn-retry" (click)="loadAllData()">Reintentar</button>
+    </div>
+  }
+
+  <!-- TARJETAS KPI (RESUMEN EJECUTIVO) -->
+  <section class="kpi-grid">
+    <div class="kpi-card highlight-amber">
+      <div class="kpi-header">
+        <span class="kpi-title">Recaudación Total</span>
+        <div class="kpi-icon-wrap amber">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="1" x2="12" y2="23" />
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value">${{ totalRevenue().toLocaleString('es-AR') }}</div>
+    </div>
+
+    <div class="kpi-card highlight-cyan">
+      <div class="kpi-header">
+        <span class="kpi-title">Ocupación Media</span>
+        <div class="kpi-icon-wrap cyan">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+            <circle cx="9" cy="7" r="4" />
+            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value">{{ averageOccupancyRate() }}%</div>
+    </div>
+
+    <div class="kpi-card highlight-emerald">
+      <div class="kpi-header">
+        <span class="kpi-title">Eventos Auditados (AOP)</span>
+        <div class="kpi-icon-wrap emerald">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value">{{ totalAuditLogsCount() }}</div>
+    </div>
+
+    <div class="kpi-card highlight-purple">
+      <div class="kpi-header">
+        <span class="kpi-title">Cambios de Precios</span>
+        <div class="kpi-icon-wrap purple">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+        </div>
+      </div>
+      <div class="kpi-value">{{ priceChangesCount() }}</div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN DE GRÁFICOS (CHART.JS / NG2-CHARTS) -->
+  <section class="charts-section">
+    <div class="charts-row">
+      <!-- GRÁFICO 1: EVOLUCIÓN DE COBROS -->
+      <div class="chart-card chart-large">
+        <div class="chart-header">
+          <div class="chart-title-group">
+            <h3>Evolución de Cobros y Recaudación</h3>
+            <span class="chart-hint">Historial cronológico de ingresos por suscripciones</span>
+          </div>
+
+          <div class="chart-controls">
+            <span class="control-label">Tipo:</span>
+            <div class="segmented-control">
+              <button
+                type="button"
+                [class.active]="revenueChartType() === 'line'"
+                (click)="toggleRevenueChartType('line')"
+                title="Vista de Líneas"
+              >
+                Línea
+              </button>
+              <button
+                type="button"
+                [class.active]="revenueChartType() === 'bar'"
+                (click)="toggleRevenueChartType('bar')"
+                title="Vista de Barras"
+              >
+                Barras
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="chart-canvas-container">
+          @if (isLoading()) {
+            <div class="chart-loading">
+              <span class="spinner"></span>
+              <p>Cargando gráfica de ingresos...</p>
+            </div>
+          } @else {
+            <canvas
+              baseChart
+              [data]="revenueChartData()"
+              [options]="revenueChartOptions"
+              [type]="revenueChartType()"
+            ></canvas>
+          }
+        </div>
+      </div>
+
+      <!-- GRÁFICO 2: MEDIOS DE PAGO (DOUGHNUT) -->
+      <div class="chart-card chart-small">
+        <div class="chart-header">
+          <div class="chart-title-group">
+            <h3>Métodos de Pago</h3>
+            <span class="chart-hint">Distribución por modalidad</span>
+          </div>
+        </div>
+
+        <div class="chart-canvas-container">
+          @if (isLoading()) {
+            <div class="chart-loading">
+              <span class="spinner"></span>
+              <p>Cargando medios de pago...</p>
+            </div>
+          } @else {
+            <canvas
+              baseChart
+              [data]="methodChartData()"
+              [options]="methodChartOptions"
+              type="doughnut"
+            ></canvas>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- GRÁFICO 3: AFORO Y OCUPACIÓN POR CLASE (BARRAS) -->
+    <div class="chart-card full-width">
+      <div class="chart-header">
+        <div class="chart-title-group">
+          <h3>Aforo y Ocupación por Clase Activa</h3>
+          <span class="chart-hint">Comparativa de cupo máximo vs inscriptos reales</span>
+        </div>
+      </div>
+
+      <div class="chart-canvas-container tall">
+        @if (isLoading()) {
+          <div class="chart-loading">
+            <span class="spinner"></span>
+            <p>Calculando ocupación y aforo...</p>
+          </div>
+        } @else {
+          <canvas
+            baseChart
+            [data]="occupancyChartData()"
+            [options]="occupancyChartOptions"
+            type="bar"
+          ></canvas>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- SECCIÓN DE VALIDACIÓN DE COBROS EN EFECTIVO (GS-50) -->
+  <section class="cash-validation-section">
+    <div class="audit-header">
+      <div class="audit-titles">
+        <div class="title-with-badge">
+          <h2>Validación de Cobros en Efectivo (Recepción)</h2>
+          @if (pendingCashCount() > 0) {
+            <span class="badge-pending-pulse">{{ pendingCashCount() }} pendientes</span>
+          }
+        </div>
+        <p class="audit-subtitle">
+          Control de caja: valida las cuotas abonadas en efectivo en recepción para activar las membresías inmediatamente.
+        </p>
+      </div>
+
+      <!-- TOAST FLOATING BANNER -->
+      @if (toast(); as t) {
+        <div class="inline-toast" [class.toast-success]="t.type === 'success'" [class.toast-error]="t.type === 'error'">
+          @if (t.type === 'success') {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="20 6 9 17 4 12" />
+            </svg>
+          } @else {
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="15" y1="9" x2="9" y2="15" />
+              <line x1="9" y1="9" x2="15" y2="15" />
+            </svg>
+          }
+          <span>{{ t.message }}</span>
+        </div>
+      }
+
+      <div class="audit-filters-bar">
+        <!-- BUSCADOR -->
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Buscar por socio, DNI, email o plan..."
+            [ngModel]="cashSearchTerm()"
+            (ngModelChange)="cashSearchTerm.set($event)"
+          />
+        </div>
+
+        <!-- FILTROS DE ESTADO -->
+        <div class="category-buttons">
+          <button
+            type="button"
+            class="cat-btn"
+            [class.active]="selectedCashFilter() === 'ALL'"
+            (click)="setCashFilter('ALL')"
+          >
+            Todos ({{ cashPayments().length }})
+          </button>
+          <button
+            type="button"
+            class="cat-btn"
+            [class.active]="selectedCashFilter() === 'PENDING'"
+            (click)="setCashFilter('PENDING')"
+          >
+            Pendientes ({{ pendingCashCount() }})
+          </button>
+          <button
+            type="button"
+            class="cat-btn"
+            [class.active]="selectedCashFilter() === 'APPROVED'"
+            (click)="setCashFilter('APPROVED')"
+          >
+            Aprobados
+          </button>
+          <button
+            type="button"
+            class="cat-btn"
+            [class.active]="selectedCashFilter() === 'REJECTED'"
+            (click)="setCashFilter('REJECTED')"
+          >
+            Rechazados
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABLA DE COBROS EN EFECTIVO -->
+    <div class="table-responsive">
+      <table class="audit-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Socio / DNI</th>
+            <th>Plan</th>
+            <th>Monto</th>
+            <th class="text-center">Estado</th>
+            <th class="text-center">Trazabilidad</th>
+            <th class="text-right">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (isLoading()) {
+            <tr>
+              <td colspan="7" class="text-center py-8">
+                <div class="table-loading">
+                  <span class="spinner"></span>
+                  <p>Cargando cobros en efectivo...</p>
+                </div>
+              </td>
+            </tr>
+          } @else if (filteredCashPayments().length === 0) {
+            <tr>
+              <td colspan="7" class="empty-row text-center">
+                <svg viewBox="0 0 24 24" width="32" height="32" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="5" width="20" height="14" rx="2" />
+                  <line x1="2" y1="10" x2="22" y2="10" />
+                </svg>
+                <p>No se encontraron pagos en efectivo que coincidan con el filtro.</p>
+              </td>
+            </tr>
+          } @else {
+            @for (payment of filteredCashPayments(); track payment.id || payment.publicId) {
+              <tr [class.row-pending]="payment.status === 'PENDING'">
+                <td class="font-mono text-muted">
+                  {{ payment.paymentDate | date: 'dd/MM/yyyy' }}
+                </td>
+                <td>
+                  <div class="client-cell">
+                    <span class="client-name">{{ payment.clientName || 'Socio' }}</span>
+                    @if (payment.clientDni) {
+                      <span class="client-meta">DNI: {{ payment.clientDni }}</span>
+                    }
+                    @if (payment.clientEmail) {
+                      <span class="client-meta">{{ payment.clientEmail }}</span>
+                    }
+                  </div>
+                </td>
+                <td>
+                  <span class="plan-tag">{{ payment.planName || 'Suscripción' }}</span>
+                </td>
+                <td class="amount-cell">
+                  ${{ payment.amount.toLocaleString('es-AR') }}
+                </td>
+                <td class="text-center">
+                  <span class="badge" [ngClass]="getStatusBadgeClass(payment.status)">
+                    {{ getStatusLabel(payment.status) }}
+                  </span>
+                </td>
+                <td class="text-center">
+                  <div class="trace-cell text-center">
+                    @if (payment.status === 'APPROVED' && payment.validatedBy) {
+                      <span class="trace-info">Validado por <strong>&#64;{{ payment.validatedBy }}</strong></span>
+                      @if (payment.validationDate) {
+                        <span class="trace-date">{{ payment.validationDate | date: 'dd/MM/yyyy HH:mm' }}</span>
+                      }
+                    } @else if (payment.status === 'REJECTED') {
+                      <span class="trace-rejected">Rechazado en recepción</span>
+                    } @else {
+                      <span class="trace-waiting">Aguardando pago físico</span>
+                    }
+                  </div>
+                </td>
+                <td class="text-right">
+                  @if (payment.status === 'PENDING') {
+                    <div class="actions-group">
+                      <button
+                        type="button"
+                        class="btn-validate"
+                        [disabled]="actionLoadingId() === payment.publicId"
+                        (click)="validateCash(payment)"
+                        title="Validar y Activar Membresía"
+                      >
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <polyline points="20 6 9 17 4 12" />
+                        </svg>
+                        <span>Validar</span>
+                      </button>
+                      <button
+                        type="button"
+                        class="btn-reject"
+                        [disabled]="actionLoadingId() === payment.publicId"
+                        (click)="openRejectModal(payment)"
+                        title="Rechazar Cobro"
+                      >
+                        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                          <line x1="18" y1="6" x2="6" y2="18" />
+                          <line x1="6" y1="6" x2="18" y2="18" />
+                        </svg>
+                      </button>
+                    </div>
+                  } @else if (payment.status === 'APPROVED') {
+                    <span class="status-done">
+                      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="20 6 9 17 4 12" />
+                      </svg>
+                      Acreditado
+                    </span>
+                  } @else {
+                    <span class="status-canceled">Cancelado</span>
+                  }
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- SECCIÓN DE BITÁCORA FORENSE DE AUDITORÍA (GS-49) -->
+  <section class="audit-section">
+    <div class="audit-header">
+      <div class="audit-titles">
+        <h2>Bitácora de Auditoría Forense (AOP)</h2>
+        <p class="audit-subtitle">
+          Trazabilidad exhaustiva de cambios de precios, registros de cobros y eventos de seguridad interceptados por el backend.
+        </p>
+      </div>
+
+      <div class="audit-filters-bar">
+        <!-- BUSCADOR -->
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            type="text"
+            placeholder="Buscar por usuario, acción o detalles..."
+            [ngModel]="auditSearchTerm()"
+            (ngModelChange)="auditSearchTerm.set($event)"
+          />
+        </div>
+
+        <!-- FILTRO DE CATEGORÍAS -->
+        <div class="category-buttons">
+          <button
+            type="button"
+            class="cat-btn"
+            [class.active]="selectedCategory() === 'ALL'"
+            (click)="setCategoryFilter('ALL')"
+          >
+            Todos ({{ auditLogs().length }})
+          </button>
+          <button
+            type="button"
+            class="cat-btn"
+            [class.active]="selectedCategory() === 'PRICE_CHANGES'"
+            (click)="setCategoryFilter('PRICE_CHANGES')"
+          >
+            Precios y Planes
+          </button>
+          <button
+            type="button"
+            class="cat-btn"
+            [class.active]="selectedCategory() === 'PAYMENTS'"
+            (click)="setCategoryFilter('PAYMENTS')"
+          >
+            Cobros
+          </button>
+          <button
+            type="button"
+            class="cat-btn"
+            [class.active]="selectedCategory() === 'USERS'"
+            (click)="setCategoryFilter('USERS')"
+          >
+            Usuarios
+          </button>
+          <button
+            type="button"
+            class="cat-btn"
+            [class.active]="selectedCategory() === 'CLASSES'"
+            (click)="setCategoryFilter('CLASSES')"
+          >
+            Clases
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- TABLA DE LOGS -->
+    <div class="table-responsive">
+      <table class="audit-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Fecha / Hora</th>
+            <th>Acción Auditada</th>
+            <th>Operador</th>
+            <th>Resumen de Datos</th>
+            <th class="text-right">Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          @if (isLoading()) {
+            <tr>
+              <td colspan="6" class="text-center py-8">
+                <div class="table-loading">
+                  <span class="spinner"></span>
+                  <p>Recuperando bitácora de auditoría...</p>
+                </div>
+              </td>
+            </tr>
+          } @else if (filteredAuditLogs().length === 0) {
+            <tr>
+              <td colspan="6" class="text-center py-8 empty-row">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="8" y1="12" x2="16" y2="12" />
+                </svg>
+                <p>No se encontraron registros de auditoría que coincidan con el filtro.</p>
+              </td>
+            </tr>
+          } @else {
+            @for (log of filteredAuditLogs(); track log.id) {
+              <tr [class.row-highlight-price]="isPriceChangeAction(log.action)">
+                <td class="log-id">#{{ log.id }}</td>
+                <td class="log-time">
+                  {{ log.timestamp | date: 'dd/MM/yyyy HH:mm:ss' }}
+                </td>
+                <td>
+                  <span class="action-badge" [ngClass]="getActionBadgeClass(log.action)">
+                    {{ formatActionName(log.action) }}
+                  </span>
+                </td>
+                <td class="log-user">
+                  <span class="user-pill">&#64;{{ log.performedBy || 'sistema' }}</span>
+                </td>
+                <td class="log-details-preview">
+                  @if (isPriceChangeAction(log.action)) {
+                    @if (getPriceChangeInfo(log.details); as priceInfo) {
+                      <div class="price-pill-tag">
+                        <strong>{{ priceInfo.name || 'Plan' }}:</strong>
+                        @if (priceInfo.oldPrice && priceInfo.newPrice) {
+                          <span class="old-price">${{ priceInfo.oldPrice }}</span>
+                          <span class="arrow-sep">➔</span>
+                          <span class="new-price">${{ priceInfo.newPrice }}</span>
+                        } @else if (priceInfo.price) {
+                          <span class="new-price">${{ priceInfo.price }}</span>
+                        }
+                      </div>
+                    } @else {
+                      <span class="truncate-text">{{ getLogSummaryText(log.details) }}</span>
+                    }
+                  } @else {
+                    <span class="truncate-text">{{ getLogSummaryText(log.details) }}</span>
+                  }
+                </td>
+                <td class="text-right">
+                  <button
+                    type="button"
+                    class="btn-inspect"
+                    (click)="openInspector(log)"
+                    title="Ver detalle del registro"
+                  >
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                      <circle cx="11" cy="11" r="8" />
+                      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                    </svg>
+                    <span>Ver detalle</span>
+                  </button>
+                </td>
+              </tr>
+            }
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- MODAL DE DETALLE DE AUDITORÍA (GS-49) -->
+  @if (isModalOpen() && selectedLogForModal(); as selectedLog) {
+    <div class="modal-backdrop" (click)="closeInspector()">
+      <div class="modal-dialog" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+        <header class="modal-header">
+          <div class="modal-title-wrap">
+            <span class="modal-eyebrow">Auditoría del Sistema</span>
+            <h3>Registro #{{ selectedLog.id }} — {{ formatActionName(selectedLog.action) }}</h3>
+          </div>
+          <button type="button" class="btn-close" (click)="closeInspector()" aria-label="Cerrar modal">
+            &times;
+          </button>
+        </header>
+
+        <div class="modal-body">
+          <div class="meta-grid">
+            <div class="meta-item">
+              <span class="meta-label">Operador Responsable:</span>
+              <span class="meta-value">&#64;{{ selectedLog.performedBy }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Fecha y Hora:</span>
+              <span class="meta-value">{{ selectedLog.timestamp | date: 'dd/MM/yyyy HH:mm:ss' }}</span>
+            </div>
+            <div class="meta-item">
+              <span class="meta-label">Acción del Sistema:</span>
+              <span class="meta-value font-mono">{{ selectedLog.action }}</span>
+            </div>
+          </div>
+
+          <!-- TARJETA DESTACADA PARA CAMBIOS DE PRECIOS -->
+          @if (isPriceChangeAction(selectedLog.action)) {
+            <div class="price-audit-highlight">
+              <div class="highlight-title">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
+                </svg>
+                <span>Auditoría de Modificación de Tarifa</span>
+              </div>
+              @if (getPriceChangeInfo(selectedLog.details); as priceInfo) {
+                <div class="price-comparison-box">
+                  <span class="plan-label">{{ priceInfo.name || 'Membresía' }}</span>
+                  <div class="prices-flow">
+                    @if (priceInfo.oldPrice) {
+                      <div class="price-col">
+                        <span class="sub">Precio Anterior</span>
+                        <span class="price-val strike">${{ priceInfo.oldPrice.toLocaleString('es-AR') }}</span>
+                      </div>
+                      <span class="flow-arrow">➔</span>
+                    }
+                    <div class="price-col">
+                      <span class="sub">Precio Actualizado</span>
+                      <span class="price-val updated">${{ (priceInfo.newPrice || priceInfo.price || 0).toLocaleString('es-AR') }}</span>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          <!-- DETALLES ESTRUCTURADOS DE LA OPERACIÓN -->
+          <div class="audit-details-container">
+            <div class="details-header">
+              <span class="details-title">Detalles de la Operación</span>
+              <button type="button" class="btn-copy-details" (click)="copyDetailsToClipboard()">
+                {{ copySuccess() ? '¡Copiado!' : 'Copiar detalles' }}
+              </button>
+            </div>
+
+            @if (getParsedDetailFields(selectedLog.details); as fields) {
+              @if (fields.length > 0) {
+                <div class="details-fields-grid">
+                  @for (field of fields; track field.label + field.value) {
+                    <div class="detail-field-card">
+                      <span class="field-label">{{ field.label }}</span>
+                      <span class="field-value">{{ field.value }}</span>
+                    </div>
+                  }
+                </div>
+              } @else {
+                <p class="details-empty">Sin datos adicionales registrados para esta acción.</p>
+              }
+            }
+          </div>
+        </div>
+
+        <footer class="modal-footer">
+          <button type="button" class="btn-secondary" (click)="closeInspector()">Cerrar</button>
+        </footer>
+      </div>
+    </div>
+  }
+
+  <!-- MODAL DE RECHAZO DE COBRO EN EFECTIVO -->
+  @if (isRejectModalOpen() && paymentToReject(); as toReject) {
+    <div class="modal-backdrop" (click)="closeRejectModal()">
+      <div class="modal-dialog modal-dialog-sm" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+        <header class="modal-header header-danger">
+          <div class="modal-title-wrap">
+            <span class="modal-eyebrow eyebrow-danger">Recepción · Control de Caja</span>
+            <h3>Rechazar Cobro en Efectivo</h3>
+          </div>
+          <button type="button" class="btn-close" (click)="closeRejectModal()" aria-label="Cerrar modal">
+            &times;
+          </button>
+        </header>
+
+        <div class="modal-body">
+          <div class="reject-warning-box">
+            <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10" />
+              <line x1="12" y1="8" x2="12" y2="12" />
+              <line x1="12" y1="16" x2="12.01" y2="16" />
+            </svg>
+            <p>
+              ¿Estás seguro de que deseas rechazar este cobro? La membresía del socio quedará <strong>cancelada inmediatamente</strong>.
+            </p>
+          </div>
+
+          <div class="reject-summary-card">
+            <div class="summary-line">
+              <span class="lbl">Socio:</span>
+              <span class="val font-semibold">{{ toReject.clientName || 'Socio' }}</span>
+            </div>
+            @if (toReject.clientDni) {
+              <div class="summary-line">
+                <span class="lbl">DNI:</span>
+                <span class="val">{{ toReject.clientDni }}</span>
+              </div>
+            }
+            @if (toReject.clientEmail) {
+              <div class="summary-line">
+                <span class="lbl">Correo:</span>
+                <span class="val">{{ toReject.clientEmail }}</span>
+              </div>
+            }
+            <div class="summary-line">
+              <span class="lbl">Plan solicitado:</span>
+              <span class="val highlight-plan">{{ toReject.planName || 'Membresía' }}</span>
+            </div>
+            <div class="summary-line">
+              <span class="lbl">Monto en efectivo:</span>
+              <span class="val highlight-amount">${{ toReject.amount.toLocaleString('es-AR') }}</span>
+            </div>
+          </div>
+        </div>
+
+        <footer class="modal-footer">
+          <button type="button" class="btn-secondary" (click)="closeRejectModal()">
+            Cancelar
+          </button>
+          <button
+            type="button"
+            class="btn-danger-confirm"
+            [disabled]="actionLoadingId() === toReject.publicId"
+            (click)="confirmRejectCash()"
+          >
+            @if (actionLoadingId() === toReject.publicId) {
+              <span class="btn-spinner"></span>
+              <span>Rechazando...</span>
+            } @else {
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
+              </svg>
+              <span>Confirmar Rechazo</span>
+            }
+          </button>
+        </footer>
+      </div>
+    </div>
+  }
+  </div>
+</div>

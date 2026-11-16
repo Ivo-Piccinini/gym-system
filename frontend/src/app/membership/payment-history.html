@@ -1,0 +1,61 @@
+<div class="history-container">
+  <app-navbar />
+
+  <main class="history-main">
+    <section class="history-heading">
+      <h1 class="history-title">Historial de pagos</h1>
+      <p class="history-subtitle">
+        Consultá tus comprobantes y llevá el control de tus cuotas.
+      </p>
+    </section>
+
+    @if (isLoading()) {
+      <div class="state-card">
+        <div class="spinner"></div>
+        <p class="state-text">Cargando pagos...</p>
+      </div>
+    } @else if (errorMessage()) {
+      <div class="state-card error-state" role="alert">
+        <p class="state-title">No pudimos cargar tus pagos</p>
+        <p class="state-text">{{ errorMessage() }}</p>
+        <button type="button" class="btn-primary" (click)="retry()">Reintentar</button>
+      </div>
+    } @else if (rows().length === 0) {
+      <div class="state-card">
+        <p class="state-title">Todavía no registraste pagos</p>
+        <p class="state-text">Cuando contrates un plan y pagues tu cuota, el comprobante aparece acá.</p>
+        <a routerLink="/membresias" class="btn-primary">Ver planes</a>
+      </div>
+    } @else {
+      <p class="history-summary">{{ summary() }}</p>
+
+      <div class="table-card">
+        <table class="payments-table">
+          <caption class="sr-only">Historial de pagos del cliente</caption>
+          <thead>
+            <tr>
+              <th scope="col">Fecha</th>
+              <th scope="col">Comprobante</th>
+              <th scope="col">Plan</th>
+              <th scope="col">Método</th>
+              <th scope="col">Estado</th>
+              <th scope="col" class="col-amount">Monto</th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of rows(); track row.key) {
+              <tr>
+                <td data-label="Fecha">{{ row.dateLabel }}</td>
+                <td data-label="Comprobante" class="cell-receipt">{{ row.receipt }}</td>
+                <td data-label="Plan" class="cell-plan">{{ row.planName }}</td>
+                <td data-label="Método"><span class="method-chip">{{ row.methodLabel }}</span></td>
+                <td data-label="Estado"><span class="status-chip" [ngClass]="row.statusClass">{{ row.statusLabel }}</span></td>
+                <td data-label="Monto" class="col-amount cell-amount">{{ row.amountLabel }}</td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+  </main>
+</div>

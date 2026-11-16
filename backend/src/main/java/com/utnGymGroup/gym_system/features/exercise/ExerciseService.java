@@ -2,6 +2,7 @@ package com.utnGymGroup.gym_system.features.exercise;
 
 import com.utnGymGroup.gym_system.features.audit.AuditActions;
 import com.utnGymGroup.gym_system.features.audit.Auditable;
+import com.utnGymGroup.gym_system.features.exercise.exceptions.ExerciseAlreadyExistsException;
 import com.utnGymGroup.gym_system.features.exercise.exceptions.ExerciseNotFoundException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -25,9 +26,16 @@ public class ExerciseService
         List<ExerciseEntity> exercises;
 
         if (muscleGroup != null && !muscleGroup.isBlank()) {
-            exercises = exerciseRepository.findByMuscleGroupAndEnabledTrue(muscleGroup);
+            MuscleGroup group;
+            try {
+                group = MuscleGroup.valueOf(muscleGroup.trim().toUpperCase());
+            } catch (IllegalArgumentException e) {
+                throw new IllegalStateException("Grupo muscular inválido: " + muscleGroup);
+            }
+            exercises = exerciseRepository.findByMuscleGroupAndEnabledTrue(group);
         } else {
-            exercises = exerciseRepository.findAll();
+            // Los ejercicios dados de baja no se ofrecen para armar rutinas.
+            exercises = exerciseRepository.findAllByEnabledTrue();
         }
 
         return exercises.stream()
@@ -62,7 +70,7 @@ public class ExerciseService
     {
         if(exerciseRepository.existsByName(exerciseDtoRequest.getName()))
         {
-            throw new ExerciseNotFoundException("Ya existe ese ejercicio");
+            throw new ExerciseAlreadyExistsException("Ya existe ese ejercicio");
         }
 
         ExerciseEntity exerciseEntity = exerciseMapperRequest.convertToEntity(exerciseDtoRequest);
@@ -78,6 +86,13 @@ public class ExerciseService
         ExerciseEntity exerciseEntity = exerciseRepository.findByIdPublic(publidID)
                 .orElseThrow(()-> new ExerciseNotFoundException("No se encontro ejercicio"));
 
+        // El nombre es único: si ya lo usa otro ejercicio, es un conflicto (409) y no un error de base de datos.
+        if (exerciseDtoRequest.getName() != null
+                && exerciseRepository.findByName(exerciseDtoRequest.getName())
+                        .filter(other -> !other.getIdPublic().equals(publidID))
+                        .isPresent()) {
+            throw new ExerciseAlreadyExistsException("Ya existe ese ejercicio");
+        }
         exerciseMapperRequest.updateEntityFromDTO(exerciseDtoRequest,exerciseEntity);
 
         return exerciseMapperRespond.convertToDto(exerciseRepository.save(exerciseEntity));

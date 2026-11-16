@@ -1,21 +1,27 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { CommonModule, DatePipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router, RouterLink } from '@angular/router';
+import { Router } from '@angular/router';
 import { ProfileService } from './profile.service';
 import { AuthService } from '../auth/auth.service';
 import { UserProfile } from './profile.models';
+import { NavbarComponent } from '../shared/navbar/navbar';
+import { AccessPassService } from '../access/access-pass.service';
+import { AccessPass } from '../access/access-pass.models';
+import { AccessCredentialModal } from '../access/access-credential-modal';
+import { minAgeValidator, getMaxBirthDate } from '../shared/validators/age.validator';
 
 @Component({
   selector: 'app-profile',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, NavbarComponent, AccessCredentialModal, DatePipe],
   templateUrl: './profile.html',
   styleUrls: ['./profile.css']
 })
 export class Profile implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly profileService = inject(ProfileService);
+  private readonly accessPassService = inject(AccessPassService);
   protected readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
@@ -25,6 +31,10 @@ export class Profile implements OnInit {
   protected readonly successMessage = signal<string | null>(null);
   protected readonly userProfile = signal<UserProfile | null>(null);
 
+  protected readonly accessPass = signal<AccessPass | null>(null);
+  protected readonly isQrModalOpen = signal<boolean>(false);
+  protected readonly isLoadingPass = signal<boolean>(false);
+
   protected readonly profileForm = this.fb.group({
     phone: [
       '',
@@ -32,7 +42,7 @@ export class Profile implements OnInit {
         Validators.pattern(/^[0-9+\-\s]{7,15}$/)
       ]
     ],
-    birthDate: ['', [Validators.required]]
+    birthDate: ['', [Validators.required, minAgeValidator(18)]]
   });
 
   ngOnInit(): void {
@@ -48,6 +58,9 @@ export class Profile implements OnInit {
         this.userProfile.set(profile);
         this.populateForm(profile);
         this.isLoading.set(false);
+        if (profile.role === 'ROLE_CLIENT') {
+          this.loadAccessPass();
+        }
       },
       error: (err) => {
         this.isLoading.set(false);
@@ -60,6 +73,30 @@ export class Profile implements OnInit {
         }
       }
     });
+  }
+
+  protected loadAccessPass(): void {
+    this.isLoadingPass.set(true);
+    this.accessPassService.getMyPass().subscribe({
+      next: (pass) => {
+        this.accessPass.set(pass);
+        this.isLoadingPass.set(false);
+      },
+      error: () => {
+        this.accessPass.set(null);
+        this.isLoadingPass.set(false);
+      }
+    });
+  }
+
+  protected openQrModal(): void {
+    if (this.accessPass()) {
+      this.isQrModalOpen.set(true);
+    }
+  }
+
+  protected closeQrModal(): void {
+    this.isQrModalOpen.set(false);
   }
 
   private populateForm(profile: UserProfile): void {
@@ -146,8 +183,6 @@ export class Profile implements OnInit {
   }
 
   protected getMaxBirthDate(): string {
-    const today = new Date();
-    today.setFullYear(today.getFullYear() - 10);
-    return today.toISOString().split('T')[0];
+    return getMaxBirthDate(18);
   }
 }

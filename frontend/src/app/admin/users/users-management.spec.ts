@@ -6,12 +6,31 @@ import { UsersManagement } from './users-management';
 import { AdminUserService } from './admin-user.service';
 import { AuthService } from '../../auth/auth.service';
 import { AdminUser } from './admin-users.models';
+import { AccessPassService } from '../../access/access-pass.service';
+import { AccessPass } from '../../access/access-pass.models';
 
 describe('UsersManagement Component', () => {
   let component: UsersManagement;
   let fixture: ComponentFixture<UsersManagement>;
   let mockAdminUserService: any;
   let mockAuthService: any;
+  let mockAccessPassService: any;
+
+  const mockPass: AccessPass = {
+    publicId: 'pass-uuid-1',
+    userPublicId: 'uuid-1',
+    clientName: 'Juan Perez',
+    clientDni: '10000001',
+    clientEmail: 'juan@gym.com',
+    planName: 'Plan Trimestral',
+    accessCode: 'GYM-PASS-10000001-XYZ1',
+    qrData: '{"code":"GYM-PASS-10000001-XYZ1"}',
+    qrImageBase64: 'data:image/png;base64,...',
+    generatedBy: 'admin',
+    generatedAt: '2026-11-14T19:00:00',
+    validUntil: '2027-02-12',
+    active: true
+  };
 
   const mockUsers: AdminUser[] = [
     {
@@ -24,7 +43,8 @@ describe('UsersManagement Component', () => {
       phone: '3415551111',
       birthDate: '1990-01-01',
       role: 'ROLE_CLIENT',
-      enabled: true
+      enabled: true,
+      hasActiveMembership: true
     },
     {
       publicId: 'uuid-2',
@@ -65,12 +85,18 @@ describe('UsersManagement Component', () => {
       logout: vi.fn()
     };
 
+    mockAccessPassService = {
+      getPassByUser: vi.fn().mockReturnValue(of(mockPass)),
+      generatePass: vi.fn().mockReturnValue(of(mockPass))
+    };
+
     await TestBed.configureTestingModule({
       imports: [UsersManagement],
       providers: [
         provideRouter([]),
         { provide: AdminUserService, useValue: mockAdminUserService },
-        { provide: AuthService, useValue: mockAuthService }
+        { provide: AuthService, useValue: mockAuthService },
+        { provide: AccessPassService, useValue: mockAccessPassService }
       ]
     }).compileComponents();
 
@@ -148,6 +174,76 @@ describe('UsersManagement Component', () => {
     expect((component as any).successMessage()).toContain('Lionel Messi');
   });
 
+  it('should close user modal and display error message when creating a user with existing DNI', () => {
+    (component as any).openCreateModal();
+    expect((component as any).isUserModalOpen()).toBe(true);
+
+    (component as any).userForm.setValue({
+      firstName: 'Lionel',
+      lastName: 'Messi',
+      dni: '10000001',
+      email: 'leo@gym.com',
+      phone: '3419998877',
+      birthDate: '1987-06-24',
+      role: 'ROLE_CLIENT'
+    });
+
+    mockAdminUserService.createUser.mockReturnValue(throwError(() => ({
+      status: 409,
+      error: { message: 'Ya existe un usuario con este Email o DNI.' }
+    })));
+
+    (component as any).saveUser();
+
+    expect(mockAdminUserService.createUser).toHaveBeenCalled();
+    expect((component as any).isUserModalOpen()).toBe(false);
+    expect((component as any).errorMessage()).toContain('Ya existe un usuario con este Email o DNI.');
+  });
+
+  it('should sanitize raw SQL / technical database error for duplicate DNI to a user-friendly message', () => {
+    (component as any).openCreateModal();
+    expect((component as any).isUserModalOpen()).toBe(true);
+
+    (component as any).userForm.setValue({
+      firstName: 'Lionel',
+      lastName: 'Messi',
+      dni: '10000001',
+      email: 'leo@gym.com',
+      phone: '3419998877',
+      birthDate: '1987-06-24',
+      role: 'ROLE_CLIENT'
+    });
+
+    mockAdminUserService.createUser.mockReturnValue(throwError(() => ({
+      status: 409,
+      error: { message: 'could not execute statement [ERROR: duplicate key value violates unique constraint "users_dni_key" Detail: Key (dni)=(10000001) already exists.] [insert into users ...]' }
+    })));
+
+    (component as any).saveUser();
+
+    expect(mockAdminUserService.createUser).toHaveBeenCalled();
+    expect((component as any).isUserModalOpen()).toBe(false);
+    expect((component as any).errorMessage()).toBe('Ya existe un usuario registrado con el DNI ingresado.');
+    expect((component as any).errorMessage()).not.toContain('could not execute statement');
+    expect((component as any).errorMessage()).not.toContain('users_dni_key');
+  });
+
+  it('should invalidate birthDate and prevent submission when user is under 18', () => {
+    (component as any).openCreateModal();
+    const today = new Date();
+    const under18Year = today.getFullYear() - 17;
+    (component as any).userForm.patchValue({
+      birthDate: `${under18Year}-01-01`
+    });
+
+    const birthControl = (component as any).userForm.get('birthDate');
+    expect(birthControl?.errors?.['minAge']).toBeTruthy();
+    expect((component as any).userForm.invalid).toBe(true);
+
+    (component as any).saveUser();
+    expect(mockAdminUserService.createUser).not.toHaveBeenCalled();
+  });
+
   it('should open edit modal with user data and update user', () => {
     const userToEdit = mockUsers[0];
     (component as any).openEditModal(userToEdit);
@@ -172,7 +268,7 @@ describe('UsersManagement Component', () => {
   });
 
   it('should toggle user status via confirmation modal', () => {
-    const user = mockUsers[0]; // enabled = true
+    const user = mockUsers[0];
     (component as any).promptToggleStatus(user);
 
     expect((component as any).isConfirmModalOpen()).toBe(true);
@@ -185,7 +281,7 @@ describe('UsersManagement Component', () => {
     expect(mockAdminUserService.toggleUserStatus).toHaveBeenCalledWith(user.publicId, false);
     expect((component as any).isConfirmModalOpen()).toBe(false);
 
-    // Verify local reactive update
+   
     const updated = (component as any).users().find((u: AdminUser) => u.publicId === user.publicId);
     expect(updated?.enabled).toBe(false);
   });
@@ -203,4 +299,67 @@ describe('UsersManagement Component', () => {
     expect((component as any).errorMessage()).toBe('Error de servidor al modificar estado');
     expect((component as any).isConfirmModalOpen()).toBe(false);
   });
+
+  it('should open QR modal when pass exists for user', () => {
+    const user = mockUsers[0]; // ROLE_CLIENT, enabled
+    mockAccessPassService.getPassByUser.mockReturnValue(of(mockPass));
+
+    (component as any).openQrModal(user);
+
+    expect(mockAccessPassService.getPassByUser).toHaveBeenCalledWith(user.publicId);
+    expect((component as any).isQrModalOpen()).toBe(true);
+    expect((component as any).selectedUserPass()).toEqual(mockPass);
+  });
+
+  it('should generate QR pass when user has no existing pass (404)', () => {
+    const user = mockUsers[0];
+    mockAccessPassService.getPassByUser.mockReturnValue(throwError(() => ({ status: 404 })));
+    mockAccessPassService.generatePass.mockReturnValue(of(mockPass));
+
+    (component as any).openQrModal(user);
+
+    expect(mockAccessPassService.getPassByUser).toHaveBeenCalledWith(user.publicId);
+    expect(mockAccessPassService.generatePass).toHaveBeenCalledWith(user.publicId);
+    expect((component as any).isQrModalOpen()).toBe(true);
+    expect((component as any).selectedUserPass()).toEqual(mockPass);
+  });
+
+  it('should show error when opening QR for non-client or suspended user', () => {
+    const adminUser = mockUsers[2];
+    (component as any).openQrModal(adminUser);
+    expect((component as any).errorMessage()).toContain('Solo los socios pueden poseer pases');
+
+    const suspendedUser = mockUsers[1];
+    (component as any).openQrModal(suspendedUser);
+    expect((component as any).errorMessage()).toContain('usuario suspendido');
+
+    const clientWithoutMembership: AdminUser = {
+      ...mockUsers[0],
+      hasActiveMembership: false
+    };
+    (component as any).openQrModal(clientWithoutMembership);
+    expect((component as any).errorMessage()).toContain('no posee una membresía activa');
+  });
+
+  it('should regenerate QR pass', () => {
+    const user = mockUsers[0];
+    (component as any).activeQrUser.set(user);
+    mockAccessPassService.generatePass.mockReturnValue(of({ ...mockPass, accessCode: 'NEW-CODE' }));
+
+    (component as any).regenerateQrPass();
+
+    expect(mockAccessPassService.generatePass).toHaveBeenCalledWith(user.publicId);
+    expect((component as any).selectedUserPass()?.accessCode).toBe('NEW-CODE');
+  });
+
+  it('should close QR modal', () => {
+    (component as any).isQrModalOpen.set(true);
+    (component as any).selectedUserPass.set(mockPass);
+
+    (component as any).closeQrModal();
+
+    expect((component as any).isQrModalOpen()).toBe(false);
+    expect((component as any).selectedUserPass()).toBeNull();
+  });
 });
+

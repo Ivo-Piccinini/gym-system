@@ -18,6 +18,9 @@ public interface EnrollmentRepository extends JpaRepository<EnrollmentEntity, Lo
 
     long countByGymClassId(Long classId);
 
+    // Evita inscribir dos veces al mismo socio en la misma clase
+    boolean existsByClientIdAndGymClassId(Long clientId, Long classId);
+
     List<EnrollmentEntity> findByClient(UserEntity client);
 
 }

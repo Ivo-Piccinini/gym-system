@@ -33,6 +33,7 @@ El sistema soporta tres roles principales de usuarios con permisos jerárquicos:
 * **RF27:** El sistema debe permitir al **Cliente** visualizar su historial de suscripciones y el estado actual de la misma.
 * **RF30:** El sistema debe permitir al **Cliente** solicitar la cancelación de su suscripción activa.
 * **RF-Sec:** Bloqueo automatizado de accesos o inscripciones si el cliente posee una suscripción con estado `EXPIRED`, `PENDING` o `CANCELED`.
+* **RF-Bus (Exclusividad Socio en Membresías):** La contratación de planes de membresía (`POST /api/subscriptions/{planId}`) y el registro de pagos personales (`POST /api/payments`) están reservados estrictamente a usuarios con rol `ROLE_CLIENT`. Los usuarios con rol `ROLE_ADMIN` tienen prohibida la contratación de membresías para su propia cuenta, pudiendo acceder únicamente a la gestión de planes (`/admin/planes`) o consulta de catálogo en modo solo lectura.
 
 ### Módulo Activities & Classes (Cupos y Agenda)
 * **RF10:** El sistema debe permitir a profesores y clientes realizar búsquedas y filtrados avanzados sobre las clases programadas.
@@ -40,15 +41,21 @@ El sistema soporta tres roles principales de usuarios con permisos jerárquicos:
 * **RF14/15/16:** El sistema debe permitir al **Profesor** realizar el ABM, listado y filtrado de las **Actividades** matrices (ej. Yoga, CrossFit, Spinning).
 * **RF24/25:** El sistema debe permitir al **Cliente** listar de forma transparente las actividades y clases disponibles en la agenda semanal.
 * **RF28/29:** El sistema debe permitir al **Cliente** inscribirse en clases disponibles y visualizar su agenda de asistencias.
-* **RF-Bus (Validación Crítica):** La inscripción de un cliente a una clase está estrictamente condicionada a:
-    1. Que posea una suscripción `ACTIVE` vigente.
-    2. Que la clase seleccionada no haya superado su capacidad máxima (`capacity_max`).
+* **RF-Bus (Validación Crítica):** La inscripción a una clase está estrictamente condicionada a:
+    1. Que el usuario sea exclusivamente socio (`ROLE_CLIENT`); los usuarios con rol `ROLE_ADMIN` tienen estrictamente prohibida la inscripción como alumnos o la reserva de cupos.
+    2. Que posea una suscripción `ACTIVE` vigente.
+    3. Que la clase seleccionada no haya superado su capacidad máxima (`capacity_max`).
 
 ### Módulo Workout (Rutinas y Ejercicios)
 * **RF17/18/19:** El sistema debe permitir al **Profesor** realizar el ABM, listado y filtrado de las **Rutinas** de entrenamiento creadas para los clientes.
 * **RF20/21/22:** El sistema debe permitir al **Profesor** gestionar el maestro de **Ejercicios** (Alta, consulta y filtros por grupo muscular).
 * **RF23:** El sistema debe permitir al **Profesor** asignar ejercicios específicos a una rutina, parametrizando valores de carga: series, repeticiones y peso.
 * **RF31:** El sistema debe permitir al **Cliente** visualizar exclusivamente su rutina activa y vigente.
+
+### Módulo Access & QR (Control de Acceso a Sedes)
+* **RF-Access-01:** El sistema debe permitir al **Administrador** emitir y regenerar credenciales digitales de acceso provistas de código QR para cualquier socio con membresía activa y pago aprobado (`/admin/usuarios`).
+* **RF-Access-02:** El sistema debe permitir al **Socio** consultar y presentar su credencial digital QR de acceso vigente desde su perfil (`/perfil`).
+* **RF-Access-03:** El sistema valida que el socio posea una suscripción con estado `ACTIVE` vigente antes de generar el código QR y revoca/desactiva pases previos al emitir uno nuevo.
 
 ---
 
@@ -101,6 +108,9 @@ A continuación se detalla la estructura relacional de la Base de Datos distribu
     * `amount`: `DOUBLE`
     * `payment_date`: `TIMESTAMP`
     * `method`: `VARCHAR(30)` (Valores: `EFECTIVO`, `TARJETA`)
+    * `status`: `VARCHAR(30)` (Valores: `PENDING`, `APPROVED`, `REJECTED`)
+    * `validated_by`: `VARCHAR(100)` (Username del administrador que validó el cobro físico)
+    * `validation_date`: `TIMESTAMP` (Fecha y hora de recepción/aprobación)
 
 #### Módulo Activities & Classes
 7.  **`activities`**
@@ -156,6 +166,20 @@ A continuación se detalla la estructura relacional de la Base de Datos distribu
     * `timestamp`: `TIMESTAMP`
     * `details`: `TEXT` o `JSON` (Estructura conteniendo los estados de la entidad antes y después)
 
+#### Módulo Access & QR
+14. **`access_passes`** (Credenciales digitales de acceso a sedes y molinetes)
+    * `id` (PK): `Long` (IDENTITY)
+    * `public_id`: `UUID` (Unique, Not Null)
+    * `user_id` (FK): `Long` (Apunta a `users`)
+    * `subscription_id` (FK): `Long` (Apunta a `subscriptions`)
+    * `access_code`: `VARCHAR(100)` (Unique, Not Null - Código alfanumérico legible)
+    * `qr_data`: `TEXT` (Payload JSON codificado)
+    * `qr_image_base64`: `TEXT` (Data URL Base64 de la imagen PNG generada con ZXing)
+    * `generated_by`: `VARCHAR(100)` (Username del administrador emisor)
+    * `generated_at`: `TIMESTAMP`
+    * `valid_until`: `DATE` (Fecha de vencimiento sincronizada con la suscripción)
+    * `active`: `BOOLEAN` (Indica si es el pase activo del usuario)
+
 ---
 
 ## 4. API Rest: Catálogo de Endpoints (OpenAPI 3.0)
@@ -169,6 +193,8 @@ Todos los endpoints base están prefijados bajo la ruta global `/api/v1`.
 | `POST` | `/auth/register` | Público | Registro autónomo de clientes. Asigna automáticamente `ROLE_CLIENT`. |
 | `GET` | `/users/me` | Autenticado | Obtiene los detalles de cuenta y perfil del usuario logueado. |
 | `PATCH` | `/users/me` | Autenticado | Modificación parcial de datos personales en `ProfileEntity`. |
+| `PATCH` | `/users/change-password` | Autenticado | Actualización segura de contraseña para usuario logueado. |
+| `PATCH` | `/users/change-username` | Autenticado | Personalización obligatoria de username para usuarios con credenciales temporales. |
 | `POST` | `/admin/users/staff` | `ADMIN` | Alta manual de usuarios internos con roles `PROFESSOR` o `ADMIN`. |
 | `GET` | `/admin/profiles/{publicId}`| `ADMIN` | Obtiene el perfil detallado de cualquier usuario mediante su UUID. |
 
@@ -176,15 +202,21 @@ Todos los endpoints base están prefijados bajo la ruta global `/api/v1`.
 | Método | Endpoint | Acceso | Descripción |
 | :--- | :--- | :--- | :--- |
 | `GET` | `/membership/plans` | Público | Lista todos los planes comerciales del gimnasio. |
+| `POST` | `/memberships` | `ADMIN` | Registra un nuevo plan comercial de membresía. |
+| `PUT` | `/memberships/{id}` | `ADMIN` | Modifica un plan existente y audita cambios de precio con AOP (`UPDATE_PLAN`). |
 | `POST` | `/membership/subscriptions`| `CLIENT` | Contrata/compra un plan utilizando el `publicId` del plan. |
+| `GET` | `/payments` | `ADMIN` | Historial global de cobros y recaudación del gimnasio. |
 | `POST` | `/membership/payments` | `CLIENT` / `ADMIN` | Registra la transacción de cobro vinculada a la suscripción. |
+| `PATCH` | `/payments/{publicId}/validate` | `ADMIN` | Valida y aprueba el cobro en efectivo recibido en recepción, activando la suscripción con auditoría AOP. |
+| `PATCH` | `/payments/{publicId}/reject` | `ADMIN` | Rechaza el cobro en efectivo y cancela la suscripción pendiente asociada. |
 | `GET` | `/membership/my-status` | `CLIENT` | Retorna los días restantes y estado de la suscripción actual. |
 
 ### Módulo Activities & Classes
 | Método | Endpoint | Acceso | Descripción |
 | :--- | :--- | :--- | :--- |
 | `GET` | `/activities` | Público | Lista el catálogo de disciplinas/actividades del complejo. |
-| `GET` | `/activities/classes` | Público | Retorna la grilla horaria/agenda con cupos dinámicos en tiempo real. |
+| `GET` | `/gym-classes?date=YYYY-MM-DD` | Autenticado (`ADMIN`, `PROFESSOR`, `CLIENT`) | Retorna la grilla horaria con cálculo de cupos (`enrolledCount`, `availableSpots`) para la fecha indicada (por defecto hoy). |
+| `GET` | `/gym-classes/{externalId}` | Autenticado | Detalle de una clase programada por UUID. |
 | `POST` | `/activities/enrollments` | `CLIENT` | Inscribe al cliente en una clase (Aplica validación de cupo y pago). |
 | `DELETE`| `/activities/enrollments/{id}`| `CLIENT` | Cancela la asistencia liberando el cupo inmediatamente. |
 
@@ -194,6 +226,18 @@ Todos los endpoints base están prefijados bajo la ruta global `/api/v1`.
 | `GET` | `/exercises` | Autenticado | Lista el catálogo de ejercicios maestros disponibles. |
 | `POST` | `/routines` | `PROFESSOR` | Crea una nueva rutina estructurada asignándola a un cliente. |
 | `GET` | `/routines/my-routine` | `CLIENT` | Retorna la rutina actual vigente del cliente logueado. |
+
+### Módulo Admin & Auditoría Forense (AOP)
+| Método | Endpoint | Acceso | Descripción |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/audit/logs` | `ADMIN` | Consulta la bitácora cronológica descendente de eventos auditados por AOP (`audit_logs`). |
+
+### Módulo Access & QR (Control de Acceso)
+| Método | Endpoint | Acceso | Descripción |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/access/generate/{userPublicId}` | `ADMIN` | Emite o regenera la credencial QR de acceso para un socio activo. Audita `GENERATE_ACCESS_QR`. |
+| `GET` | `/access/user/{userPublicId}` | `ADMIN` | Consulta la credencial de acceso activa de un socio por su UUID. |
+| `GET` | `/access/my-pass` | `CLIENT` | Consulta la credencial digital de acceso activa del socio autenticado para escanear en sede. |
 
 ---
 
@@ -235,3 +279,30 @@ public class UserDTO {
     @Valid
     private Set<RoleDTO> roles;
 }
+```
+
+---
+
+## 6. Arquitectura Frontend y Estándares de Diseño Responsive
+
+La aplicación cliente (Angular) implementa el sistema de diseño **"Stealth Kinetic Dark"** con arquitectura mobile-first y soporte para todos los viewports:
+
+### Breakpoints Estándar
+* **Mobile Small:** `< 400px` (Dispositivos compactos como Galaxy Fold o iPhone SE).
+* **Mobile:** `< 640px` (Smartphones en orientación vertical).
+* **Tablet / Small Laptop:** `641px` a `1024px` (Tablets y pantallas medianas).
+* **Desktop:** `> 1024px` (Monitores de escritorio y pantallas de alta resolución).
+
+### Patrones de Adaptabilidad Implementados:
+1. **Transformación de Tabla a Tarjetas Móviles ("Table-to-Card Pattern"):**
+   - En pantallas `<=` 640px, las tablas complejas (`classes-table`, `payments-table`, `students-table`) ocultan la cabecera `<thead>` y convierten cada fila `<tr>` en una tarjeta autónoma con bordes y padding táctil.
+   - Cada celda `<td>` expone su contexto semántico mediante el atributo `data-label`, el cual se renderiza como prefijo tipográfico (`content: attr(data-label)`) alineado a la izquierda.
+2. **Contención Flexbox Anti-Desbordamiento:**
+   - Todos los contenedores de filtros y controles segmentados declaran `min-width: 0; max-width: 100%;` para prevenir que el tamaño de contenido intrínseco de los botones desborde tarjetas con esquinas redondeadas.
+   - Controles de selección múltiple (como el selector semanal de 7 días) usan `display: flex;` con botones que se distribuyen proporcionalmente (`flex: 1`) en pantallas móviles.
+3. **Navegación Móvil Táctil:**
+   - En pantallas pequeñas (`<= 600px`), la barra de navegación distribuye el logo y rol en la fila superior, y expone los accesos directos en una hilera horizontal deslizable con inercia (`-webkit-overflow-scrolling: touch`) sin generar barras de desplazamiento horizontales en la página global.
+4. **Sistema de Ventanas Modales:**
+   - Diálogos y modales ocupan `max-width: 95vw; max-height: 94vh; overflow-y: auto;`.
+   - En móviles, los botones del pie del modal (`.modal-footer`) se apilan verticalmente al 100% de ancho con orden invertido para facilitar la interacción con una sola mano.
+

@@ -48,7 +48,11 @@ public class AuditAspect {
                 .details(detailsJson)
                 .build();
 
-        auditLogRepository.save(log);
-        System.out.println(">> [AOP AUDIT] Acción '" + actionName + "' auditada con éxito en la base de datos.");
+        try {
+            auditLogRepository.save(log);
+            System.out.println(">> [AOP AUDIT] Acción '" + actionName + "' auditada con éxito en la base de datos.");
+        } catch (Exception e) {
+            System.err.println(">> [AOP AUDIT WARN] No fue posible persistir el log de auditoría para " + actionName + ": " + e.getMessage());
+        }
     }
 }

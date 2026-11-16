@@ -1,0 +1,97 @@
+<div class="modal-backdrop" (click)="close()">
+  <div class="modal-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="exercise-form-title">
+    <header class="modal-header">
+      <div class="modal-header-text">
+        <h2 id="exercise-form-title" class="modal-title">{{ exercise() ? 'Editar ejercicio' : 'Nuevo ejercicio' }}</h2>
+        <p class="modal-subtitle">
+          {{ exercise() ? 'Modificá los datos del ejercicio.' : 'Sumá un ejercicio al banco para usarlo en las rutinas.' }}
+        </p>
+      </div>
+      <button type="button" class="modal-close-btn" (click)="close()" aria-label="Cerrar ventana">×</button>
+    </header>
+
+    @if (serverError(); as error) {
+      <div class="modal-alert" role="alert">{{ error }}</div>
+    }
+
+    <form [formGroup]="form" (ngSubmit)="submit()" class="modal-form">
+      <div class="form-fields">
+        <div class="form-group">
+          <label for="exercise-name" class="form-label">Nombre</label>
+          <input
+            id="exercise-name"
+            type="text"
+            class="form-input"
+            formControlName="name"
+            autocomplete="off"
+            placeholder="Ej.: Press de banca plano"
+            [class.input-invalid]="(form.controls.name.invalid && form.controls.name.touched) || !!duplicateMessage()"
+          />
+          <div class="field-meta">
+            @if (duplicateMessage(); as duplicate) {
+              <span class="field-error">{{ duplicate }}</span>
+            } @else if (form.controls.name.touched && form.controls.name.hasError('required')) {
+              <span class="field-error">El nombre es obligatorio.</span>
+            } @else if (form.controls.name.touched && form.controls.name.hasError('trimmedMinLength')) {
+              <span class="field-error">El nombre debe tener al menos {{ nameMin }} caracteres.</span>
+            } @else if (form.controls.name.hasError('maxlength')) {
+              <span class="field-error">El nombre no puede superar los {{ textMax }} caracteres.</span>
+            }
+            <span class="char-count">{{ form.controls.name.value.length }}/{{ textMax }}</span>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="exercise-muscle" class="form-label">Grupo muscular</label>
+          <select
+            id="exercise-muscle"
+            class="form-select"
+            formControlName="muscleGroup"
+            [class.input-invalid]="form.controls.muscleGroup.invalid && form.controls.muscleGroup.touched"
+          >
+            <option value="">Elegí un grupo muscular</option>
+            @for (g of muscleGroups; track g.value) {
+              <option [value]="g.value">{{ g.label }}</option>
+            }
+          </select>
+          @if (form.controls.muscleGroup.invalid && form.controls.muscleGroup.touched) {
+            <span class="field-error">Elegí un grupo muscular.</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="exercise-description" class="form-label">Descripción</label>
+          <textarea
+            id="exercise-description"
+            class="form-input"
+            rows="4"
+            formControlName="descripcion"
+            placeholder="Explicá brevemente cómo se realiza el ejercicio."
+            [class.input-invalid]="form.controls.descripcion.invalid && form.controls.descripcion.touched"
+          ></textarea>
+          <div class="field-meta">
+            @if (form.controls.descripcion.touched && form.controls.descripcion.hasError('required')) {
+              <span class="field-error">La descripción es obligatoria.</span>
+            } @else if (form.controls.descripcion.touched && form.controls.descripcion.hasError('trimmedMinLength')) {
+              <span class="field-error">La descripción debe tener al menos {{ descriptionMin }} caracteres.</span>
+            } @else if (form.controls.descripcion.hasError('maxlength')) {
+              <span class="field-error">La descripción no puede superar los {{ textMax }} caracteres.</span>
+            }
+            <span class="char-count">{{ form.controls.descripcion.value.length }}/{{ textMax }}</span>
+          </div>
+        </div>
+      </div>
+
+      <footer class="modal-footer">
+        <button type="button" class="btn-ghost" (click)="close()" [disabled]="isSaving()">Cancelar</button>
+        <button type="submit" class="btn-primary" [disabled]="isSaving() || form.invalid || !!duplicateMessage()">
+          @if (isSaving()) {
+            <span>Guardando...</span>
+          } @else {
+            <span>{{ exercise() ? 'Guardar cambios' : 'Crear ejercicio' }}</span>
+          }
+        </button>
+      </footer>
+    </form>
+  </div>
+</div>

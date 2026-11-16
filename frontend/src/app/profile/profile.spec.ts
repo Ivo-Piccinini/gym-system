@@ -7,6 +7,8 @@ import { Profile } from './profile';
 import { ProfileService } from './profile.service';
 import { AuthService } from '../auth/auth.service';
 import { UserProfile } from './profile.models';
+import { AccessPassService } from '../access/access-pass.service';
+import { AccessPass } from '../access/access-pass.models';
 
 describe('Profile Component', () => {
   let component: Profile;
@@ -15,12 +17,33 @@ describe('Profile Component', () => {
     getProfile: ReturnType<typeof vi.fn>;
     updateProfile: ReturnType<typeof vi.fn>;
   };
+  let mockAccessPassService: {
+    getMyPass: ReturnType<typeof vi.fn>;
+  };
   let mockAuthService: {
     username: ReturnType<typeof signal<string>>;
     userRoles: ReturnType<typeof signal<string[]>>;
     isAuthenticated: ReturnType<typeof signal<boolean>>;
     isAdmin: ReturnType<typeof signal<boolean>>;
+    isProfessor: ReturnType<typeof signal<boolean>>;
+    isClient: ReturnType<typeof signal<boolean>>;
     logout: ReturnType<typeof vi.fn>;
+  };
+
+  const mockPass: AccessPass = {
+    publicId: 'pass-uuid-1',
+    userPublicId: 'uuid-1234-5678',
+    clientName: 'Lionel Messi',
+    clientDni: '33445566',
+    clientEmail: 'lionel@gym.com',
+    planName: 'Plan Trimestral',
+    accessCode: 'GYM-PASS-33445566-ABCD',
+    qrData: '{"code":"GYM-PASS-33445566-ABCD"}',
+    qrImageBase64: 'data:image/png;base64,mockImage',
+    generatedBy: 'admin',
+    generatedAt: '2026-11-14T19:00:00',
+    validUntil: '2027-02-12',
+    active: true
   };
 
   const initialProfile: UserProfile = {
@@ -40,11 +63,17 @@ describe('Profile Component', () => {
       updateProfile: vi.fn()
     };
 
+    mockAccessPassService = {
+      getMyPass: vi.fn().mockReturnValue(of(mockPass))
+    };
+
     mockAuthService = {
       username: signal('leomessi'),
       userRoles: signal(['ROLE_CLIENT']),
       isAuthenticated: signal(true),
       isAdmin: signal(false),
+      isProfessor: signal(false),
+      isClient: signal(true),
       logout: vi.fn()
     };
 
@@ -53,6 +82,7 @@ describe('Profile Component', () => {
       providers: [
         provideRouter([]),
         { provide: ProfileService, useValue: mockProfileService },
+        { provide: AccessPassService, useValue: mockAccessPassService },
         { provide: AuthService, useValue: mockAuthService }
       ]
     }).compileComponents();
@@ -67,7 +97,7 @@ describe('Profile Component', () => {
     expect(mockProfileService.getProfile).toHaveBeenCalled();
     expect(component['userProfile']()).toEqual(initialProfile);
 
-    // Verify form populated
+   
     expect(component['profileForm'].value.phone).toBe('3415551010');
     expect(component['profileForm'].value.birthDate).toBe('1987-06-24');
   });
@@ -76,10 +106,11 @@ describe('Profile Component', () => {
     const compiled = fixture.nativeElement as HTMLElement;
     const textContent = compiled.textContent;
 
-    expect(textContent).toContain('33445566'); // DNI
-    expect(textContent).toContain('lionel@gym.com'); // Email
-    expect(textContent).toContain('Socio / Cliente'); // Rol
-    expect(textContent).toContain('uuid-1234-5678'); // PublicId
+    expect(textContent).toContain('33445566');
+    expect(textContent).toContain('lionel@gym.com');
+    expect(textContent).toContain('Socio / Cliente');
+    expect(textContent).not.toContain('uuid-1234-5678');
+    expect(textContent).not.toContain('Identificador único');
   });
 
   it('should validate phone pattern and mark form as invalid on bad input', () => {
@@ -145,4 +176,30 @@ describe('Profile Component', () => {
     expect(component['profileForm'].value.phone).toBe('3415551010');
     expect(component['profileForm'].pristine).toBe(true);
   });
+
+  it('should load client access pass and open/close QR modal', () => {
+    expect(mockAccessPassService.getMyPass).toHaveBeenCalled();
+    expect(component['accessPass']()).toEqual(mockPass);
+
+    component['openQrModal']();
+    expect(component['isQrModalOpen']()).toBe(true);
+
+    component['closeQrModal']();
+    expect(component['isQrModalOpen']()).toBe(false);
+  });
+
+  it('should invalidate birthDate when user is under 18 years old', () => {
+    const today = new Date();
+    const under18Year = today.getFullYear() - 17;
+    const birthControl = component['profileForm'].controls.birthDate;
+
+    birthControl.setValue(`${under18Year}-05-10`);
+    expect(birthControl.invalid).toBe(true);
+    expect(birthControl.errors?.['minAge']).toBeTruthy();
+
+    const adultYear = today.getFullYear() - 25;
+    birthControl.setValue(`${adultYear}-05-10`);
+    expect(birthControl.valid).toBe(true);
+  });
 });
+

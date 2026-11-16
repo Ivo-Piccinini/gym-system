@@ -1,6 +1,7 @@
 package com.utnGymGroup.gym_system.features.user;
 
 import com.utnGymGroup.gym_system.common.auth.credentials.CredentialsEntity;
+import com.utnGymGroup.gym_system.common.auth.dto.AuthResponse;
 import com.utnGymGroup.gym_system.common.auth.dto.NewAccountRequest;
 import com.utnGymGroup.gym_system.common.auth.credentials.CredentialsRepository;
 import com.utnGymGroup.gym_system.common.auth.jwt.JwtService;
@@ -10,6 +11,9 @@ import com.utnGymGroup.gym_system.common.auth.permissions.Roles;
 import com.utnGymGroup.gym_system.common.auth.permissions.exceptions.RoleNotFoundException;
 import com.utnGymGroup.gym_system.features.audit.AuditActions;
 import com.utnGymGroup.gym_system.features.audit.Auditable;
+import com.utnGymGroup.gym_system.features.subscription.SubscriptionEntity;
+import com.utnGymGroup.gym_system.features.subscription.SubscriptionRepository;
+import com.utnGymGroup.gym_system.features.subscription.SubscriptionStatus;
 import com.utnGymGroup.gym_system.features.user.dtos.*;
 import com.utnGymGroup.gym_system.features.user.exceptions.*;
 import com.utnGymGroup.gym_system.features.user.mappers.*;
@@ -19,6 +23,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -31,6 +36,8 @@ public class UserService {
     private final CredentialsRepository credentialsRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+    private final SubscriptionRepository subscriptionRepository;
 
     public List<UserDTO> findAllUsers(Boolean enabled, Roles role){
         if(role != null){
@@ -67,13 +74,17 @@ public class UserService {
     @Transactional
     @Auditable(AuditActions.USER_REGISTRATION)
     public UserDTO userRegister(UserDTO request){
+        validateUserAge(request.getBirthDate());
+        if(request.getDni() != null && userRepository.existsByDni(request.getDni())){
+            throw new UserAlreadyExistsException("Ya existe un usuario registrado con el DNI ingresado.");
+        }
         if(userRepository.existsByEmail(request.getEmail())){
             throw new UserAlreadyExistsException("Ya existe un usuario con este email.");
         }
         // definimos que el username por defecto va a ser el dni, luego tendrá la posibilidad de cambiarlo.
         String defaultUsername = request.getDni();
-        if(credentialsRepository.findByUsername(defaultUsername).isPresent()){
-            throw new UserAlreadyExistsException("El usuario ya existe.");
+        if(defaultUsername != null && credentialsRepository.findByUsername(defaultUsername).isPresent()){
+            throw new UserAlreadyExistsException("Ya existe un usuario registrado con el DNI ingresado.");
         }
 
         UserEntity userEntity = userMapper.convertToEntity(request);
@@ -105,6 +116,9 @@ public class UserService {
     @Transactional
     @Auditable(AuditActions.USER_REGISTRATION)
     public UserDTO userRegister(NewAccountRequest request){
+        if(request.dni() != null && userRepository.existsByDni(request.dni())){
+            throw new UserAlreadyExistsException("Ya existe un usuario registrado con el DNI ingresado.");
+        }
         if(userRepository.existsByEmail(request.email())){
             throw new UserAlreadyExistsException("Ya existe un usuario con este email.");
         }
@@ -163,7 +177,7 @@ public class UserService {
     }
 
     @Transactional
-    public void changeUsername(String currentUsername, String newUsername){
+    public AuthResponse changeUsername(String currentUsername, String newUsername){
         CredentialsEntity credentials = credentialsRepository.findByUsername(currentUsername)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + currentUsername));
 
@@ -180,11 +194,14 @@ public class UserService {
 
         credentials.setUsername(newUsername);
         credentialsRepository.save(credentials);
+        String newToken = jwtService.generateToken(credentials);
+        return new AuthResponse(newToken, "Nombre de usuario cambiado con éxito.", false);
     }
 
     @Transactional
     @Auditable(AuditActions.UPDATE_PROFILE)
     public UserDTO updateUser(String username, UserDTO userDTO){
+        validateUserAge(userDTO.getBirthDate());
         CredentialsEntity credentials = credentialsRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("Usuario no encontrado. USERNAME: " + username));
         UserEntity user = credentials.getUser();
@@ -218,6 +235,7 @@ public class UserService {
     @Transactional
     @Auditable(AuditActions.UPDATE_PROFILE)
     public UserDTO updatePartialUser(UserPatchDTO userPatchDTO){
+        validateUserAge(userPatchDTO.getBirthDay());
         String username = Objects.requireNonNull(SecurityContextHolder.getContext().getAuthentication()).getName();
 
         CredentialsEntity credentials = credentialsRepository.findByUsername(username)
@@ -264,6 +282,7 @@ public class UserService {
                     .findFirst()
                     .ifPresent(roleEntity -> dto.setRole(roleEntity.getRole()));
         }
+        dto.setHasActiveMembership(hasActiveSubscription(credentials.getUser()));
         return dto;
     }
 
@@ -281,7 +300,31 @@ public class UserService {
                         }
                     });
         }
+        dto.setHasActiveMembership(hasActiveSubscription(userEntity));
         return dto;
+    }
+
+    private boolean hasActiveSubscription(UserEntity user) {
+        if (user == null || subscriptionRepository == null) {
+            return false;
+        }
+        try {
+            List<SubscriptionEntity> subs = subscriptionRepository.findByUser(user);
+            if (subs == null || subs.isEmpty()) {
+                return false;
+            }
+            LocalDate today = LocalDate.now();
+            return subs.stream().anyMatch(s -> s.getStatus() == SubscriptionStatus.ACTIVE &&
+                    (s.getEndDate() == null || !s.getEndDate().isBefore(today)));
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
+    private void validateUserAge(LocalDate birthDate) {
+        if (birthDate != null && birthDate.isAfter(LocalDate.now().minusYears(18))) {
+            throw new IllegalArgumentException("El usuario debe tener al menos 18 años de edad.");
+        }
     }
 
 }

@@ -1,6 +1,9 @@
 import { Routes } from '@angular/router';
 import { authGuard } from './auth/auth.guard';
+import { roleGuard } from './auth/role.guard';
 import { adminGuard } from './auth/admin.guard';
+import { clientGuard } from './auth/client.guard';
+import { changeCredentialsGuard } from './auth/change-credentials.guard';
 
 export const routes: Routes = [
   {
@@ -8,14 +11,44 @@ export const routes: Routes = [
     loadComponent: () => import('./auth/login').then((m) => m.Login)
   },
   {
+    path: 'cambiar-credenciales',
+    canActivate: [changeCredentialsGuard],
+    loadComponent: () =>
+      import('./auth/change-credentials').then((m) => m.ChangeCredentials)
+  },
+  {
     path: 'perfil',
     canActivate: [authGuard],
     loadComponent: () => import('./profile/profile').then((m) => m.Profile)
   },
   {
+    path: 'clases',
+    canActivate: [authGuard],
+    loadComponent: () => import('./classes/class-agenda').then((m) => m.ClassAgenda)
+  },
+  {
+    path: 'membresias',
+    canActivate: [authGuard, roleGuard, clientGuard],
+    data: { roles: ['ROLE_CLIENT', 'ROLE_ADMIN'] },
+    loadComponent: () => import('./membership/membership-plans').then((m) => m.MembershipPlans)
+  },
+  {
+    path: 'pagos',
+    canActivate: [authGuard, roleGuard, clientGuard],
+    data: { roles: ['ROLE_CLIENT', 'ROLE_ADMIN'] },
+    loadComponent: () => import('./membership/payment-history').then((m) => m.PaymentHistory)
+  },
+  {
     path: 'admin/usuarios',
-    canActivate: [authGuard, adminGuard],
+    canActivate: [authGuard, roleGuard, adminGuard],
+    data: { roles: ['ROLE_ADMIN'] },
     loadComponent: () => import('./admin/users/users-management').then((m) => m.UsersManagement)
+  },
+  {
+    path: 'admin/planes',
+    canActivate: [authGuard, roleGuard, adminGuard],
+    data: { roles: ['ROLE_ADMIN'] },
+    loadComponent: () => import('./membership/plan-management').then((m) => m.PlanManagement)
   },
   {
     path: 'admin/users',
@@ -24,8 +57,21 @@ export const routes: Routes = [
   },
   {
     path: 'admin/dashboard',
-    redirectTo: 'admin/usuarios',
+    canActivate: [authGuard, roleGuard, adminGuard],
+    data: { roles: ['ROLE_ADMIN'] },
+    loadComponent: () =>
+      import('./admin/dashboard/dashboard-metrics').then((m) => m.DashboardMetricsComponent)
+  },
+  {
+    path: 'admin/metricas',
+    redirectTo: 'admin/dashboard',
     pathMatch: 'full'
+  },
+  {
+    path: 'mi-rutina',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['ROLE_CLIENT'] },
+    loadComponent: () => import('./routines/my-routine').then((m) => m.MyRoutine)
   },
   {
     path: 'mi-entrenamiento',
@@ -34,9 +80,35 @@ export const routes: Routes = [
   },
   {
     path: 'profesor/rutinas',
-    redirectTo: 'perfil',
-    pathMatch: 'full'
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['ROLE_PROFESSOR', 'ROLE_ADMIN'] },
+    loadComponent: () =>
+      import('./routines/routine-management').then((m) => m.RoutineManagement)
   },
+  {
+    path: 'profesor/rutinas/nueva',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['ROLE_PROFESSOR', 'ROLE_ADMIN'] },
+    loadComponent: () => import('./routines/routine-form').then((m) => m.RoutineForm)
+  },
+  {
+    path: 'profesor/rutinas/:id/editar',
+    canActivate: [authGuard, roleGuard],
+    data: { roles: ['ROLE_PROFESSOR', 'ROLE_ADMIN'] },
+    loadComponent: () => import('./routines/routine-form').then((m) => m.RoutineForm)
+  },
+  {
+  path: 'profesor/ejercicios',
+  canActivate: [authGuard, roleGuard],
+  data: { roles: ['ROLE_PROFESSOR', 'ROLE_ADMIN'] },
+  loadComponent: () => import('./routines/exercise-bank').then((m) => m.ExerciseBank)
+},
+{
+  path: 'admin/clases',
+  canActivate: [authGuard, roleGuard, adminGuard],
+  data: { roles: ['ROLE_ADMIN'] },
+  loadComponent: () => import('./classes/class-management').then((m) => m.ClassManagement)
+},
   {
     path: '',
     redirectTo: 'login',

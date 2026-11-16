@@ -34,7 +34,7 @@ public class SubscriptionController {
     }
 
     @GetMapping("/my-subscriptions")
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasRole('CLIENT') and !hasRole('ADMIN')")
     @Operation(summary = "Obtener suscripciones del cliente autenticado", description = "Devuelve las suscripciones (activas, vencidas, etc.) del cliente logueado. Permitido para CLIENT.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Suscripciones del cliente obtenidas correctamente"),
@@ -45,7 +45,7 @@ public class SubscriptionController {
     }
 
     @PostMapping("/{planId}")
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasRole('CLIENT') and !hasRole('ADMIN')")
     @Operation(summary = "Suscribirse a un plan", description = "Crea una nueva suscripción activa vinculando al cliente autenticado con el plan indicado. Permitido para CLIENT.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "201", description = "Suscripción dada de alta exitosamente"),
@@ -57,7 +57,7 @@ public class SubscriptionController {
     }
 
     @PatchMapping("/{id}/cancel")
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasRole('CLIENT') and !hasRole('ADMIN')")
     @Operation(summary = "Cancelar una suscripción", description = "Realiza la cancelación lógica de una suscripción vigente. Permitido para CLIENT (dueño de la suscripción).")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "Suscripción cancelada exitosamente"),

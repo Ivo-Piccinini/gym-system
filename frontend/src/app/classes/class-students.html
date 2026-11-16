@@ -1,0 +1,61 @@
+<div class="modal-backdrop" (click)="close()">
+  <div class="modal-card modal-wide" (click)="$event.stopPropagation()" role="dialog" aria-modal="true" aria-labelledby="class-students-title">
+    <header class="modal-header">
+      <div class="modal-header-text">
+        <h2 id="class-students-title" class="modal-title">Alumnos inscriptos</h2>
+        <p class="modal-subtitle">
+          {{ gymClass().activity.name }} · {{ dayLabel(gymClass()) }}
+          {{ time(gymClass().startTime) }} – {{ time(gymClass().endTime) }}
+        </p>
+      </div>
+      <button type="button" class="modal-close-btn" (click)="close()" aria-label="Cerrar ventana">×</button>
+    </header>
+
+    <div class="students-toolbar">
+      @if (!isLoading() && !errorMessage()) {
+        <span class="students-count">
+          {{ visible().length }} {{ visible().length === 1 ? 'inscripto' : 'inscriptos' }}
+          · cupo máx. {{ gymClass().capacityMax }}
+        </span>
+      }
+    </div>
+
+    <div class="students-body">
+      @if (isLoading()) {
+        <p class="students-state">Cargando alumnos...</p>
+      } @else if (errorMessage()) {
+        <div class="students-state students-error" role="alert">
+          <p>{{ errorMessage() }}</p>
+          <button type="button" class="btn-secondary" (click)="load()">Reintentar</button>
+        </div>
+      } @else if (visible().length === 0) {
+        <p class="students-state">Esta clase todavía no tiene alumnos inscriptos.</p>
+      } @else {
+        <div class="table-scroll">
+          <table class="students-table">
+            <thead>
+              <tr>
+                <th>Alumno</th>
+                <th>DNI</th>
+                <th>Inscripción</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (e of visible(); track e.externalId) {
+                <tr>
+                  <td data-label="Alumno">{{ e.client?.lastName }}, {{ e.client?.firstName }}</td>
+                  <td data-label="DNI">{{ e.client?.dni ?? '—' }}</td>
+                  <td data-label="Inscripción">{{ formatDate(e.enrollmentDate) }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+    </div>
+
+    <footer class="modal-footer">
+      <button type="button" class="btn-ghost" (click)="close()">Cerrar</button>
+    </footer>
+  </div>
+</div>

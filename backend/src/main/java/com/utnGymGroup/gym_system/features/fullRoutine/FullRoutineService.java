@@ -67,13 +67,13 @@ public class FullRoutineService
     private RoutineEntity findRoutineFromRequest(FullRoutineDtoRequest request) {
         RoutineEntity routine = null;
         if (request.getRoutineID() != null) {
-            routine = routineRepository.findByPublicId(request.getRoutineID()).orElse(null);
+            routine = routineRepository.findByPublicIdAndEnabledTrue(request.getRoutineID()).orElse(null);
             if (routine == null) {
-                routine = routineRepository.findByClient_PublicId(request.getRoutineID()).orElse(null);
+                routine = routineRepository.findFirstByClient_PublicIdAndEnabledTrueOrderByIdDesc(request.getRoutineID()).orElse(null);
             }
         }
         if (routine == null && request.getClientID() != null) {
-            routine = routineRepository.findByClient_PublicId(request.getClientID()).orElse(null);
+            routine = routineRepository.findFirstByClient_PublicIdAndEnabledTrueOrderByIdDesc(request.getClientID()).orElse(null);
         }
         if (routine == null) {
             throw new RoutineNotFoundException("La rutina especificada o la rutina asociada al cliente no existe");

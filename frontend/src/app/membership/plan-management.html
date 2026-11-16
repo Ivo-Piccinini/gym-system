@@ -1,0 +1,156 @@
+<div class="plans-container">
+  <app-navbar />
+
+  <main class="plans-main">
+    @if (successMessage()) {
+      <div class="banner success-banner">
+        <span class="banner-text">{{ successMessage() }}</span>
+        <button type="button" class="banner-close" (click)="successMessage.set(null)" aria-label="Cerrar notificación">×</button>
+      </div>
+    }
+
+    @if (errorMessage()) {
+      <div class="banner error-banner">
+        <span class="banner-text">{{ errorMessage() }}</span>
+        <button type="button" class="btn-ghost" (click)="loadPlans()">Reintentar</button>
+      </div>
+    }
+
+    <section class="header-row">
+      <div class="header-titles">
+        <h1 class="page-title">Planes de Membresía</h1>
+        <p class="page-subtitle">Creá y modificá los planes comerciales: precio y duración en días.</p>
+      </div>
+      <button type="button" class="btn-primary" (click)="openCreate()">
+        <span>+ Nuevo plan</span>
+      </button>
+    </section>
+
+    <section class="table-container">
+      @if (isLoading()) {
+        <div class="state-box">
+          <div class="spinner"></div>
+          <p class="state-message">Consultando planes...</p>
+        </div>
+      } @else if (sortedPlans().length === 0) {
+        <div class="state-box">
+          <p class="empty-title">Todavía no hay planes cargados</p>
+          <p class="empty-subtitle">Creá el primer plan para ofrecerlo a los socios.</p>
+        </div>
+      } @else {
+        <div class="table-responsive">
+          <table class="plan-table">
+            <thead>
+              <tr>
+                <th>Plan</th>
+                <th>Duración</th>
+                <th>Precio</th>
+                <th>Equiv. mensual</th>
+                <th class="text-right">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (plan of sortedPlans(); track plan.publicId) {
+                <tr>
+                  <td class="cell-name">{{ plan.name }}</td>
+                  <td>
+                    {{ durationLabel(plan.durationDays) }}
+                    <span class="cell-sub">{{ plan.durationDays }} días</span>
+                  </td>
+                  <td class="cell-price">{{ formatPrice(plan.price) }}</td>
+                  <td>{{ monthlyLabel(plan) }}</td>
+                  <td class="text-right">
+                    <button type="button" class="btn-ghost" (click)="openEdit(plan)">Editar</button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+        <div class="table-footer">{{ sortedPlans().length }} planes cargados</div>
+      }
+    </section>
+  </main>
+
+  @if (isFormOpen()) {
+    <div class="modal-backdrop" (click)="closeForm()">
+      <div class="modal-card" (click)="$event.stopPropagation()" role="dialog" aria-modal="true">
+        <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+          <div class="modal-header">
+            <h3 class="modal-title">{{ editingPlan() ? 'Editar plan' : 'Nuevo plan' }}</h3>
+          </div>
+
+          <div class="modal-body">
+            @if (formError()) {
+              <div class="banner error-banner">
+                <span class="banner-text">{{ formError() }}</span>
+              </div>
+            }
+
+            <div class="form-group">
+              <label for="plan-name" class="form-label">Nombre del plan</label>
+              <input
+                id="plan-name"
+                type="text"
+                class="form-input"
+                placeholder="Ej. Plan trimestral"
+                maxlength="50"
+                formControlName="name"
+                [class.input-invalid]="showError('name')"
+              />
+              @if (showError('name')) {
+                <span class="field-error">El nombre es obligatorio y no puede superar los 50 caracteres.</span>
+              }
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="plan-price" class="form-label">Precio (ARS)</label>
+                <input
+                  id="plan-price"
+                  type="number"
+                  class="form-input"
+                  min="0.01"
+                  step="any"
+                  formControlName="price"
+                  [class.input-invalid]="showError('price')"
+                />
+                @if (showError('price')) {
+                  <span class="field-error">El precio debe ser mayor a 0.</span>
+                }
+              </div>
+
+              <div class="form-group">
+                <label for="plan-days" class="form-label">Duración (días)</label>
+                <input
+                  id="plan-days"
+                  type="number"
+                  class="form-input"
+                  min="1"
+                  step="1"
+                  formControlName="durationDays"
+                  [class.input-invalid]="showError('durationDays')"
+                />
+                @if (showError('durationDays')) {
+                  <span class="field-error">Ingresá una cantidad entera de días mayor a 0.</span>
+                }
+              </div>
+            </div>
+          </div>
+
+          <div class="modal-footer">
+            <button type="button" class="btn-ghost" (click)="closeForm()" [disabled]="isSaving()">Cancelar</button>
+            <button type="submit" class="btn-primary" [disabled]="isSaving()">
+              @if (isSaving()) {
+                <span class="spinner-sm"></span>
+                <span>Guardando...</span>
+              } @else {
+                <span>{{ editingPlan() ? 'Guardar cambios' : 'Crear plan' }}</span>
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>

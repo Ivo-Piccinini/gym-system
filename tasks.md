@@ -30,10 +30,10 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
   - Guard funcional `CanActivateFn` para proteger rutas por rol (`ROLE_ADMIN`, `ROLE_PROFESSOR`, `ROLE_CLIENT`).
   - Layout Shell con sidebar/navbar responsivo siguiendo el sistema de diseño (superficies Nivel 0 `bg-[#09090b]` a Nivel 3, cero emojis, iconografía SVG).
 - **Tareas de Desarrollo:**
-  - [ ] `GS-CORE-1`: Configurar `app.config.ts` y estructura de interceptores funcionales (`jwt.interceptor.ts`, `error.interceptor.ts`).
-  - [ ] `GS-CORE-2`: Implementar `auth.guard.ts` y `role.guard.ts` basados en `CanActivateFn` y señales reactivas.
-  - [ ] `GS-CORE-3`: Construir el componente Layout Shell (Navbar / Sidebar responsivo) con tokens del Design System en `src/app/shared/layout/`.
-  - [ ] `GS-CORE-4`: Configurar el enrutador principal en `app.routes.ts` con carga perezosa (*lazy loading*) de features.
+  - [x] `GS-CORE-1`: Configurar `app.config.ts` y estructura de interceptores funcionales (`jwt.interceptor.ts`, `error.interceptor.ts`).
+  - [x] `GS-CORE-2`: Implementar `auth.guard.ts` y `role.guard.ts` basados en `CanActivateFn` y señales reactivas.
+  - [x] `GS-CORE-3`: Construir el componente Layout Shell (Navbar / Sidebar responsivo) con tokens del Design System en `src/app/shared/layout/`.
+  - [x] `GS-CORE-4`: Configurar el enrutador principal en `app.routes.ts` con carga perezosa (*lazy loading*) de features.
 
 ### `[GS-INFRA-DB] Migración de Persistencia a PostgreSQL (Supabase)`
 - **Tipo:** Tarea Técnica de Infraestructura
@@ -69,6 +69,39 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
   - [x] `GS-DESIGN-4`: Armonizar navbars y branding en vistas de usuario y administración.
   - [x] `GS-DESIGN-5`: Refinar formulario de login con enfoque minimalista, sobrio y sin sobrecarga decorativa.
 
+### `[GS-RESPONSIVE] Auditoría y Adaptabilidad Responsive Integral (Mobile & Tablets)`
+- **Tipo:** Tarea Técnica de Diseño & UX
+- **Estado:** Completada
+- **Descripción:**
+  Auditar y optimizar exhaustivamente todas las vistas del sistema para garantizar una experiencia 100% responsiva y fluida en viewports móviles (320px–480px), tablets (481px–768px) y escritorios (>768px), eliminando desbordamientos horizontales, desfasajes de filtros y compresión de componentes.
+- **Criterios de Aceptación:**
+  - Barra de navegación (`AppNavbar`): distribución compacta en móviles (`<= 600px`) con scroll táctil horizontal para los 8 botones de navegación sin provocar scroll horizontal en la página.
+  - Módulo de Clases (`/clases` y `/admin/clases`):
+    - Grilla semanal adaptable en 6, 3, 2 o 1 columna según ancho de pantalla.
+    - Transformación de tabla `classes-table` a tarjetas móviles con `data-label` en `<= 640px`.
+    - Corrección del desfasaje del filtro semanal: control segmentado flexible (`display: flex; max-width: 100%;`) y contención `overflow: hidden;` en tarjeta contenedora.
+    - Modal de alumnos inscriptos con vista móvil tipo tarjeta.
+  - Padrón de Usuarios (`/admin/usuarios`):
+    - Tira de estadísticas (`roster-strip`) en grilla de 2 columnas en móviles.
+    - Barra de búsqueda fluida al 100% (eliminación de `min-width: 280px`).
+    - Tabla responsiva con `-webkit-overflow-scrolling: touch`.
+  - Métricas y Auditoría (`/admin/dashboard`):
+    - Grilla de KPIs adaptable a 1 columna en pantallas estrechas.
+    - Filtros de categorías con carrusel táctil.
+  - Perfil y Pase QR (`/perfil`):
+    - Cabecera de avatar y banner de pase QR apilables al 100% en pantallas móviles.
+    - Modal de credencial digital QR optimizado para pantallas compactas.
+  - Membresías y Cobros (`/membresias`, `/pagos`):
+    - Grilla de planes con `minmax(min(260px, 100%), 1fr)` para evitar overflow en anchos < 320px.
+    - Modal de simulación de pagos con inputs apilados verticalmente en móviles.
+- **Tareas de Desarrollo:**
+  - [x] `GS-RESPONSIVE-1`: Optimizar estilos globales y utilidades de modales/tablas en `styles.css`.
+  - [x] `GS-RESPONSIVE-2`: Implementar carrusel táctil y escala de branding en `navbar.css`.
+  - [x] `GS-RESPONSIVE-3`: Corregir desfasaje y adaptar controles segmentados en `class-filters.css`, `class-agenda.css` y `class-management.css`.
+  - [x] `GS-RESPONSIVE-4`: Implementar transformación de tabla a tarjetas en administración de clases y lista de alumnos.
+  - [x] `GS-RESPONSIVE-5`: Adaptar vistas de administración de usuarios, métricas, perfil, ejercicios y membresías.
+  - [x] `GS-RESPONSIVE-6`: Ejecutar suite de pruebas unitarias (181/181) y validación de compilación (`ng build`).
+
 ---
 
 ## Épica 1: Seguridad, Autenticación y Perfiles
@@ -102,6 +135,8 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
 - **Subtareas Jira:**
   - [x] `GS-12`: Crear `ProfileComponent` y servicio de actualización (`profile.service.ts`).
   - [x] `GS-13`: Integrar formulario reactivo para patch de datos personales.
+  - [x] `GS-13-AGE`: Validación de edad mínima (+18 años) en autogestión de perfil.
+  - [x] `GS-13-CLEANUP`: Eliminación de identificador único técnico (UUID) del panel personal.
   - [x] `GS-14`: Probar la persistencia parcial de datos de usuario con el backend.
 
 ### `[GS-AUTH-EXT] Actualización Obligatoria de Clave y Nombre de Usuario Temporal`
@@ -114,8 +149,8 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
   - Formulario reactivo para cambio de clave enviado a `PATCH /api/users/change-password`.
   - Formulario reactivo para cambio de nombre de usuario enviado a `PATCH /api/users/change-username`.
 - **Tareas de Desarrollo:**
-  - [ ] `GS-AUTH-EXT-1`: Crear componente modal / vista de primer login (`change-credentials.ts`).
-  - [ ] `GS-AUTH-EXT-2`: Conectar endpoints de cambio de clave y username en `UserService`.
+  - [x] `GS-AUTH-EXT-1`: Crear componente modal / vista de primer login (`change-credentials.ts`).
+  - [x] `GS-AUTH-EXT-2`: Conectar endpoints de cambio de clave y username en `UserService`.
 
 ---
 
@@ -150,6 +185,23 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
   - [ ] `GS-25`: Crear tabla de historial de pagos del cliente.
   - [ ] `GS-26`: Conectar la vista de pagos con `MembershipService`.
 
+### `[GS-CASH-VALIDATION] Validación de Pagos en Efectivo desde Panel Admin`
+- **Tipo:** Historia
+- **Estado:** Completada
+- **Descripción:**
+  Como Administrador, quiero validar o rechazar los cobros en efectivo registrados por los socios desde mi panel de control para confirmar la recepción física del dinero y activar automáticamente su suscripción.
+- **Criterios de Aceptación:**
+  - Pagos con método `EFECTIVO` quedan en estado `PENDING` hasta su validación en recepción física.
+  - Endpoint `PATCH /api/payments/{publicId}/validate` para que el Administrador apruebe el cobro, activando la suscripción con fechas vigentes y registrando auditoría AOP.
+  - Endpoint `PATCH /api/payments/{publicId}/reject` para rechazar el cobro y cancelar la suscripción pendiente.
+  - Sección interactiva en el panel de métricas y auditoría con filtro de pagos en efectivo (`PENDING`, `APPROVED`, `REJECTED`), búsqueda por socio y acciones de validación directa con confirmación y feedback toast.
+- **Subtareas:**
+  - [x] `GS-CASH-1`: Crear enum `PaymentStatus`, actualizar `PaymentEntity` con auditoría de recepción y hooks JPA de estado inicial.
+  - [x] `GS-CASH-2`: Implementar endpoints `PATCH /api/payments/{publicId}/validate` y `PATCH /api/payments/{publicId}/reject` en `PaymentService` y `PaymentController` con pruebas unitarias JUnit 5.
+  - [x] `GS-CASH-3`: Extender modelo y `PaymentService` en frontend Angular para interactuar con las rutas de validación y rechazo.
+  - [x] `GS-CASH-4`: Incorporar sección de validación de cobros en efectivo en `DashboardMetricsComponent` con tabla, contador de pendientes y acciones reactivas.
+  - [x] `GS-CASH-5`: Ajustar pantalla de éxito de suscripción (`SubscriptionDialog`) para notificar al socio que su pago en efectivo debe abonarse en recepción.
+
 ### `[GS-MEMB-ADMIN] Administración y Actualización de Planes Comerciales (Admin)`
 - **Tipo:** Historia Complementaria
 - **Descripción:**
@@ -173,7 +225,7 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
 - **Descripción:**
   Como Cliente o Profesor, quiero consultar las clases disponibles con sus cupos libres en tiempo real y filtrarlas para planificar mis horarios.
 - **Criterios de Aceptación:**
-  - Listado de clases consumiendo `GET /api/activities/classes` calculando los cupos libres (`capacity_max` menos inscripciones por fecha).
+  - Listado de clases consumiendo `GET /api/gym-classes?date=YYYY-MM-DD` calculando los cupos libres (`capacity_max` menos inscripciones por fecha, `enrolledCount` y `availableSpots`).
   - Filtros interactivos por día de la semana y por disciplina.
 - **Subtareas Jira:**
   - [ ] `GS-28`: Crear `ClassService` y DTOs de agenda (`class.models.ts`).
@@ -204,6 +256,24 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
 - **Tareas de Desarrollo:**
   - [ ] `GS-CLASS-ADMIN-1`: Crear componente de administración de clases y actividades (`class-admin.ts`).
   - [ ] `GS-CLASS-ADMIN-2`: Implementar modal con la lista de socios inscriptos por clase.
+
+### `[GS-RESTRICT-ADMIN-OPERATIONS] Restricción de Operaciones de Socio (Inscripción a Clases y Contratación de Planes) para Administradores`
+- **Tipo:** Historia / Regla de Negocio
+- **Estado:** Completada
+- **Descripción:**
+  Como Administrador del gimnasio, quiero que el sistema restrinja mi cuenta para que no pueda inscribirme a clases ni contratar planes de membresía como usuario, manteniendo mi rol estrictamente en gestión y consulta comercial.
+- **Criterios de Aceptación:**
+  - Control de seguridad backend en `EnrollmentController`, `SubscriptionController` y `PaymentController`: `@PreAuthorize("hasRole('CLIENT') and !hasRole('ADMIN')")`.
+  - Validación de regla de negocio en `EnrollmentService`, `SubscriptionService` y `PaymentService`: denegar con `IllegalStateException` descriptiva si el usuario posee rol `ROLE_ADMIN`.
+  - Frontend `ClassAgenda`: banner informativo de *Modo Administrador (Vista de solo lectura)*, sustitución de botones de inscripción por etiqueta de solo lectura y bloqueo defensivo en TypeScript.
+  - Frontend `MembershipPlans`: banner informativo de *Modo Administrador (Catálogo comercial)*, botones de contratación deshabilitados con etiqueta `Solo para socios (Admin)`, bloqueo defensivo de apertura de diálogo y en `SubscriptionDialog`.
+  - Suites de tests unitarios completas en backend (`EnrollmentServiceTest`, `PaymentServiceTest`) y frontend (`class-agenda.spec.ts`, `membership-plans.spec.ts`).
+- **Tareas de Desarrollo:**
+  - [x] `GS-RESTRICT-ADMIN-1`: Reforzar autorización en `EnrollmentController`, `SubscriptionController`, `PaymentController` y reglas en servicios.
+  - [x] `GS-RESTRICT-ADMIN-2`: Crear suite de pruebas JUnit 5 `EnrollmentServiceTest` y ampliar `PaymentServiceTest`.
+  - [x] `GS-RESTRICT-ADMIN-3`: Integrar banner y etiqueta de solo lectura en `ClassAgenda` e implementar guard defensivo en frontend.
+  - [x] `GS-RESTRICT-ADMIN-4`: Integrar banner de catálogo comercial y deshabilitación en `MembershipPlans` y `SubscriptionDialog`.
+  - [x] `GS-RESTRICT-ADMIN-5`: Crear suite de pruebas unitarias Vitest `class-agenda.spec.ts` y `membership-plans.spec.ts`.
 
 ---
 
@@ -265,20 +335,42 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
 - **Subtareas Jira:**
   - [x] `GS-43`: Crear `AdminUserService` y DTOs de gestión de usuarios.
   - [x] `GS-44`: Diseñar modal de alta y edición de socios y staff (profesores/admin).
+  - [x] `GS-44-FIX`: Validación y mensajes amigables al registrar usuarios con DNI duplicado (sanitización de errores técnicos/SQL).
+  - [x] `GS-44-AGE`: Validación de edad mínima (+18 años) en alta y modificación de usuarios en panel administrativo.
   - [x] `GS-45`: Integrar toggle de estado con `PATCH /api/users/{publicId}/status`.
 
 ### `GS-46: Auditoría de Precios y Dashboard de Métricas (Chart.js)`
 - **Tipo:** Historia
-- **Estado:** Por hacer
+- **Estado:** Completada
 - **Descripción:**
   Como Administrador, quiero visualizar la bitácora de cambios de precios auditados por el backend y gráficos de asistencia/cobros para monitorear el desempeño del gimnasio.
 - **Criterios de Aceptación:**
   - Tabla de consulta de logs de auditoría generados por el aspecto AOP (`GET /api/audit/logs`).
   - Panel de métricas interactivo utilizando `Chart.js` (`ng2-charts`) para representar cobros y aforo de clases.
 - **Subtareas Jira:**
-  - [ ] `GS-47`: Instalar y configurar `chart.js` y `ng2-charts` en Angular.
-  - [ ] `GS-48`: Crear componente Dashboard con gráficos estadísticos de ocupación y recaudación.
-  - [ ] `GS-49`: Implementar tabla de visor forense de auditoría AOP con detalles JSON.
+  - [x] `GS-47`: Instalar y configurar `chart.js` y `ng2-charts` en Angular.
+  - [x] `GS-48`: Crear componente Dashboard con gráficos estadísticos de ocupación y recaudación.
+  - [x] `GS-49`: Implementar tabla y modal de visor de auditoría AOP con detalles legibles y amigables (sin mensajes ni sintaxis JSON).
+
+### `[GS-ACCESS-QR] Generación y Consulta de Credencial Digital QR de Acceso a Sedes`
+- **Tipo:** Historia de Usuario Complementaria
+- **Estado:** Completada
+- **Descripción:**
+  Como Administrador, quiero emitir y gestionar credenciales digitales con código QR para los socios con membresía activa y pago aprobado desde el padrón de usuarios (`/admin/usuarios`), y como Socio, quiero consultar y visualizar mi pase digital de acceso con QR en mi perfil (`/perfil`) para ingresar a las sedes del gimnasio.
+- **Criterios de Aceptación:**
+  - Generación de código QR en backend codificado en Base64 utilizando la librería Google ZXing.
+  - El Administrador puede emitir, consultar y regenerar la credencial de acceso QR desde la fila del socio en el Padrón de Usuarios (`/admin/usuarios`).
+  - El Socio puede consultar su credencial QR vigente desde la sección destacada de su perfil (`/perfil`).
+  - Validación de membresía activa (`status: ACTIVE`) con pago verificado previo a la emisión; bloqueo y alerta si no cumple la condición.
+  - Modal digital con diseño de credencial deportiva (`AccessCredentialModal`), código alfanumérico legible, datos del socio/plan y opción de impresión.
+- **Tareas de Desarrollo:**
+  - [x] `GS-ACCESS-QR-1`: Integrar dependencias Google ZXing en `backend/pom.xml` y acción de auditoría `GENERATE_ACCESS_QR`.
+  - [x] `GS-ACCESS-QR-2`: Crear entidad `AccessPassEntity`, repositorio `AccessPassRepository` y generador de imágenes `QrCodeGeneratorService`.
+  - [x] `GS-ACCESS-QR-3`: Implementar servicio `AccessPassService` con validación de membresía y endpoints en `AccessPassController` (`/api/access/**`).
+  - [x] `GS-ACCESS-QR-4`: Desarrollar servicio y modelos de frontend `AccessPassService` y modal de credencial `AccessCredentialModal`.
+  - [x] `GS-ACCESS-QR-5`: Integrar acción de emisión y consulta de Pase QR en `UsersManagement` (`/admin/usuarios`).
+  - [x] `GS-ACCESS-QR-6`: Integrar banner y visualizador de Pase QR en el perfil del socio `Profile` (`/perfil`).
+  - [x] `GS-ACCESS-QR-7`: Cobertura exhaustiva de pruebas unitarias en backend (JUnit 5/Mockito) y frontend (Vitest).
 
 ---
 
@@ -289,6 +381,6 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
 | **Épicas Funcionales** | 6 | Infraestructura, Seguridad, Membresías, Clases, Rutinas, Auditoría |
 | **Historias Jira Originales** | 10 | `GS-5`, `GS-11`, `GS-15`, `GS-23`, `GS-27`, `GS-31`, `GS-35`, `GS-39`, `GS-42`, `GS-46` |
 | **Subtareas Jira Originales** | 27 | Tareas técnicas desglosadas en el tablero |
-| **Historias Complementarias** | 5 | Setup Core, Cambio credenciales, Admin planes, Admin clases, Maestro ejercicios |
-| **Tareas Técnicas Complementarias** | 12 | Subtareas de soporte para completar el 100% del sistema |
-| **Total de Ítems de Trabajo** | **54** | Plan completo para finalización del proyecto |
+| **Historias Complementarias** | 7 | Setup Core, Cambio credenciales, Admin planes, Admin clases, Maestro ejercicios, Pase QR, Auditoría Responsive |
+| **Tareas Técnicas Complementarias** | 25 | Subtareas de soporte para completar el 100% del sistema |
+| **Total de Ítems de Trabajo** | **62** | Plan completo para finalización del proyecto |

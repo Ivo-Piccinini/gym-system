@@ -15,12 +15,17 @@ import com.utnGymGroup.gym_system.features.exercise.MuscleGroup;
 import com.utnGymGroup.gym_system.features.GymClass.GymClassEntity;
 import com.utnGymGroup.gym_system.features.GymClass.GymClassRepository;
 import com.utnGymGroup.gym_system.features.GymClass.DayOfWeek;
+import com.utnGymGroup.gym_system.features.audit.AuditActions;
+import com.utnGymGroup.gym_system.features.audit.AuditLogEntity;
+import com.utnGymGroup.gym_system.features.audit.AuditLogRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +37,7 @@ public class DatabaseInitializerConfig {
     @Bean
     @Transactional
     public CommandLineRunner initDatabase(
+            JdbcTemplate jdbcTemplate,
             PermitRepository permitRepository,
             RoleRepository roleRepository,
             CredentialsRepository credentialsRepository,
@@ -40,10 +46,17 @@ public class DatabaseInitializerConfig {
             ActivityRepository activityRepository,
             ExerciseRepository exerciseRepository,
             GymClassRepository gymClassRepository,
+            AuditLogRepository auditLogRepository,
             PasswordEncoder passwordEncoder
     ) {
         return args -> {
             System.out.println(">> Iniciando verificación de semillas de base de datos...");
+
+            try {
+                jdbcTemplate.execute("ALTER TABLE audit_logs DROP CONSTRAINT IF EXISTS audit_logs_action_check");
+            } catch (Exception e) {
+                System.out.println(">> Ajuste de constraint audit_logs_action_check omitido: " + e.getMessage());
+            }
 
             // 1. Sembrado de Permisos y Roles (Esencial para la seguridad)
             Map<Permits, PermitEntity> permitEntities = new HashMap<>();
@@ -411,6 +424,49 @@ public class DatabaseInitializerConfig {
                     gymClassRepository.save(classMusculacion);
                     System.out.println(">> Clase de Musculación sembrada.");
                 }
+            }
+
+            // 7. Sembrado de Auditoría Inicial (AuditLogEntity)
+            if (auditLogRepository.count() == 0) {
+                System.out.println(">> Sembrando registros iniciales de Auditoría AOP...");
+                LocalDateTime baseTime = LocalDateTime.now().minusDays(5);
+
+                auditLogRepository.save(AuditLogEntity.builder()
+                        .action(AuditActions.CREATE_PLAN)
+                        .performedBy("admin")
+                        .timestamp(baseTime)
+                        .details("[{\"name\":\"Pase Mensual Full\",\"price\":18000.0,\"durationDays\":30}]")
+                        .build());
+
+                auditLogRepository.save(AuditLogEntity.builder()
+                        .action(AuditActions.UPDATE_PLAN)
+                        .performedBy("admin")
+                        .timestamp(baseTime.plusDays(1).plusHours(2))
+                        .details("[{\"name\":\"Pase Mensual Full\",\"price\":20000.0,\"durationDays\":30,\"motivo\":\"Ajuste inflacionario bimestral\"}]")
+                        .build());
+
+                auditLogRepository.save(AuditLogEntity.builder()
+                        .action(AuditActions.USER_REGISTRATION)
+                        .performedBy("admin")
+                        .timestamp(baseTime.plusDays(2).plusHours(4))
+                        .details("[{\"username\":\"socio1\",\"email\":\"socio1@gym.com\",\"role\":\"ROLE_CLIENT\"}]")
+                        .build());
+
+                auditLogRepository.save(AuditLogEntity.builder()
+                        .action(AuditActions.PROCESS_PAYMENT)
+                        .performedBy("admin")
+                        .timestamp(baseTime.plusDays(3).plusHours(1))
+                        .details("[{\"amount\":20000.0,\"method\":\"CREDIT_CARD\",\"subscriptionId\":1}]")
+                        .build());
+
+                auditLogRepository.save(AuditLogEntity.builder()
+                        .action(AuditActions.UPDATE_PLAN)
+                        .performedBy("admin")
+                        .timestamp(baseTime.plusDays(4).plusHours(3))
+                        .details("[{\"name\":\"Pase Mensual Full\",\"price\":22000.0,\"durationDays\":30,\"motivo\":\"Actualización tarifaria de verano\"}]")
+                        .build());
+
+                System.out.println(">> Registros de Auditoría AOP sembrados exitosamente.");
             }
 
             System.out.println(">> ¡Verificación y sembrado de datos de prueba del gimnasio finalizados correctamente!");

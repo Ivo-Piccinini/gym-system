@@ -1,74 +1,78 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { RouterLink } from '@angular/router';
 import { AdminUserService } from './admin-user.service';
 import { AuthService } from '../../auth/auth.service';
 import { AdminUser, CreateUserRequest, UpdateUserRequest, UserRole } from './admin-users.models';
+import { NavbarComponent } from '../../shared/navbar/navbar';
+import { AccessPassService } from '../../access/access-pass.service';
+import { AccessPass } from '../../access/access-pass.models';
+import { AccessCredentialModal } from '../../access/access-credential-modal';
+import { minAgeValidator, getMaxBirthDate } from '../../shared/validators/age.validator';
 
 @Component({
   selector: 'app-users-management',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, RouterLink],
+  imports: [CommonModule, ReactiveFormsModule, NavbarComponent, AccessCredentialModal],
   templateUrl: './users-management.html',
   styleUrls: ['./users-management.css']
 })
 export class UsersManagement implements OnInit {
   private readonly fb = inject(FormBuilder);
   private readonly adminUserService = inject(AdminUserService);
+  private readonly accessPassService = inject(AccessPassService);
   protected readonly authService = inject(AuthService);
 
-  // Estados reactivos principales
   protected readonly users = signal<AdminUser[]>([]);
   protected readonly isLoading = signal<boolean>(true);
   protected readonly isSaving = signal<boolean>(false);
   protected readonly errorMessage = signal<string | null>(null);
   protected readonly successMessage = signal<string | null>(null);
 
-  // Filtros reactivos
   protected readonly searchTerm = signal<string>('');
   protected readonly selectedRole = signal<'ALL' | UserRole>('ALL');
   protected readonly selectedStatus = signal<'ALL' | 'ACTIVE' | 'INACTIVE'>('ALL');
 
-  // Estado del Modal de Usuario (Alta / Edición)
   protected readonly isUserModalOpen = signal<boolean>(false);
   protected readonly editingUser = signal<AdminUser | null>(null);
 
-  // Estado del Modal de Confirmación de Toggle de Estado
   protected readonly isConfirmModalOpen = signal<boolean>(false);
   protected readonly userToToggle = signal<AdminUser | null>(null);
 
-  // Formulario Reactivo
+  protected readonly isQrModalOpen = signal<boolean>(false);
+  protected readonly selectedUserPass = signal<AccessPass | null>(null);
+  protected readonly isLoadingQr = signal<boolean>(false);
+  protected readonly isRegeneratingQr = signal<boolean>(false);
+  protected readonly activeQrUser = signal<AdminUser | null>(null);
+
+  protected readonly maxBirthDate = getMaxBirthDate(18);
+
   protected readonly userForm = this.fb.group({
     firstName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
     lastName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(30)]],
     dni: ['', [Validators.required, Validators.pattern(/^[0-9]{8}$/)]],
     email: ['', [Validators.required, Validators.email]],
     phone: ['', [Validators.pattern(/^[0-9+\-\s]{7,15}$/)]],
-    birthDate: ['', [Validators.required]],
+    birthDate: ['', [Validators.required, minAgeValidator(18)]],
     role: ['ROLE_CLIENT' as UserRole, [Validators.required]]
   });
 
-  // Métricas computadas
   protected readonly totalCount = computed(() => this.users().length);
   protected readonly clientCount = computed(() => this.users().filter((u) => u.role === 'ROLE_CLIENT').length);
   protected readonly professorCount = computed(() => this.users().filter((u) => u.role === 'ROLE_PROFESSOR').length);
   protected readonly activeCount = computed(() => this.users().filter((u) => u.enabled).length);
   protected readonly inactiveCount = computed(() => this.users().filter((u) => !u.enabled).length);
 
-  // Usuarios filtrados dinámicamente
   protected readonly filteredUsers = computed(() => {
     const term = this.searchTerm().trim().toLowerCase();
     const roleFilter = this.selectedRole();
     const statusFilter = this.selectedStatus();
 
     return this.users().filter((user) => {
-      // Filtro de rol
       if (roleFilter !== 'ALL' && user.role !== roleFilter) {
         return false;
       }
 
-      // Filtro de estado
       if (statusFilter === 'ACTIVE' && !user.enabled) {
         return false;
       }
@@ -76,7 +80,6 @@ export class UsersManagement implements OnInit {
         return false;
       }
 
-      // Filtro de búsqueda por texto
       if (!term) {
         return true;
       }
@@ -119,7 +122,6 @@ export class UsersManagement implements OnInit {
     });
   }
 
-  // --- Manejo del Modal de Usuario ---
   protected openCreateModal(): void {
     this.editingUser.set(null);
     this.userForm.reset({
@@ -170,7 +172,6 @@ export class UsersManagement implements OnInit {
     const currentUser = this.editingUser();
 
     if (currentUser) {
-      // Modo Edición
       const updateReq: UpdateUserRequest = {
         publicId: currentUser.publicId,
         firstName: formVal.firstName!,
@@ -193,11 +194,11 @@ export class UsersManagement implements OnInit {
         },
         error: (err) => {
           this.isSaving.set(false);
+          this.closeUserModal();
           this.handleFormError(err, 'actualizar');
         }
       });
     } else {
-      // Modo Creación
       const createReq: CreateUserRequest = {
         firstName: formVal.firstName!,
         lastName: formVal.lastName!,
@@ -217,13 +218,13 @@ export class UsersManagement implements OnInit {
         },
         error: (err) => {
           this.isSaving.set(false);
+          this.closeUserModal();
           this.handleFormError(err, 'registrar');
         }
       });
     }
   }
 
-  // --- Manejo del Toggle de Estado (Activar / Desactivar) ---
   protected promptToggleStatus(user: AdminUser): void {
     this.userToToggle.set(user);
     this.isConfirmModalOpen.set(true);
@@ -247,7 +248,6 @@ export class UsersManagement implements OnInit {
         this.cancelToggleStatus();
         const actionLabel = newStatus ? 'activada' : 'desactivada';
         this.showSuccess(`Cuenta de "${user.firstName} ${user.lastName}" ${actionLabel} correctamente.`);
-        // Actualización reactiva local inmediata
         this.users.update((current) =>
           current.map((u) => (u.publicId === user.publicId ? { ...u, enabled: newStatus } : u))
         );
@@ -262,7 +262,6 @@ export class UsersManagement implements OnInit {
     });
   }
 
-  // Filtros interactivos
   protected updateSearch(event: Event): void {
     const target = event.target as HTMLInputElement;
     this.searchTerm.set(target.value);
@@ -284,10 +283,21 @@ export class UsersManagement implements OnInit {
   }
 
   private handleFormError(err: any, action: string): void {
-    if (err.status === 409 || (err.error && typeof err.error.message === 'string' && err.error.message.includes('existe'))) {
-      this.errorMessage.set(err.error?.message || 'Ya existe un usuario con este Email o DNI.');
-    } else if (err.error?.message) {
-      this.errorMessage.set(err.error.message);
+    const rawMsg = typeof err?.error?.message === 'string' ? err.error.message : '';
+    const isTechnicalOrSql = /could not execute statement|constraint|violates|duplicate key|syntax error|exception|insert into/i.test(rawMsg);
+
+    if (isTechnicalOrSql) {
+      if (/dni/i.test(rawMsg)) {
+        this.errorMessage.set('Ya existe un usuario registrado con el DNI ingresado.');
+      } else if (/email|correo/i.test(rawMsg)) {
+        this.errorMessage.set('Ya existe un usuario registrado con este email.');
+      } else {
+        this.errorMessage.set('Ya existe un usuario con este Email o DNI.');
+      }
+    } else if (rawMsg) {
+      this.errorMessage.set(rawMsg);
+    } else if (err?.status === 409) {
+      this.errorMessage.set('Ya existe un usuario con este Email o DNI.');
     } else {
       this.errorMessage.set(`Ocurrió un error inesperado al ${action} el usuario.`);
     }
@@ -316,5 +326,87 @@ export class UsersManagement implements OnInit {
       default:
         return role;
     }
+  }
+
+  protected openQrModal(user: AdminUser): void {
+    if (!user.enabled) {
+      this.errorMessage.set('No se puede emitir o consultar el pase de un usuario suspendido.');
+      return;
+    }
+    if (user.role !== 'ROLE_CLIENT') {
+      this.errorMessage.set('Solo los socios pueden poseer pases de acceso a sedes.');
+      return;
+    }
+    if (!user.hasActiveMembership) {
+      this.errorMessage.set('No se puede generar el código QR: el socio no posee una membresía activa con pago verificado.');
+      return;
+    }
+
+    this.activeQrUser.set(user);
+    this.isLoadingQr.set(true);
+    this.errorMessage.set(null);
+
+    this.accessPassService.getPassByUser(user.publicId).subscribe({
+      next: (pass) => {
+        this.selectedUserPass.set(pass);
+        this.isQrModalOpen.set(true);
+        this.isLoadingQr.set(false);
+      },
+      error: (err) => {
+        // If 404, generate a pass for the user
+        if (err.status === 404) {
+          this.accessPassService.generatePass(user.publicId).subscribe({
+            next: (newPass) => {
+              this.selectedUserPass.set(newPass);
+              this.isQrModalOpen.set(true);
+              this.isLoadingQr.set(false);
+              this.showSuccess(`Pase QR generado exitosamente para ${user.firstName} ${user.lastName}.`);
+            },
+            error: (genErr) => {
+              this.isLoadingQr.set(false);
+              this.activeQrUser.set(null);
+              this.errorMessage.set(
+                genErr.error?.message ||
+                'El socio no posee una membresía activa con pago verificado para generar el pase.'
+              );
+            }
+          });
+        } else {
+          this.isLoadingQr.set(false);
+          this.activeQrUser.set(null);
+          this.errorMessage.set(
+            err.error?.message || 'Error al consultar la credencial de acceso del socio.'
+          );
+        }
+      }
+    });
+  }
+
+  protected regenerateQrPass(): void {
+    const user = this.activeQrUser();
+    if (!user) return;
+
+    this.isRegeneratingQr.set(true);
+    this.errorMessage.set(null);
+
+    this.accessPassService.generatePass(user.publicId).subscribe({
+      next: (pass) => {
+        this.selectedUserPass.set(pass);
+        this.isRegeneratingQr.set(false);
+        this.showSuccess('Código QR de acceso regenerado con éxito.');
+      },
+      error: (err) => {
+        this.isRegeneratingQr.set(false);
+        this.errorMessage.set(
+          err.error?.message || 'Error al regenerar el pase de acceso a sedes.'
+        );
+      }
+    });
+  }
+
+  protected closeQrModal(): void {
+    this.isQrModalOpen.set(false);
+    this.selectedUserPass.set(null);
+    this.activeQrUser.set(null);
   }
 }

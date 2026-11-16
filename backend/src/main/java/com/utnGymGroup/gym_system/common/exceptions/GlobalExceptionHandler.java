@@ -1,6 +1,7 @@
 package com.utnGymGroup.gym_system.common.exceptions;
 
 import com.utnGymGroup.gym_system.common.auth.permissions.exceptions.RoleNotFoundException;
+import com.utnGymGroup.gym_system.features.GymClass.exceptions.ScheduleOverlapException;
 import com.utnGymGroup.gym_system.features.audit.exceptions.AuditSerializationException;
 import com.utnGymGroup.gym_system.features.exercise.exceptions.ExerciseAlreadyExistsException;
 import com.utnGymGroup.gym_system.features.exercise.exceptions.ExerciseNotFoundException;
@@ -170,9 +171,22 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DataIntegrityViolationException.class)
     public ResponseEntity<ErrorResponse> handleDatabaseExceptions(DataIntegrityViolationException databaseException, WebRequest webRequest){
+        String rawMessage = databaseException.getMessage() != null ? databaseException.getMessage().toLowerCase() : "";
+        String friendlyMessage;
+
+        if (rawMessage.contains("users_dni_key") || rawMessage.contains("(dni)=") || rawMessage.contains("dni")) {
+            friendlyMessage = "Ya existe un usuario registrado con el DNI ingresado.";
+        } else if (rawMessage.contains("users_email_key") || rawMessage.contains("(email)=") || rawMessage.contains("email")) {
+            friendlyMessage = "Ya existe un usuario registrado con este email.";
+        } else if (rawMessage.contains("unique constraint") || rawMessage.contains("duplicate key")) {
+            friendlyMessage = "Los datos ingresados ya se encuentran registrados en el sistema.";
+        } else {
+            friendlyMessage = "Ocurrió un conflicto de integridad con los datos enviados.";
+        }
+
         ErrorResponse errorResponse = ErrorResponse.builder()
                 .timestamp(LocalDateTime.now())
-                .message(databaseException.getMessage())
+                .message(friendlyMessage)
                 .description(webRequest.getDescription(false))
                 .build();
 
@@ -284,5 +298,25 @@ public class GlobalExceptionHandler {
                 .description(webRequest.getDescription(false))
                 .build();
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
+    }
+
+    @ExceptionHandler(ScheduleOverlapException.class)
+    public ResponseEntity<ErrorResponse> handleScheduleOverlapException(ScheduleOverlapException ex, WebRequest webRequest) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .message(ex.getMessage())
+                .description(webRequest.getDescription(false))
+                .build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(errorResponse);
+    }
+
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse> handleIllegalArgumentException(IllegalArgumentException ex, WebRequest webRequest) {
+        ErrorResponse errorResponse = ErrorResponse.builder()
+                .timestamp(LocalDateTime.now())
+                .message(ex.getMessage())
+                .description(webRequest.getDescription(false))
+                .build();
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
     }
 }

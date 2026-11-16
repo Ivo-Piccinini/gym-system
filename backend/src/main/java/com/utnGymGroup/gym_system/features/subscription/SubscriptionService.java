@@ -14,6 +14,8 @@ import com.utnGymGroup.gym_system.features.user.UserEntity;
 import com.utnGymGroup.gym_system.features.user.UserService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -38,6 +40,7 @@ public class SubscriptionService {
     }
 
     public List<SubscriptionResponseDto> getMySubscriptions() {
+        assertNotAdminUser();
         UserEntity user = userService.getAuthenticatedUserEntity();
         List<SubscriptionEntity> subscriptions = subscriptionRepository.findByUser(user);
 
@@ -56,6 +59,7 @@ public class SubscriptionService {
     @Auditable(AuditActions.CREATE_SUBSCRIPTION)
     @Transactional
     public SubscriptionResponseDto subscribe(UUID planId) {
+        assertNotAdminUser();
         UserEntity user = userService.getAuthenticatedUserEntity();
 
         MembershipEntity plan = membershipRepository.findByPublicId(planId)
@@ -96,6 +100,17 @@ public class SubscriptionService {
 
         subscription.setStatus(SubscriptionStatus.CANCELED);
         return responseMapper.convertToDto(subscriptionRepository.save(subscription));
+    }
+
+    private void assertNotAdminUser() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (auth != null && auth.getAuthorities() != null) {
+            boolean isAdmin = auth.getAuthorities().stream()
+                    .anyMatch(a -> "ROLE_ADMIN".equals(a.getAuthority()));
+            if (isAdmin) {
+                throw new IllegalStateException("Los administradores no pueden contratar membresías como socios.");
+            }
+        }
     }
 
 }

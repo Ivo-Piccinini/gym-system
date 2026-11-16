@@ -2,11 +2,15 @@ package com.utnGymGroup.gym_system.features.user;
 
 import com.utnGymGroup.gym_system.common.auth.credentials.CredentialsEntity;
 import com.utnGymGroup.gym_system.common.auth.credentials.CredentialsRepository;
+import com.utnGymGroup.gym_system.common.auth.dto.AuthResponse;
+import com.utnGymGroup.gym_system.common.auth.jwt.JwtService;
 import com.utnGymGroup.gym_system.common.auth.permissions.RoleEntity;
 import com.utnGymGroup.gym_system.common.auth.permissions.RoleRepository;
 import com.utnGymGroup.gym_system.common.auth.permissions.Roles;
+import com.utnGymGroup.gym_system.features.user.dtos.PasswordChangeDTO;
 import com.utnGymGroup.gym_system.features.user.dtos.UserDTO;
 import com.utnGymGroup.gym_system.features.user.dtos.UserPatchDTO;
+import com.utnGymGroup.gym_system.features.user.exceptions.UserAlreadyExistsException;
 import com.utnGymGroup.gym_system.features.user.mappers.UserMapper;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
@@ -46,6 +50,12 @@ class UserServiceTest {
 
     @Mock
     private PasswordEncoder passwordEncoder;
+
+    @Mock
+    private JwtService jwtService;
+
+    @Mock
+    private com.utnGymGroup.gym_system.features.subscription.SubscriptionRepository subscriptionRepository;
 
     @InjectMocks
     private UserService userService;
@@ -167,5 +177,102 @@ class UserServiceTest {
         assertEquals(testUsername, dto.getUsername());
         assertTrue(dto.getEnabled());
         assertEquals(Roles.ROLE_CLIENT, dto.getRole());
+    }
+
+    @Test
+    @DisplayName("changePassword actualiza la contraseña exitosamente si las validaciones pasan")
+    void shouldChangePasswordSuccessfully() {
+        PasswordChangeDTO request = new PasswordChangeDTO("encoded_pass", "newPassword123", "newPassword123");
+        when(credentialsRepository.findByUsername(testUsername)).thenReturn(Optional.of(testCredentials));
+        when(passwordEncoder.matches("encoded_pass", "encoded_pass")).thenReturn(true);
+        when(passwordEncoder.encode("newPassword123")).thenReturn("new_encoded_pass");
+
+        userService.changePassword(testUsername, request);
+
+        assertEquals("new_encoded_pass", testCredentials.getPassword());
+        verify(credentialsRepository, times(1)).save(testCredentials);
+    }
+
+    @Test
+    @DisplayName("changeUsername permite personalizar username si el actual es su DNI y genera nuevo token")
+    void shouldChangeUsernameSuccessfullyWhenUsernameIsDni() {
+        testCredentials.setUsername("12345678");
+        when(credentialsRepository.findByUsername("12345678")).thenReturn(Optional.of(testCredentials));
+        when(credentialsRepository.findByUsername("juan_nuevo")).thenReturn(Optional.empty());
+        when(jwtService.generateToken(testCredentials)).thenReturn("new_mocked_jwt");
+
+        AuthResponse response = userService.changeUsername("12345678", "juan_nuevo");
+
+        assertNotNull(response);
+        assertEquals("new_mocked_jwt", response.token());
+        assertEquals("juan_nuevo", testCredentials.getUsername());
+        assertFalse(response.requiresPasswordChange());
+        verify(credentialsRepository, times(1)).save(testCredentials);
+    }
+
+    @Test
+    @DisplayName("userRegister lanza UserAlreadyExistsException con mensaje amigable cuando el DNI ya existe")
+    void shouldThrowExceptionWhenRegisteringUserWithExistingDni() {
+        UserDTO dto = new UserDTO();
+        dto.setDni("12345678");
+        dto.setEmail("nuevo@gym.com");
+
+        when(userRepository.existsByDni("12345678")).thenReturn(true);
+
+        UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class, () -> {
+            userService.userRegister(dto);
+        });
+
+        assertEquals("Ya existe un usuario registrado con el DNI ingresado.", exception.getMessage());
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("userRegister lanza UserAlreadyExistsException con mensaje amigable cuando el Email ya existe")
+    void shouldThrowExceptionWhenRegisteringUserWithExistingEmail() {
+        UserDTO dto = new UserDTO();
+        dto.setDni("87654321");
+        dto.setEmail("juan@test.com");
+
+        when(userRepository.existsByDni("87654321")).thenReturn(false);
+        when(userRepository.existsByEmail("juan@test.com")).thenReturn(true);
+
+        UserAlreadyExistsException exception = assertThrows(UserAlreadyExistsException.class, () -> {
+            userService.userRegister(dto);
+        });
+
+        assertEquals("Ya existe un usuario con este email.", exception.getMessage());
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("userRegister lanza IllegalArgumentException si el usuario es menor de 18 años")
+    void shouldThrowExceptionWhenRegisteringUserUnder18() {
+        UserDTO dto = new UserDTO();
+        dto.setDni("88887777");
+        dto.setEmail("menor@gym.com");
+        dto.setBirthDate(LocalDate.now().minusYears(17));
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            userService.userRegister(dto);
+        });
+
+        assertEquals("El usuario debe tener al menos 18 años de edad.", exception.getMessage());
+        verify(userRepository, never()).save(any());
+    }
+
+    @Test
+    @DisplayName("updatePartialUser lanza IllegalArgumentException si la nueva fecha de nacimiento corresponde a un menor de 18 años")
+    void shouldThrowExceptionWhenUpdatingPartialUserUnder18() {
+        UserPatchDTO patchDTO = UserPatchDTO.builder()
+                .birthDay(LocalDate.now().minusYears(16))
+                .build();
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () -> {
+            userService.updatePartialUser(patchDTO);
+        });
+
+        assertEquals("El usuario debe tener al menos 18 años de edad.", exception.getMessage());
+        verify(userRepository, never()).save(any());
     }
 }
