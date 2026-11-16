@@ -30,7 +30,7 @@ El sistema está diseñado para resolver los desafíos comunes de administració
 
 * **Core:** Java 21, Spring Boot 4.0.0
 * **Seguridad:** Spring Security, JWT (JSON Web Tokens), BCrypt Password Encoder
-* **Base de Datos:** Hibernate / JPA, MySQL
+* **Base de Datos:** Hibernate / JPA, PostgreSQL (Supabase / Local)
 * **AOP:** Spring AOP (AspectJ) para el log automatizado de auditorías en la tabla `audit_logs`.
 * **Documentación:** Swagger UI (OpenAPI 3.0)
 
@@ -40,8 +40,7 @@ El sistema está diseñado para resolver los desafíos comunes de administració
 
 ### 1. Requisitos Previos
 * **Java 21 JDK** instalado.
-* **Java 21 JDK** instalado.
-* **Base de datos PostgreSQL en Supabase** (o instancia local de PostgreSQL).
+* **Base de datos PostgreSQL en Supabase** (o instancia local de PostgreSQL / Docker).
 
 ### 2. Configurar Variables de Entorno
 Crea las siguientes variables de entorno en tu sistema o en el archivo de entorno de tu IDE:
