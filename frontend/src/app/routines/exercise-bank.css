@@ -113,7 +113,7 @@
 
 .exercise-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(min(270px, 100%), 1fr));
   gap: 0.9rem;
   align-items: stretch;
 }
@@ -184,6 +184,53 @@
 
 @media (max-width: 640px) {
   .bank-main {
-    padding: 1.5rem 1rem 3rem;
+    padding: 1.5rem 0.85rem 3rem;
+  }
+
+  .bank-heading {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .heading-actions {
+    width: 100%;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .heading-actions a,
+  .heading-actions button {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .toolbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .toolbar-search {
+    flex: 1 1 100%;
+  }
+
+  .toolbar-field {
+    width: 100%;
+  }
+
+  .toolbar-field .form-select {
+    min-width: 0;
+    width: 100%;
+  }
+
+  .clear-btn {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .exercise-grid {
+    grid-template-columns: 1fr;
   }
 }
+

@@ -157,6 +157,10 @@
 }
 
 @media (max-width: 480px) {
+  .sim-body {
+    padding: 1rem 0.85rem;
+  }
+
   .method-grid {
     grid-template-columns: 1fr;
   }

@@ -95,7 +95,7 @@
 }
 .kpi-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr));
   gap: 1.25rem;
   margin-bottom: 2.5rem;
 }
@@ -336,7 +336,11 @@
   border-color: rgba(245, 158, 11, 0.4);
   font-weight: 600;
 }
-.table-responsive { width: 100%; overflow-x: auto; }
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
 .audit-table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
 .audit-table th {
   padding: 0.85rem 1rem;
@@ -918,3 +922,56 @@
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
 }
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 1.25rem 0.85rem 3rem;
+  }
+  .title-with-badge h1 {
+    font-size: 1.45rem;
+  }
+  .cash-validation-section,
+  .audit-card,
+  .chart-card {
+    padding: 1rem 0.85rem;
+  }
+}
+
+@media (max-width: 580px) {
+  .kpi-grid {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+  .search-box {
+    max-width: 100%;
+  }
+  .category-buttons {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .category-buttons::-webkit-scrollbar {
+    display: none;
+  }
+  .cat-btn {
+    flex-shrink: 0;
+  }
+  .details-fields-grid {
+    grid-template-columns: 1fr;
+    max-height: 240px;
+  }
+  .modal-dialog,
+  .modal-dialog-sm {
+    max-width: 95vw;
+    margin: 0.5rem auto;
+  }
+  .modal-header,
+  .modal-body,
+  .modal-footer {
+    padding: 1rem 0.85rem;
+  }
+}
+

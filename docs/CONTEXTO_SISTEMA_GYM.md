@@ -279,3 +279,30 @@ public class UserDTO {
     @Valid
     private Set<RoleDTO> roles;
 }
+```
+
+---
+
+## 6. Arquitectura Frontend y Estándares de Diseño Responsive
+
+La aplicación cliente (Angular) implementa el sistema de diseño **"Stealth Kinetic Dark"** con arquitectura mobile-first y soporte para todos los viewports:
+
+### Breakpoints Estándar
+* **Mobile Small:** `< 400px` (Dispositivos compactos como Galaxy Fold o iPhone SE).
+* **Mobile:** `< 640px` (Smartphones en orientación vertical).
+* **Tablet / Small Laptop:** `641px` a `1024px` (Tablets y pantallas medianas).
+* **Desktop:** `> 1024px` (Monitores de escritorio y pantallas de alta resolución).
+
+### Patrones de Adaptabilidad Implementados:
+1. **Transformación de Tabla a Tarjetas Móviles ("Table-to-Card Pattern"):**
+   - En pantallas `<=` 640px, las tablas complejas (`classes-table`, `payments-table`, `students-table`) ocultan la cabecera `<thead>` y convierten cada fila `<tr>` en una tarjeta autónoma con bordes y padding táctil.
+   - Cada celda `<td>` expone su contexto semántico mediante el atributo `data-label`, el cual se renderiza como prefijo tipográfico (`content: attr(data-label)`) alineado a la izquierda.
+2. **Contención Flexbox Anti-Desbordamiento:**
+   - Todos los contenedores de filtros y controles segmentados declaran `min-width: 0; max-width: 100%;` para prevenir que el tamaño de contenido intrínseco de los botones desborde tarjetas con esquinas redondeadas.
+   - Controles de selección múltiple (como el selector semanal de 7 días) usan `display: flex;` con botones que se distribuyen proporcionalmente (`flex: 1`) en pantallas móviles.
+3. **Navegación Móvil Táctil:**
+   - En pantallas pequeñas (`<= 600px`), la barra de navegación distribuye el logo y rol en la fila superior, y expone los accesos directos en una hilera horizontal deslizable con inercia (`-webkit-overflow-scrolling: touch`) sin generar barras de desplazamiento horizontales en la página global.
+4. **Sistema de Ventanas Modales:**
+   - Diálogos y modales ocupan `max-width: 95vw; max-height: 94vh; overflow-y: auto;`.
+   - En móviles, los botones del pie del modal (`.modal-footer`) se apilan verticalmente al 100% de ancho con orden invertido para facilitar la interacción con una sola mano.
+

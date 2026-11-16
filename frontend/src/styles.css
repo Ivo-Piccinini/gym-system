@@ -275,6 +275,12 @@ button, input, select, textarea {
   height: 14px;
 }
 
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 .modal-backdrop {
   position: fixed;
   top: 0;
@@ -295,6 +301,7 @@ button, input, select, textarea {
   border-radius: 8px;
   width: 100%;
   max-width: 520px;
+  max-height: 90vh;
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -464,3 +471,66 @@ button, input, select, textarea {
   align-items: center;
   gap: 0.65rem;
 }
+
+@media (max-width: 768px) {
+  .admin-navbar, .profile-navbar {
+    padding: 0.75rem 1rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-navbar, .profile-navbar {
+    padding: 0.6rem 0.75rem;
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+  }
+
+  .admin-navbar .navbar-actions,
+  .profile-navbar .navbar-actions {
+    width: 100%;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+    padding-bottom: 2px;
+  }
+
+  .admin-navbar .navbar-actions::-webkit-scrollbar,
+  .profile-navbar .navbar-actions::-webkit-scrollbar {
+    display: none;
+  }
+
+  .modal-backdrop {
+    padding: 0.75rem;
+  }
+
+  .modal-card {
+    max-height: 94vh;
+  }
+
+  .modal-header {
+    padding: 1rem 1.15rem;
+  }
+
+  .modal-footer {
+    padding: 0.75rem 1.15rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-backdrop {
+    padding: 0.5rem;
+  }
+
+  .modal-footer {
+    flex-direction: column-reverse;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .modal-footer > * {
+    width: 100%;
+    justify-content: center;
+  }
+}
+

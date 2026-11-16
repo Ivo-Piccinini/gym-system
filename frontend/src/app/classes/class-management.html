@@ -50,7 +50,7 @@
           </select>
         </div>
 
-        <div class="filter-field">
+        <div class="filter-field filter-day">
           <span class="form-label">Día de la semana</span>
           <div class="segmented-control" role="group" aria-label="Filtro por día">
             <button type="button" class="seg-btn" [class.active]="!dayFilter()" (click)="setDayFilter('')">Todos</button>
@@ -109,12 +109,12 @@
             <tbody>
               @for (c of filtered(); track c.externalId) {
                 <tr>
-                  <td class="cell-strong">{{ disciplineOf(c) }}</td>
-                  <td>{{ dayLabel(c) }}</td>
-                  <td class="cell-hours">{{ time(c.startTime) }} – {{ time(c.endTime) }}</td>
-                  <td>{{ professorName(c) }}</td>
-                  <td>{{ c.capacityMax }}</td>
-                  <td class="col-actions">
+                  <td data-label="Disciplina" class="cell-strong">{{ disciplineOf(c) }}</td>
+                  <td data-label="Día">{{ dayLabel(c) }}</td>
+                  <td data-label="Horario" class="cell-hours">{{ time(c.startTime) }} – {{ time(c.endTime) }}</td>
+                  <td data-label="Profesor">{{ professorName(c) }}</td>
+                  <td data-label="Cupo">{{ c.capacityMax }}</td>
+                  <td data-label="Acciones" class="col-actions">
                     <div class="row-actions">
                       <button type="button" class="btn-secondary btn-sm" (click)="openStudents(c)">Alumnos</button>
                       <button type="button" class="btn-ghost btn-sm" (click)="openEdit(c)">Editar</button>

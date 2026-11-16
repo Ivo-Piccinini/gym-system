@@ -133,3 +133,49 @@
     margin: 0;
   }
 }
+
+@media (max-width: 600px) {
+  .app-navbar {
+    padding: 0.5rem 0.75rem;
+    flex-wrap: wrap;
+    row-gap: 0.5rem;
+  }
+  .navbar-brand {
+    gap: 0.6rem;
+  }
+  .brand-logo {
+    width: 32px;
+    height: 32px;
+  }
+  .brand-logo svg {
+    width: 18px;
+    height: 18px;
+  }
+  .brand-title {
+    font-size: 0.95rem;
+  }
+  .brand-subtitle {
+    font-size: 0.62rem;
+  }
+  .navbar-actions {
+    width: 100%;
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    flex-wrap: nowrap;
+    gap: 0.35rem;
+    padding-bottom: 2px;
+    scrollbar-width: none;
+  }
+  .navbar-actions::-webkit-scrollbar {
+    display: none;
+  }
+  .btn-ghost {
+    flex-shrink: 0;
+    padding: 0.45rem 0.65rem;
+    min-height: 34px;
+    min-width: 34px;
+    justify-content: center;
+  }
+}
+

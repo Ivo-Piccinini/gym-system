@@ -352,7 +352,24 @@
     padding: 2rem 1rem 4rem;
   }
 
+  .header-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .header-row .btn-primary {
+    width: 100%;
+    justify-content: center;
+  }
+
   .form-row {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .modal-form {
+    padding: 1rem;
   }
 }

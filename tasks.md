@@ -69,6 +69,39 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
   - [x] `GS-DESIGN-4`: Armonizar navbars y branding en vistas de usuario y administración.
   - [x] `GS-DESIGN-5`: Refinar formulario de login con enfoque minimalista, sobrio y sin sobrecarga decorativa.
 
+### `[GS-RESPONSIVE] Auditoría y Adaptabilidad Responsive Integral (Mobile & Tablets)`
+- **Tipo:** Tarea Técnica de Diseño & UX
+- **Estado:** Completada
+- **Descripción:**
+  Auditar y optimizar exhaustivamente todas las vistas del sistema para garantizar una experiencia 100% responsiva y fluida en viewports móviles (320px–480px), tablets (481px–768px) y escritorios (>768px), eliminando desbordamientos horizontales, desfasajes de filtros y compresión de componentes.
+- **Criterios de Aceptación:**
+  - Barra de navegación (`AppNavbar`): distribución compacta en móviles (`<= 600px`) con scroll táctil horizontal para los 8 botones de navegación sin provocar scroll horizontal en la página.
+  - Módulo de Clases (`/clases` y `/admin/clases`):
+    - Grilla semanal adaptable en 6, 3, 2 o 1 columna según ancho de pantalla.
+    - Transformación de tabla `classes-table` a tarjetas móviles con `data-label` en `<= 640px`.
+    - Corrección del desfasaje del filtro semanal: control segmentado flexible (`display: flex; max-width: 100%;`) y contención `overflow: hidden;` en tarjeta contenedora.
+    - Modal de alumnos inscriptos con vista móvil tipo tarjeta.
+  - Padrón de Usuarios (`/admin/usuarios`):
+    - Tira de estadísticas (`roster-strip`) en grilla de 2 columnas en móviles.
+    - Barra de búsqueda fluida al 100% (eliminación de `min-width: 280px`).
+    - Tabla responsiva con `-webkit-overflow-scrolling: touch`.
+  - Métricas y Auditoría (`/admin/dashboard`):
+    - Grilla de KPIs adaptable a 1 columna en pantallas estrechas.
+    - Filtros de categorías con carrusel táctil.
+  - Perfil y Pase QR (`/perfil`):
+    - Cabecera de avatar y banner de pase QR apilables al 100% en pantallas móviles.
+    - Modal de credencial digital QR optimizado para pantallas compactas.
+  - Membresías y Cobros (`/membresias`, `/pagos`):
+    - Grilla de planes con `minmax(min(260px, 100%), 1fr)` para evitar overflow en anchos < 320px.
+    - Modal de simulación de pagos con inputs apilados verticalmente en móviles.
+- **Tareas de Desarrollo:**
+  - [x] `GS-RESPONSIVE-1`: Optimizar estilos globales y utilidades de modales/tablas en `styles.css`.
+  - [x] `GS-RESPONSIVE-2`: Implementar carrusel táctil y escala de branding en `navbar.css`.
+  - [x] `GS-RESPONSIVE-3`: Corregir desfasaje y adaptar controles segmentados en `class-filters.css`, `class-agenda.css` y `class-management.css`.
+  - [x] `GS-RESPONSIVE-4`: Implementar transformación de tabla a tarjetas en administración de clases y lista de alumnos.
+  - [x] `GS-RESPONSIVE-5`: Adaptar vistas de administración de usuarios, métricas, perfil, ejercicios y membresías.
+  - [x] `GS-RESPONSIVE-6`: Ejecutar suite de pruebas unitarias (181/181) y validación de compilación (`ng build`).
+
 ---
 
 ## Épica 1: Seguridad, Autenticación y Perfiles
@@ -348,6 +381,6 @@ Este documento consolida **todas las Historias de Usuario y Subtareas existentes
 | **Épicas Funcionales** | 6 | Infraestructura, Seguridad, Membresías, Clases, Rutinas, Auditoría |
 | **Historias Jira Originales** | 10 | `GS-5`, `GS-11`, `GS-15`, `GS-23`, `GS-27`, `GS-31`, `GS-35`, `GS-39`, `GS-42`, `GS-46` |
 | **Subtareas Jira Originales** | 27 | Tareas técnicas desglosadas en el tablero |
-| **Historias Complementarias** | 6 | Setup Core, Cambio credenciales, Admin planes, Admin clases, Maestro ejercicios, Pase de Acceso QR |
-| **Tareas Técnicas Complementarias** | 19 | Subtareas de soporte para completar el 100% del sistema |
-| **Total de Ítems de Trabajo** | **55** | Plan completo para finalización del proyecto |
+| **Historias Complementarias** | 7 | Setup Core, Cambio credenciales, Admin planes, Admin clases, Maestro ejercicios, Pase QR, Auditoría Responsive |
+| **Tareas Técnicas Complementarias** | 25 | Subtareas de soporte para completar el 100% del sistema |
+| **Total de Ítems de Trabajo** | **62** | Plan completo para finalización del proyecto |

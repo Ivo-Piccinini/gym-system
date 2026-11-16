@@ -56,6 +56,9 @@
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: 8px;
+  overflow: hidden;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 /* ---- alertas de inscripción (GS-34) ---- */
@@ -158,9 +161,6 @@
   background-color: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: 8px;
-}
-
-.day-column {
 }
 
 .day-title {
@@ -298,6 +298,12 @@
 @media (max-width: 640px) {
   .heading-side {
     align-items: flex-start;
+    width: 100%;
+  }
+
+  .manage-btn {
+    width: 100%;
+    justify-content: center;
   }
 
   .agenda-main {
@@ -308,6 +314,17 @@
 @media (max-width: 480px) {
   .week-grid {
     grid-template-columns: minmax(0, 1fr);
+  }
+
+  .class-top {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+  }
+
+  .admin-mode-banner {
+    padding: 0.75rem 0.85rem;
+    font-size: 0.84rem;
   }
 }
 
