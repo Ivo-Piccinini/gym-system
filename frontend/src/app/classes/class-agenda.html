@@ -87,11 +87,15 @@
                 class="class-card"
                 [class.full]="statusOf(c) === 'full'"
                 [class.enrolled]="statusOf(c) === 'enrolled'"
+                [class.mine]="isMine(c)"
               >
                 <div class="class-top">
                   <span class="class-name">{{ disciplineOf(c) }}</span>
                   @if (statusOf(c); as status) {
                     <span class="badge" [attr.data-status]="status">{{ statusLabel(status) }}</span>
+                  }
+                  @if (isMine(c)) {
+                    <span class="mine-tag">Mi clase</span>
                   }
                 </div>
                 <span class="class-hours">{{ time(c.startTime) }} – {{ time(c.endTime) }}</span>

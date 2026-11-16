@@ -198,6 +198,22 @@
   border-color: var(--accent-emerald-border);
 }
 
+/* Clase que dicta el profesor logueado */
+.class-card.mine {
+  background-color: var(--accent-amber-bg);
+  border-color: var(--accent-amber-border);
+}
+
+.mine-tag {
+  padding: 0.12rem 0.45rem;
+  border: 1px solid var(--accent-amber-border);
+  border-radius: 999px;
+  font-size: 0.66rem;
+  font-weight: 600;
+  color: var(--accent-amber-light);
+  white-space: nowrap;
+}
+
 .class-top {
   display: flex;
   flex-direction: column;

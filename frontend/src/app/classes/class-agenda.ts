@@ -1,6 +1,7 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { AuthService } from '../auth/auth.service';
+import { ProfileService } from '../profile/profile.service';
 import { ClassFilters } from './class-filters';
 import { ClassService } from './class.service';
 import {
@@ -47,6 +48,9 @@ export class ClassAgenda {
   /** externalId de la clase con una acción en curso (deshabilita los botones). */
   protected readonly pendingClassId = signal<string | null>(null);
   protected readonly feedback = signal<Feedback | null>(null);
+
+  /** publicId del profesor logueado; null si el usuario no es profesor o todavía no se cargó. */
+  private readonly myPublicId = signal<string | null>(null);
 
   // --- derivados ---
   protected readonly disciplines = computed(() =>
@@ -99,6 +103,17 @@ export class ClassAgenda {
     // Solo los clientes tienen inscripciones (el endpoint es exclusivo del rol CLIENT).
     if (this.authService.isClient()) {
       this.loadEnrollments();
+    }
+
+    // Solo el profesor necesita saber quién es, para resaltar las clases que él dicta.
+    // El servicio se pide acá (y no como campo) para no cargarlo con los demás roles.
+    if (this.authService.isProfessor()) {
+      inject(ProfileService)
+        .getProfile()
+        .subscribe({
+          next: (profile) => this.myPublicId.set(profile.publicId),
+          error: () => undefined // sin perfil simplemente no se resalta nada
+        });
     }
   }
 
@@ -193,6 +208,12 @@ export class ClassAgenda {
 
   protected enrollmentOf(c: GymClass): Enrollment | undefined {
     return this.enrollmentByClass().get(c.externalId);
+  }
+
+  /** La clase la dicta el profesor logueado (siempre false para administradores y socios). */
+  protected isMine(c: GymClass): boolean {
+    const mine = this.myPublicId();
+    return !!mine && c.professor?.publicId === mine;
   }
 
   protected isFull(c: GymClass): boolean {
