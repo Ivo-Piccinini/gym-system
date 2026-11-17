@@ -1,9 +1,18 @@
 package com.utnGymGroup.gym_system.features.enrollment;
 
-import com.utnGymGroup.gym_system.features.GymClass.GymClassEntity;
-import com.utnGymGroup.gym_system.features.GymClass.GymClassRepository;
-import com.utnGymGroup.gym_system.features.user.UserEntity;
-import com.utnGymGroup.gym_system.features.user.UserService;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
+import java.time.LocalDate;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
+
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,15 +25,10 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 
-import java.time.LocalDate;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import com.utnGymGroup.gym_system.features.GymClass.GymClassEntity;
+import com.utnGymGroup.gym_system.features.GymClass.GymClassRepository;
+import com.utnGymGroup.gym_system.features.user.UserEntity;
+import com.utnGymGroup.gym_system.features.user.UserService;
 
 @ExtendWith(MockitoExtension.class)
 class EnrollmentServiceTest {

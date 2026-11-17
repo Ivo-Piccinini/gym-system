@@ -1,11 +1,20 @@
 package com.utnGymGroup.gym_system.features.user;
 
-import com.utnGymGroup.gym_system.common.auth.permissions.Roles;
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.time.LocalDate;
 import java.util.UUID;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.PrePersist;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @AllArgsConstructor
 @NoArgsConstructor

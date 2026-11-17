@@ -1,5 +1,19 @@
 package com.utnGymGroup.gym_system.features.routine;
 
+import java.time.LocalDate;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
 import com.utnGymGroup.gym_system.common.auth.credentials.CredentialsEntity;
 import com.utnGymGroup.gym_system.common.auth.credentials.CredentialsRepository;
 import com.utnGymGroup.gym_system.features.audit.AuditActions;
@@ -15,21 +29,9 @@ import com.utnGymGroup.gym_system.features.routine.exception.RoutineNotFoundExce
 import com.utnGymGroup.gym_system.features.user.UserEntity;
 import com.utnGymGroup.gym_system.features.user.UserRepository;
 import com.utnGymGroup.gym_system.features.user.exceptions.UserNotFoundException;
+
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
-
-import java.time.LocalDate;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.function.Function;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor

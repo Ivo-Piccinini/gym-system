@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { AbstractControl, FormBuilder, ReactiveFormsModule, ValidationErrors, Validators } from '@angular/forms';
 import { AdminUserService } from './admin-user.service';
 import { AuthService } from '../../auth/auth.service';
 import { AdminUser, CreateUserRequest, UpdateUserRequest, UserRole } from './admin-users.models';
@@ -8,7 +8,26 @@ import { NavbarComponent } from '../../shared/navbar/navbar';
 import { AccessPassService } from '../../access/access-pass.service';
 import { AccessPass } from '../../access/access-pass.models';
 import { AccessCredentialModal } from '../../access/access-credential-modal';
-import { minAgeValidator, getMaxBirthDate } from '../../shared/validators/age.validator';
+
+/** Fecha mínima de nacimiento aceptada. */
+const MIN_BIRTH_DATE = '1900-01-01';
+
+/** "YYYY-MM-DD" de hoy en hora local (toISOString usa UTC y en Argentina se adelanta de noche). */
+function todayLocalIso(): string {
+  const now = new Date();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  return `${now.getFullYear()}-${month}-${day}`;
+}
+
+/** La fecha de nacimiento tiene que estar entre 1900 y hoy. */
+function birthDateValidator(control: AbstractControl): ValidationErrors | null {
+  const value = control.value as string | null;
+  if (!value) {
+    return null; // lo cubre Validators.required
+  }
+  return value >= MIN_BIRTH_DATE && value <= todayLocalIso() ? null : { birthRange: true };
+}
 
 @Component({
   selector: 'app-users-management',
@@ -45,7 +64,9 @@ export class UsersManagement implements OnInit {
   protected readonly isRegeneratingQr = signal<boolean>(false);
   protected readonly activeQrUser = signal<AdminUser | null>(null);
 
-  protected readonly maxBirthDate = getMaxBirthDate(18);
+  // Límites del selector de fecha de nacimiento (para min/max del <input type="date">).
+  protected readonly minBirthDate = MIN_BIRTH_DATE;
+  protected readonly maxBirthDate = todayLocalIso();
 
   protected readonly userForm = this.fb.group({
     firstName: ['', [Validators.required, Validators.minLength(3), Validators.maxLength(20)]],
@@ -53,7 +74,7 @@ export class UsersManagement implements OnInit {
     dni: ['', [Validators.required, Validators.pattern(/^[0-9]{8}$/)]],
     email: ['', [Validators.required, Validators.email]],
     phone: ['', [Validators.pattern(/^[0-9+\-\s]{7,15}$/)]],
-    birthDate: ['', [Validators.required, minAgeValidator(18)]],
+    birthDate: ['', [Validators.required, birthDateValidator]],
     role: ['ROLE_CLIENT' as UserRole, [Validators.required]]
   });
 
@@ -194,7 +215,6 @@ export class UsersManagement implements OnInit {
         },
         error: (err) => {
           this.isSaving.set(false);
-          this.closeUserModal();
           this.handleFormError(err, 'actualizar');
         }
       });
@@ -218,7 +238,6 @@ export class UsersManagement implements OnInit {
         },
         error: (err) => {
           this.isSaving.set(false);
-          this.closeUserModal();
           this.handleFormError(err, 'registrar');
         }
       });
@@ -283,21 +302,10 @@ export class UsersManagement implements OnInit {
   }
 
   private handleFormError(err: any, action: string): void {
-    const rawMsg = typeof err?.error?.message === 'string' ? err.error.message : '';
-    const isTechnicalOrSql = /could not execute statement|constraint|violates|duplicate key|syntax error|exception|insert into/i.test(rawMsg);
-
-    if (isTechnicalOrSql) {
-      if (/dni/i.test(rawMsg)) {
-        this.errorMessage.set('Ya existe un usuario registrado con el DNI ingresado.');
-      } else if (/email|correo/i.test(rawMsg)) {
-        this.errorMessage.set('Ya existe un usuario registrado con este email.');
-      } else {
-        this.errorMessage.set('Ya existe un usuario con este Email o DNI.');
-      }
-    } else if (rawMsg) {
-      this.errorMessage.set(rawMsg);
-    } else if (err?.status === 409) {
-      this.errorMessage.set('Ya existe un usuario con este Email o DNI.');
+    if (err.status === 409 || (err.error && typeof err.error.message === 'string' && err.error.message.includes('existe'))) {
+      this.errorMessage.set(err.error?.message || 'Ya existe un usuario con este Email o DNI.');
+    } else if (err.error?.message) {
+      this.errorMessage.set(err.error.message);
     } else {
       this.errorMessage.set(`Ocurrió un error inesperado al ${action} el usuario.`);
     }

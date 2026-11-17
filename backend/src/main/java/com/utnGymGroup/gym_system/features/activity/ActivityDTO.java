@@ -1,14 +1,18 @@
 package com.utnGymGroup.gym_system.features.activity;
 
+import java.util.UUID;
+
 import com.utnGymGroup.gym_system.common.interfaces.ICreate;
 import com.utnGymGroup.gym_system.common.interfaces.IUpdate;
-import jakarta.validation.Valid;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.*;
-
-import java.util.UUID;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @AllArgsConstructor
 @NoArgsConstructor

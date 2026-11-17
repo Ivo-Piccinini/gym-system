@@ -1,5 +1,18 @@
 package com.utnGymGroup.gym_system.common.exceptions;
 
+import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
+
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.context.request.WebRequest;
+
 import com.utnGymGroup.gym_system.common.auth.permissions.exceptions.RoleNotFoundException;
 import com.utnGymGroup.gym_system.features.GymClass.exceptions.ScheduleOverlapException;
 import com.utnGymGroup.gym_system.features.audit.exceptions.AuditSerializationException;
@@ -11,21 +24,16 @@ import com.utnGymGroup.gym_system.features.membership.exceptions.MembershipNotFo
 import com.utnGymGroup.gym_system.features.routine.exception.RoutineNotFoundException;
 import com.utnGymGroup.gym_system.features.subscription.exceptions.SubscriptionAlreadyActiveException;
 import com.utnGymGroup.gym_system.features.subscription.exceptions.SubscriptionNotFoundException;
-import com.utnGymGroup.gym_system.features.user.exceptions.*;
+import com.utnGymGroup.gym_system.features.user.exceptions.InvalidCredentialsException;
+import com.utnGymGroup.gym_system.features.user.exceptions.InvalidCurrentPasswordException;
+import com.utnGymGroup.gym_system.features.user.exceptions.TokenExpiredException;
+import com.utnGymGroup.gym_system.features.user.exceptions.UserAlreadyExistsException;
+import com.utnGymGroup.gym_system.features.user.exceptions.UserInactiveException;
+import com.utnGymGroup.gym_system.features.user.exceptions.UserNotFoundException;
+import com.utnGymGroup.gym_system.features.user.exceptions.UsernameChangeNotAllowedException;
+
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.context.request.WebRequest;
-
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestControllerAdvice
 @RequiredArgsConstructor

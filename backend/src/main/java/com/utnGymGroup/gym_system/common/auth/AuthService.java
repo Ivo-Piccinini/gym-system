@@ -1,16 +1,17 @@
 package com.utnGymGroup.gym_system.common.auth;
 
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.stereotype.Service;
+
 import com.utnGymGroup.gym_system.common.auth.credentials.CredentialsEntity;
 import com.utnGymGroup.gym_system.common.auth.credentials.CredentialsRepository;
 import com.utnGymGroup.gym_system.common.auth.dto.AuthRequest;
 import com.utnGymGroup.gym_system.common.auth.dto.AuthResponse;
 import com.utnGymGroup.gym_system.common.auth.jwt.JwtService;
 import com.utnGymGroup.gym_system.features.user.exceptions.UserNotFoundException;
+
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
